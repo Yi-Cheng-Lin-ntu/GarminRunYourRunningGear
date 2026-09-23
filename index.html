@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Garmin Run 跑者風格與補水方式互動測驗" />
+    <title>Garmin Run | 跑者風格測驗</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#start" aria-label="Garmin Run home">GARMIN <span>RUN</span></a>
+      <button class="language-toggle" type="button" data-action="toggle-language" aria-label="Switch language">
+        <span data-language-label>EN</span>
+      </button>
+    </header>
+
+    <main class="app-shell">
+      <section class="screen screen-start is-active" id="start" aria-labelledby="start-title">
+        <div class="eyebrow" data-i18n="start.eyebrow">GARMIN RUN 2026</div>
+        <div class="start-visual" aria-hidden="true">
+          <div class="visual-ring visual-ring-back"></div>
+          <div class="visual-ring visual-ring-front"></div>
+          <span class="visual-mark">RUN</span>
+          <span class="visual-kicker">YOUR<br />PACE</span>
+        </div>
+        <p class="section-label" data-i18n="start.label">跑者風格測驗</p>
+        <h1 id="start-title" data-i18n="start.title">找到你的跑者節奏</h1>
+        <p class="lead" data-i18n="start.description">五個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。</p>
+        <button class="button button-primary button-wide" type="button" data-action="start" data-i18n="start.button">開始測驗</button>
+        <p class="microcopy" data-i18n="start.note">約 1 分鐘完成・無需登入</p>
+      </section>
+
+      <section class="screen screen-quiz" id="quiz" aria-labelledby="question-title" hidden>
+        <div class="quiz-topline">
+          <button class="text-button" type="button" data-action="back" data-i18n="navigation.back">返回</button>
+          <span class="question-count" data-question-count>1 / 5</span>
+        </div>
+        <div class="progress-track" aria-hidden="true"><div class="progress-bar" data-progress-bar></div></div>
+        <div class="question-intro">
+          <p class="eyebrow" data-question-number>QUESTION 01</p>
+          <h2 id="question-title" data-question-prompt></h2>
+        </div>
+        <form class="options-list" data-options-list></form>
+        <div class="quiz-actions">
+          <button class="button button-primary button-wide" type="button" data-action="next" data-i18n="navigation.next" disabled>下一題</button>
+        </div>
+      </section>
+
+      <section class="screen screen-result" id="result" aria-labelledby="result-title" hidden>
+        <div class="result-header">
+          <p class="eyebrow" data-i18n="result.eyebrow">YOUR RUNNER STYLE</p>
+          <div class="result-visual" data-result-visual aria-hidden="true"></div>
+          <p class="section-label" data-i18n="result.label">你的跑者風格是</p>
+          <h2 id="result-title" data-result-title></h2>
+          <p class="result-description" data-result-description></p>
+        </div>
+        <div class="result-content">
+          <p class="section-label" data-i18n="result.hydrationLabel">適合你的補水方式</p>
+          <div class="hydration-panel">
+            <div>
+              <h3 data-result-hydration-title></h3>
+              <p data-result-hydration-description></p>
+            </div>
+            <span class="panel-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="sustainability-note">
+            <span class="note-line"></span>
+            <p data-i18n="result.note">每一種跑法，都能找到適合自己的補水方式。</p>
+          </div>
+          <p class="result-cta" data-result-cta></p>
+          <button class="button button-secondary button-wide" type="button" data-action="retry" data-i18n="result.retry">重新測驗</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">GARMIN RUN <span>MOVE WITH PURPOSE</span></footer>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
