@@ -1,8 +1,7 @@
 export const classificationRules = {
-  // Placeholder order only. Replace with the approved classification policy.
+  runnerTypes: ["experience", "lifestyle", "performance"],
   tieBreak: {
-    priorityQuestions: ["q3", "q5"],
-    fallback: "last_answer",
-    fallbackType: "light"
+    order: ["experience", "lifestyle", "performance"],
+    fallback: "first_in_order"
   }
 };

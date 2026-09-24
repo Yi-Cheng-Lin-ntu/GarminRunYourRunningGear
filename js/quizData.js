@@ -1,193 +1,196 @@
 export const runnerTypes = [
-  "light",
-  "freedom",
-  "precision",
-  "sustainability"
+  "experience",
+  "lifestyle",
+  "performance"
 ];
 
-// Temporary trait mapping for UI prototyping. Replace these values with the approved matrix.
 export const quizData = {
   questions: [
     {
       id: "q1",
       prompt: {
-        zh: "Garmin Run 前一晚，你正在準備明天的裝備……",
-        en: "The night before Garmin Run, you are preparing your gear..."
+        zh: "為什麼參加 Garmin Run？",
+        en: "Why did you sign up for Garmin Run?"
       },
       options: [
         {
-          id: "q1_a",
-          text: {
-            zh: "能少帶就少帶。",
-            en: "Pack only what you need."
-          },
-          detail: {
-            zh: "鞋子、手錶、必要的東西準備好，輕裝出發最舒服。",
-            en: "Shoes, watch, and essentials are ready. Running light feels best."
-          },
-          traits: ["light"]
+          id: "q1_experience",
+          text: { zh: "Garmin Run 作為跑者盛會之一，當然要參加啦。", en: "Garmin Run is one of the biggest moments for runners, so of course I am joining." },
+          detail: { zh: "和跑友一起享受社群、活動與賽道體驗。", en: "I want to enjoy the community, event, and course experience with fellow runners." },
+          traits: ["experience"]
         },
         {
-          id: "q1_b",
-          text: {
-            zh: "先把整場怎麼跑想清楚。",
-            en: "Plan the whole run first."
-          },
-          detail: {
-            zh: "配速、補給、喝水時間，最好都先安排好。",
-            en: "Pace, hydration, and fueling times should all be planned ahead."
-          },
-          traits: ["precision"]
+          id: "q1_lifestyle",
+          text: { zh: "Garmin Run 可是每年必定參加的固定賽事呢。", en: "Garmin Run is a race I make sure to join every year." },
+          detail: { zh: "跑步已經融入生活，自然而然成為習慣。", en: "Running is part of my lifestyle and this race is a natural yearly ritual." },
+          traits: ["lifestyle"]
         },
         {
-          id: "q1_c",
-          text: {
-            zh: "明天想怎麼跑，就怎麼跑。",
-            en: "Run tomorrow however you feel."
-          },
-          detail: {
-            zh: "裝備準備齊全一點，到了賽道再看狀況調整。",
-            en: "Bring enough gear and adjust when you see how the course feels."
-          },
-          traits: ["freedom"]
-        },
-        {
-          id: "q1_d",
-          text: {
-            zh: "我已經準備好了。",
-            en: "I am already ready."
-          },
-          detail: {
-            zh: "平常怎麼跑，明天就怎麼跑，沒什麼好緊張的。",
-            en: "Run tomorrow as you normally do. Nothing to worry about."
-          },
-          traits: ["sustainability"]
+          id: "q1_performance",
+          text: { zh: "目標賽事之一，11月底是突破 PB 的好時機。", en: "It is one of my target races, and late November is a great time to break my PB." },
+          detail: { zh: "為訓練設定目標，準備在賽道上突破自己。", en: "I train toward a goal and prepare to push my limits on race day." },
+          traits: ["performance"]
         }
       ]
     },
     {
       id: "q2",
       prompt: {
-        zh: "Garmin Run 起跑線前，你想的是……",
-        en: "At the Garmin Run starting line, you are thinking..."
+        zh: "賽前一晚收拾裝備的你……",
+        en: "The night before the race, while packing your gear..."
       },
       options: [
         {
-          id: "q2_a",
-          text: { zh: "檢查手錶、鞋帶、確認配速策略", en: "Check my watch and laces, then confirm my pacing strategy" },
-          traits: ["precision"]
+          id: "q2_experience",
+          text: { zh: "晶片怎麼那麼難固定，啊號碼布不能忘記。", en: "The chip is so hard to attach, and I can't forget my bib." },
+          traits: ["experience"]
         },
         {
-          id: "q2_b",
-          text: { zh: "好緊張腦袋一片空白", en: "I am so nervous that my mind goes blank" },
-          traits: ["freedom"]
+          id: "q2_lifestyle",
+          text: { zh: "把裝備們排好來張大合照上傳社群。", en: "Pack as I usually do for a run. Familiar gear feels the most natural." },
+          traits: ["lifestyle"]
         },
         {
-          id: "q2_c",
-          text: { zh: "摸一下口袋，確認軟水杯的位置", en: "Check that my soft cup is in my pocket" },
-          traits: ["light"]
+          id: "q2_performance",
+          text: { zh: "確認競速裝備與補給策略萬無一失。", en: "Plan my pace, fueling, and hydration schedule in advance." },
+          detail: { zh: "為訓練設定目標，準備在賽道上突破自己。", en: "I train toward a goal and prepare to push my limits on race day." },
+          traits: ["performance"]
         },
         {
-          id: "q2_d",
-          text: { zh: "檢查儀容，不管跑得怎麼樣，在賽道上都要表情管理（帥帥美美的）", en: "Check my look. Whatever happens, I need to look great on the course" },
-          traits: ["sustainability"]
-        },
-        {
-          id: "q2_e",
-          text: { zh: "今日課表：長跑100分鐘", en: "Today's workout: 100-minute long run" },
-          traits: ["freedom"]
+          id: "q2_sustainability",
+          text: { zh: "帶上自己的補水裝備，讓明天的賽道更永續。", en: "Bring my own hydration gear to make tomorrow's course more sustainable." },
+          detail: { zh: "我超怕脫水！補水策略100分自己的補水自己掌握，能不進站就不進站。", en: "I train toward a goal and prepare to push my limits on race day." },
+          traits: [],
+          sustainability: true
         }
       ]
     },
     {
       id: "q3",
       prompt: {
-        zh: "跑到 7.5K，前方終於出現補給站，你會……",
-        en: "At 7.5K, you finally see a hydration station ahead. You..."
+        zh: "站在起跑線前你會……",
+        en: "At the starting line, you..."
       },
       options: [
         {
-          id: "q3_a",
-          text: { zh: "優雅地停下來使用自己的軟水杯裝水", en: "Gracefully stop and fill my own soft cup" },
-          traits: ["light"]
+          id: "q3_experience",
+          text: { zh: "和身邊的跑友打招呼，準備一起享受這場活動。", en: "Say hello to the runners around me and get ready to enjoy the event together." },
+          traits: ["experience"]
         },
         {
-          id: "q3_b",
-          text: { zh: "精準進站，快速抓水，一秒鐘都不能耽誤", en: "Enter precisely, grab water quickly, and lose not a second" },
-          traits: ["precision"]
+          id: "q3_lifestyle",
+          text: { zh: "檢查儀容，不管跑得怎麼樣，在賽道上要做好表情管理，才能帥帥美美的。", en: "Warm up at my own pace and run as I normally do." },
+          traits: ["lifestyle"]
         },
         {
-          id: "q3_c",
-          text: { zh: "用自己的軟水壺、水袋背心，不用進站人擠人真順暢", en: "Use my soft flask or hydration vest and skip the crowded station" },
-          traits: ["freedom"]
+          id: "q3_performance",
+          text: { zh: "確認手錶、鞋帶與配速策略，準備全力以赴。", en: "Check my watch, laces, and pacing strategy before giving it my all." },
+          traits: ["performance"]
         },
         {
-          id: "q3_d",
-          text: { zh: "終於到了，停下來喘口氣喝點水吃點東西，再重新上路", en: "Finally. Stop, catch my breath, hydrate, refuel, then head out again" },
-          traits: ["sustainability"]
-        },
-        {
-          id: "q3_e",
-          text: { zh: "挑戰極限不用補給！衝衝衝！", en: "Push the limit without a refill! Go, go, go!" },
-          traits: ["precision"]
+          id: "q3_meme",
+          text: { zh: "肚子好餓喔！馬拉松只是一場補給桌之間距離有點遠的吃到飽活動。", en: "I am so hungry! A marathon is just an all-you-can-eat buffet with long distances between tables." },
+          traits: [],
+          isMeme: true
         }
       ]
     },
     {
       id: "q4",
       prompt: {
-        zh: "剩下最後 2K 啦！你心想……",
-        en: "Only 2K to go! You think..."
+        zh: "跑到 7.5K，前方終於出現補給站，你會……",
+        en: "At 7.5K, you finally see a hydration station ahead. You..."
       },
       options: [
         {
-          id: "q4_a",
-          text: { zh: "終於要結束啦，下次不跑了好累！", en: "It is almost over. I am never running again. I am exhausted!" },
-          traits: ["freedom"]
+          id: "q4_experience",
+          text: { zh: "終於到補給站啦！", en: "Join everyone at the station and enjoy this part of the course experience." },
+          detail: { zh: "先喘口氣、喝水吃東西，順順的繼續上路。", en: "I train toward a goal and prepare to push my limits on race day." },
+          traits: ["experience"]
         },
         {
-          id: "q4_b",
-          text: { zh: "嗚嗚要結束了，美好的賽事總是過得特別快", en: "It is almost over. Great races always go by too fast" },
-          traits: ["sustainability"]
+          id: "q4_lifestyle",
+          text: { zh: "來看看有什麼特別的", en: "Hydrate when it feels right, take a comfortable break, and keep going." },
+          detail: { zh: "難得參加比賽，補給站當然不能錯過。", en: "I train toward a goal and prepare to push my limits on race day." },
+          traits: ["lifestyle"]
         },
         {
-          id: "q4_c",
-          text: { zh: "維持配速就能破 PB，加油撐住！", en: "Hold this pace and I can set a new PB. Keep going!" },
-          traits: ["precision"]
+          id: "q4_performance",
+          text: { zh: "精準進站", en: "Make a precise, quick hydration stop without disrupting my rhythm." },
+          detail: { zh: "快速拿水、補給，繼續追自己的配速。", en: "I train toward a goal and prepare to push my limits on race day." },
+          traits: ["performance"]
         },
         {
-          id: "q4_d",
-          text: { zh: "終點很多攝影師，再累都要漂漂亮亮", en: "There are photographers at the finish. Look good no matter how tired I am" },
-          traits: ["light"]
+          id: "q4_sustainability",
+          text: { zh: "優雅地停下來使用自己的軟水杯／軟水壺裝水。", en: "Gracefully stop and fill my own soft cup or soft flask." },
+          detail: { zh: "用自己的容器裝水，既環保又特別。", en: "Fill my own cup with water, which is both environmentally friendly and practical." },
+          traits: [],
+          sustainability: true
         }
       ]
     },
     {
       id: "q5",
       prompt: {
-        zh: "恭喜完賽！下一場賽事你想……",
-        en: "Congratulations on finishing! For the next race, you want to..."
+        zh: "剩下最後 2K 啦！你心想……",
+        en: "Only 2K to go! You think..."
       },
       options: [
         {
-          id: "q5_a",
-          text: { zh: "軟水壺在手，攜帶不酸手", en: "Carry a soft flask without tiring my hand" },
-          traits: ["freedom"]
+          id: "q5_experience",
+          text: { zh: "終點很多攝影師，再累都要漂漂亮亮", en: "Enjoy this final stretch too. The atmosphere of this race is amazing." },
+          traits: ["experience"]
         },
         {
-          id: "q5_b",
+          id: "q5_lifestyle",
+          text: { zh: "嗚嗚要結束了，美好的賽事總是過得特別快", en: "Finish at my own pace and complete a comfortable run today." },
+          traits: ["lifestyle"]
+        },
+        {
+          id: "q5_performance",
+          text: { zh: "維持配速就能破PB啦，加油撐住！", en: "Hold this pace and I can break my PB. Keep going!" },
+          traits: ["performance"]
+        },
+        {
+          id: "q5_meme",
+          text: { zh: "好累啊！下次不跑了嗚嗚，誰愛跑誰跑。", en: "I am so tired! I am never running again. Whoever likes running can do it." },
+          traits: [],
+          isMeme: true
+        }
+      ]
+    },
+    {
+      id: "q6",
+      prompt: {
+        zh: "恭喜完賽！下一場賽事你想……",
+        en: "Congratulations on finishing! For your next race, you want to try..."
+      },
+      options: [
+        {
+          id: "q6_soft_flask",
+          text: { zh: "軟水壺在手，攜帶不酸手", en: "A soft flask that is easy to carry without tiring my hand" },
+          traits: []
+        },
+        {
+          id: "q6_soft_cup",
           text: { zh: "軟水杯輕便，停歇更輕快", en: "A lightweight soft cup for an easier break" },
-          traits: ["light"]
+          traits: []
         },
         {
-          id: "q5_c",
+          id: "q6_trail_vest",
           text: { zh: "野跑背心，風格速度兼備", en: "A trail vest that combines style and speed" },
-          traits: ["sustainability"]
+          traits: []
         },
         {
-          id: "q5_d",
+          id: "q6_performance_gear",
           text: { zh: "屏除障礙，持續突破成績", en: "Remove obstacles and keep breaking my records" },
-          traits: ["precision"]
+          traits: []
+        },
+        {
+          id: "q6_sustainability",
+          text: { zh: "與跑友分享自己為什麼選擇自帶補水裝備", en: "Share with fellow runners why I choose to bring my own hydration gear" },
+          traits: [],
+          sustainability: true
         }
       ]
     }

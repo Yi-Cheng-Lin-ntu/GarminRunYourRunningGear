@@ -1,14 +1,15 @@
 import { quizData, runnerTypes } from "./quizData.js";
 import { classificationRules } from "./classificationRules.js";
 import { classifyAnswers } from "./classificationEngine.js";
-import { resultData } from "./resultData.js";
+import { resultData, q6ResultData } from "./resultData.js";
+import { initializeHydrationVote, setHydrationVoteLanguage } from "./hydrationVote.js";
 
 const translations = {
   zh: {
     "start.eyebrow": "GARMIN RUN 2026",
     "start.label": "跑者風格測驗",
     "start.title": "找到你的跑者節奏",
-    "start.description": "五個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。",
+    "start.description": "六個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。",
     "start.button": "開始測驗",
     "start.note": "約 1 分鐘完成・無需登入",
     "navigation.back": "返回",
@@ -17,13 +18,14 @@ const translations = {
     "result.label": "你的跑者風格是",
     "result.hydrationLabel": "適合你的補水方式",
     "result.note": "每一種跑法，都能找到適合自己的補水方式。",
-    "result.retry": "重新測驗"
+    "result.retry": "重新測驗",
+    "result.vote": "加入永續補水行動"
   },
   en: {
     "start.eyebrow": "GARMIN RUN 2026",
     "start.label": "RUNNER STYLE QUIZ",
     "start.title": "Find your running rhythm",
-    "start.description": "Five running moments reveal your runner style and the hydration approach that fits you.",
+    "start.description": "Six running moments reveal your runner style and the hydration approach that fits you.",
     "start.button": "Start quiz",
     "start.note": "About 1 minute・No sign-in",
     "navigation.back": "Back",
@@ -32,21 +34,25 @@ const translations = {
     "result.label": "Your runner style is",
     "result.hydrationLabel": "Your hydration match",
     "result.note": "Every running style can find a hydration approach of its own.",
-    "result.retry": "Try again"
+    "result.retry": "Try again",
+    "result.vote": "Join the hydration action"
   }
 };
 
 const state = {
   currentQuestionIndex: 0,
   answers: {},
+  optionOrder: {},
   result: null,
   language: "zh"
 };
 
 const elements = {
+  appShell: document.querySelector(".app-shell"),
   start: document.querySelector("#start"),
   quiz: document.querySelector("#quiz"),
   result: document.querySelector("#result"),
+  vote: document.querySelector("#hydration-vote"),
   questionCount: document.querySelector("[data-question-count]"),
   questionNumber: document.querySelector("[data-question-number]"),
   questionPrompt: document.querySelector("[data-question-prompt]"),
@@ -58,6 +64,8 @@ const elements = {
   resultDescription: document.querySelector("[data-result-description]"),
   hydrationTitle: document.querySelector("[data-result-hydration-title]"),
   hydrationDescription: document.querySelector("[data-result-hydration-description]"),
+  q6ResultLabel: document.querySelector("[data-q6-result-label]"),
+  q6ResultValue: document.querySelector("[data-q6-result-value]"),
   resultCta: document.querySelector("[data-result-cta]"),
   languageLabel: document.querySelector("[data-language-label]")
 };
@@ -75,10 +83,11 @@ function updateStaticText() {
     }
   });
   elements.languageLabel.textContent = state.language === "zh" ? "EN" : "中";
+  setHydrationVoteLanguage(state.language);
 }
 
 function showScreen(screen) {
-  [elements.start, elements.quiz, elements.result].forEach((item) => {
+  [elements.start, elements.quiz, elements.result, elements.vote].forEach((item) => {
     const isVisible = item === screen;
     item.hidden = !isVisible;
     item.classList.toggle("is-active", isVisible);
@@ -87,11 +96,33 @@ function showScreen(screen) {
       requestAnimationFrame(() => item.classList.add("is-entering"));
     }
   });
+  elements.appShell.classList.toggle("has-vote", screen === elements.vote);
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function shuffleOptions(options) {
+  const shuffledOptions = [...options];
+
+  for (let index = shuffledOptions.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledOptions[index], shuffledOptions[randomIndex]] = [
+      shuffledOptions[randomIndex],
+      shuffledOptions[index]
+    ];
+  }
+
+  return shuffledOptions;
+}
+
+function createOptionOrder() {
+  return Object.fromEntries(
+    quizData.questions.map((question) => [question.id, shuffleOptions(question.options)])
+  );
 }
 
 function renderQuestion() {
   const question = quizData.questions[state.currentQuestionIndex];
+  const options = state.optionOrder[question.id] || question.options;
   const selectedAnswer = state.answers[question.id];
   const questionNumber = state.currentQuestionIndex + 1;
   const totalQuestions = quizData.questions.length;
@@ -107,7 +138,7 @@ function renderQuestion() {
     ? (state.language === "zh" ? "看結果" : "See result")
     : translations[state.language]["navigation.next"];
 
-  elements.optionsList.innerHTML = question.options.map((option, index) => {
+  elements.optionsList.innerHTML = options.map((option, index) => {
     const isSelected = option.id === selectedAnswer;
     return `
       <div class="option-card${isSelected ? " is-selected" : ""}">
@@ -122,12 +153,18 @@ function renderQuestion() {
 }
 
 function renderResult() {
-  const result = resultData[state.result.type];
-  elements.resultTitle.textContent = text(result.title);
-  elements.resultDescription.textContent = text(result.description);
+  const result = resultData[state.result.runnerType];
+  const resultContent = state.result.sustainability ? result.sustainability : result;
+  elements.resultTitle.textContent = text(resultContent.title);
+  elements.resultDescription.textContent = text(resultContent.description);
   elements.hydrationTitle.textContent = text(result.hydration.title);
   elements.hydrationDescription.textContent = text(result.hydration.description);
   elements.resultCta.textContent = text(result.cta);
+
+  const q6Question = quizData.questions.find((question) => question.id === "q6");
+  const q6Option = q6Question.options.find((option) => option.id === state.answers.q6);
+  elements.q6ResultLabel.textContent = text(q6ResultData.label);
+  elements.q6ResultValue.textContent = q6Option ? text(q6Option.text) : "";
 
   elements.resultVisual.innerHTML = "";
   elements.resultVisual.classList.toggle("has-image", Boolean(result.image?.src));
@@ -147,6 +184,7 @@ function renderResult() {
 function startQuiz() {
   state.currentQuestionIndex = 0;
   state.answers = {};
+  state.optionOrder = createOptionOrder();
   state.result = null;
   renderQuestion();
   showScreen(elements.quiz);
@@ -197,6 +235,8 @@ document.addEventListener("click", (event) => {
   if (action === "start") startQuiz();
   if (action === "next") goNext();
   if (action === "back") goBack();
+  if (action === "go-vote") showScreen(elements.vote);
+  if (action === "vote-back") showScreen(elements.result);
   if (action === "retry") startQuiz();
   if (action === "toggle-language") {
     state.language = state.language === "zh" ? "en" : "zh";
@@ -213,3 +253,4 @@ document.addEventListener("change", (event) => {
 });
 
 updateStaticText();
+initializeHydrationVote();

@@ -4,76 +4,53 @@ function getOptionForAnswer(question, answers) {
 }
 
 function getTraits(option) {
-  if (!option) {
-    return [];
-  }
-
-  if (Array.isArray(option.traits)) {
-    return option.traits;
-  }
-
-  return option.type ? [option.type] : [];
+  return Array.isArray(option?.traits) ? option.traits : [];
 }
 
-export function countTraits(questions, answers, runnerTypes) {
-  const counts = Object.fromEntries(runnerTypes.map((type) => [type, 0]));
+function isRunnerTypeQuestion(question) {
+  return question.id !== "q6";
+}
 
-  questions.forEach((question) => {
-    getTraits(getOptionForAnswer(question, answers)).forEach((trait) => {
-      if (trait in counts) {
-        counts[trait] += 1;
+export function countRunnerTraits(questions, answers, runnerTypes) {
+  const scores = Object.fromEntries(runnerTypes.map((type) => [type, 0]));
+
+  questions.filter(isRunnerTypeQuestion).forEach((question) => {
+    const option = getOptionForAnswer(question, answers);
+    getTraits(option).forEach((trait) => {
+      if (trait in scores) {
+        scores[trait] += 1;
       }
     });
   });
 
-  return counts;
+  return scores;
 }
 
-function getHighestScoringTypes(counts) {
-  const highestScore = Math.max(...Object.values(counts));
-  return Object.keys(counts).filter((type) => counts[type] === highestScore);
+function getHighestScoringTypes(scores, runnerTypes) {
+  const highestScore = Math.max(...runnerTypes.map((type) => scores[type]));
+  return runnerTypes.filter((type) => scores[type] === highestScore);
 }
 
-function breakTieByQuestion(priorityQuestions, candidates, questions, answers) {
-  for (const questionId of priorityQuestions) {
-    const question = questions.find((item) => item.id === questionId);
-    const selectedOption = question && getOptionForAnswer(question, answers);
-    const selectedTraits = getTraits(selectedOption);
-    const matchingCandidate = selectedTraits.find((trait) => candidates.includes(trait));
-
-    if (matchingCandidate) {
-      return matchingCandidate;
-    }
-  }
-
-  return null;
+function selectByTieBreak(candidates, tieBreakOrder, fallbackType) {
+  const orderedCandidate = tieBreakOrder.find((type) => candidates.includes(type));
+  return orderedCandidate || fallbackType;
 }
 
 export function classifyAnswers({ questions, answers, runnerTypes, rules }) {
-  const counts = countTraits(questions, answers, runnerTypes);
-  const candidates = getHighestScoringTypes(counts);
+  const scores = countRunnerTraits(questions, answers, runnerTypes);
+  const candidates = getHighestScoringTypes(scores, runnerTypes);
+  const tieBreakOrder = rules?.tieBreak?.order || runnerTypes;
+  const runnerType = candidates.length === 1
+    ? candidates[0]
+    : selectByTieBreak(candidates, tieBreakOrder, runnerTypes[0]);
+  const sustainability = questions.some((question) => {
+    const option = getOptionForAnswer(question, answers);
+    return option?.sustainability === true;
+  });
 
-  if (candidates.length === 1) {
-    return { type: candidates[0], counts };
-  }
-
-  const priorityQuestions = rules?.tieBreak?.priorityQuestions || [];
-  const priorityResult = breakTieByQuestion(priorityQuestions, candidates, questions, answers);
-
-  if (priorityResult) {
-    return { type: priorityResult, counts };
-  }
-
-  if (rules?.tieBreak?.fallback === "last_answer") {
-    for (let index = questions.length - 1; index >= 0; index -= 1) {
-      const selectedOption = getOptionForAnswer(questions[index], answers);
-      const matchingCandidate = getTraits(selectedOption).find((trait) => candidates.includes(trait));
-
-      if (matchingCandidate) {
-        return { type: matchingCandidate, counts };
-      }
-    }
-  }
-
-  return { type: rules?.tieBreak?.fallbackType || runnerTypes[0], counts };
+  return {
+    runnerType,
+    sustainability,
+    scores
+  };
 }
