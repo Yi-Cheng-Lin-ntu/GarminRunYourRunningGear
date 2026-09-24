@@ -8,15 +8,18 @@ Garmin Run 2026 的跑者風格與補水方式互動測驗 prototype。
 
 目前已完成第一版 functional MVP：
 
-- Landing、五題測驗、結果、重新測驗流程
-- 五題固定順序、全部必答、每題單選
-- Q2 的五個選項由資料動態產生
+- Landing、六題測驗、結果、重新測驗流程
+- 六題固定順序、全部必答、每題單選
+- 每次測驗會隨機排列各題選項，但題目順序固定
+- 返回上一題時保留該次測驗的選項排列，重新測驗才會重新排列
+- Q6 支援五個選項，由資料動態產生
 - 返回上一題後重新選擇會覆蓋舊答案
 - 中英文 UI 與內容切換
-- Rule-based classification 與集中式 tie-breaking
+- 三向度 rule-based classification 與集中式 tie-breaking
+- 獨立的 sustainability boolean flag，不作為第四個分數向度
 - 結果圖片預留固定路徑欄位，尚未放入正式圖片
 
-目前選項的 `traits` 是為了測試 UI 流程的 placeholder mapping，不代表正式心理測量結果。
+目前題目與結果文案已依 MVP 規格配置；分類仍是活動互動用途，不代表正式心理測量結果。
 
 ## Project Structure
 
@@ -35,10 +38,10 @@ Garmin Run 2026 的跑者風格與補水方式互動測驗 prototype。
 
 ### 資料與責任邊界
 
-- `quizData.js`：題目、選項、雙語文字與每個選項的 `traits`
-- `classificationRules.js`：tie-break 優先題目與 fallback 設定
-- `classificationEngine.js`：計算 trait 數量、套用分類規則，只回傳 result type 與 counts
-- `resultData.js`：結果名稱、描述、補水建議、圖片路徑與 CTA 內容
+- `quizData.js`：Q1-Q6、選項、雙語文字、`traits`、`isMeme` 與 `sustainability`
+- `classificationRules.js`：三向度 runner types 與 tie-break order
+- `classificationEngine.js`：計算三向度分數、sustainability flag 與最終 result object
+- `resultData.js`：三種 runner type、永續組合文案、補水建議、圖片路徑與 CTA 內容
 - `app.js`：狀態、DOM rendering、答案儲存與頁面導覽
 - `style.css`：mobile-first layout 與視覺樣式
 
@@ -46,7 +49,7 @@ UI 不會判斷某個答案屬於哪一種跑者類型。分類器在完成最�
 
 ## 修改題目或分類
 
-每個選項目前使用可擴充的 `traits` 陣列：
+一般分類選項使用三向度的 `traits` 陣列：
 
 ```js
 {
@@ -55,24 +58,32 @@ UI 不會判斷某個答案屬於哪一種跑者類型。分類器在完成最�
 		zh: "選項文字",
 		en: "Option text"
 	},
-	traits: ["light"]
+	traits: ["experience"]
 }
 ```
 
-未來可以直接改成多個 trait：
+Meme 或 sustainability 選項不應增加三向度分數：
 
 ```js
-traits: ["light", "sustainability"]
+traits: [],
+isMeme: true
 ```
 
-不需要修改 UI。正式 classification matrix 確認後，只需更新 `quizData.js` 的 traits 與 `classificationRules.js` 的規則。
+永續選項使用獨立 flag：
+
+```js
+traits: [],
+sustainability: true
+```
+
+Q6 的所有選項都不影響 runnerType；只有 Q6 永續選項可以觸發 sustainability flag。
 
 目前 tie-break 流程是：
 
-1. 先比較 trait 計數
-2. 平手時依 `priorityQuestions` 檢查指定題目
-3. 仍平手時使用最後一個有回答的題目
-4. 最後使用 `fallbackType`
+1. 只計算 Q1-Q5 的 `experience`、`lifestyle`、`performance`
+2. 最高分唯一時直接使用該 runner type
+3. 平手時依 `classificationRules.js` 的順序：`experience` > `lifestyle` > `performance`
+4. Q2、Q4、Q6 的 sustainability option 只設定 flag，不進入 scores
 
 這些是 placeholder rules，尚未代表正式分類設計。
 

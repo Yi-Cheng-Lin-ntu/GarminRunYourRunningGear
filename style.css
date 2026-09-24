@@ -111,6 +111,9 @@ h1, h2 { max-width: 11ch; margin-bottom: 18px; font-size: clamp(2.65rem, 12vw, 4
 .hydration-panel h3 { margin-bottom: 8px; font-size: 1.2rem; }
 .hydration-panel p { max-width: 31rem; margin-bottom: 0; color: var(--muted); font-size: .92rem; line-height: 1.6; }
 .panel-arrow { color: var(--orange); font-size: 1.5rem; font-weight: 800; }
+.next-try-panel { margin: 0 0 28px; padding: 20px 24px; border: 1px solid var(--line); }
+.next-try-panel .section-label { margin-bottom: 8px; }
+.next-try-value { margin: 0; font-weight: 800; line-height: 1.5; }
 .sustainability-note { display: flex; gap: 14px; margin-bottom: 32px; color: var(--muted); font-size: .84rem; line-height: 1.5; }
 .sustainability-note p { margin: 0; }
 .note-line { width: 28px; height: 2px; margin-top: .65em; flex: 0 0 auto; background: var(--yellow); }
