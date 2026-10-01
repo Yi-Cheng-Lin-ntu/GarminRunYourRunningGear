@@ -2,7 +2,7 @@
 
 Garmin Run 2026 的跑者風格與補水方式互動測驗 prototype。
 
-這是一個不需要 backend 的 static website，使用 HTML、CSS 與 Vanilla JavaScript，可直接部署到 GitHub Pages。
+這是使用 HTML、CSS 與 Vanilla JavaScript 的 static front end，可直接部署到 GitHub Pages。Quiz 本身不需要後端；永續補水投票使用 Supabase 儲存共用票數。
 
 ## 開發狀態
 
