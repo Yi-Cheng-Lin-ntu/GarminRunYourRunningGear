@@ -5,6 +5,7 @@ export const DEMO_SEED_COUNTS = Object.freeze({ try: 360, watch: 300, pioneer: 3
 
 const options = ["try", "watch", "pioneer"];
 const demoCounts = { ...DEMO_SEED_COUNTS };
+const demoVotes = new Map();
 
 function validateOption(option) {
   if (!options.includes(option)) {
@@ -30,19 +31,34 @@ export async function getVoteCounts() {
   return Object.fromEntries(options.map((option, index) => [option, results[index].count || 0]));
 }
 
-export async function submitVote(option) {
+export async function submitVote(option, voterId, previousOption = null) {
   validateOption(option);
+  if (typeof voterId !== "string" || !voterId) {
+    throw new Error("缺少匿名投票識別碼。");
+  }
 
   if (DEMO_MODE) {
+    const oldOption = demoVotes.has(voterId) ? demoVotes.get(voterId) : previousOption;
+    if (oldOption === option) {
+      return { updated: Boolean(oldOption) };
+    }
+    if (options.includes(oldOption)) {
+      demoCounts[oldOption] = Math.max(0, demoCounts[oldOption] - 1);
+    }
     demoCounts[option] += 1;
-    return;
+    demoVotes.set(voterId, option);
+    return { updated: Boolean(oldOption) };
   }
 
   const client = await getSupabaseClient();
-  const { error } = await client.from("votes").insert({ option });
+  const { data, error } = await client.rpc("cast_vote", {
+    p_voter_id: voterId,
+    p_option: option
+  });
   if (error) {
     throw error;
   }
+  return { updated: Boolean(data) };
 }
 
 export async function subscribeToVotes(onInsert, onStatus) {
@@ -55,7 +71,7 @@ export async function subscribeToVotes(onInsert, onStatus) {
   const channel = client
     .channel("hydration-votes")
     .on("postgres_changes", {
-      event: "INSERT",
+      event: "*",
       schema: "public",
       table: "votes"
     }, (payload) => onInsert(payload.new))

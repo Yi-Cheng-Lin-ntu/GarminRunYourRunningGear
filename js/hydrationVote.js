@@ -28,9 +28,11 @@ const copy = {
     polling: "即時更新暫停・定期更新中",
     demo: "DEMO 測試模式",
     waiting: "正在送出選擇…",
-    thanks: "謝謝你的選擇",
+    thanks: "謝謝你的選擇，可隨時重新選擇。",
     tryThanks: "又多了一位願意一起嘗試的跑者。",
     confirmed: "你的選擇已加入。",
+    updated: "你的選擇已更新，原票已替換。",
+    sameChoice: "你目前已選擇這一項。",
     unavailable: "目前無法更新即時投票資料，請稍後再試。",
     voteError: "投票沒有成功送出，請稍後再試。"
   },
@@ -54,9 +56,11 @@ const copy = {
     polling: "Live updates paused · checking periodically",
     demo: "DEMO MODE",
     waiting: "Submitting your choice…",
-    thanks: "Thanks for sharing your choice.",
+    thanks: "Thanks for sharing. You can change your choice anytime.",
     tryThanks: "One more runner is willing to give it a try.",
     confirmed: "Your choice has been added.",
+    updated: "Your choice is updated. Your earlier vote was replaced.",
+    sameChoice: "This is already your current choice.",
     unavailable: "Live vote data is unavailable right now. Please try again later.",
     voteError: "Your vote could not be submitted. Please try again later."
   }
@@ -76,6 +80,7 @@ const state = {
   language: "zh",
   counts: null,
   available: false,
+  voterId: null,
   votedOption: null,
   selectedOption: null,
   busy: false,
@@ -225,7 +230,7 @@ function packParticles(counts, particleCount, width, height) {
 
       for (const support of particles) {
         const horizontalDistance = Math.abs(x - support.x);
-        const restingDistance = (radius + support.radius) * 0.78;
+        const restingDistance = (radius + support.radius) * 0.6;
         if (horizontalDistance < restingDistance) {
           const verticalDistance = Math.sqrt(restingDistance ** 2 - horizontalDistance ** 2);
           y = Math.max(y, support.y + verticalDistance);
@@ -327,8 +332,8 @@ function changedOption(previous, next) {
 function updateVoteButtons() {
   elements.options.querySelectorAll("[data-vote-option]").forEach((button) => {
     const option = button.dataset.voteOption;
-    const selected = (state.votedOption || state.selectedOption) === option;
-    button.disabled = state.busy || state.votedOption !== null || !state.available;
+    const selected = (state.selectedOption || state.votedOption) === option;
+    button.disabled = state.busy || !state.available;
     button.classList.toggle("is-selected", selected);
     button.classList.toggle("is-loading", state.busy && state.selectedOption === option);
     button.setAttribute("aria-pressed", String(selected));
@@ -370,7 +375,7 @@ async function refreshCounts(preferredOption = null) {
     }
     state.available = true;
     renderCounts(counts, preferredOption);
-    setFeedback(state.votedOption ? (state.votedOption === "try" ? "tryThanks" : "thanks") : "");
+    setFeedback(state.votedOption ? "thanks" : "");
     updateVoteButtons();
   } catch {
     state.available = false;
@@ -386,42 +391,72 @@ async function refreshCounts(preferredOption = null) {
   }
 }
 
-function readSavedVote() {
+function createVoterId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  const bytes = new Uint8Array(16);
+  globalThis.crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+function readSavedIdentity() {
   try {
-    const savedVote = localStorage.getItem(storageKey);
-    return options.includes(savedVote) ? savedVote : null;
+    const savedValue = localStorage.getItem(storageKey);
+    const savedIdentity = savedValue ? JSON.parse(savedValue) : null;
+    if (
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(savedIdentity?.voterId || "")
+      && (savedIdentity.option === null || options.includes(savedIdentity.option))
+    ) {
+      return savedIdentity;
+    }
+
+    const identity = { voterId: createVoterId(), option: null };
+    localStorage.setItem(storageKey, JSON.stringify(identity));
+    return identity;
   } catch {
-    return null;
+    return { voterId: createVoterId(), option: null };
   }
 }
 
 function rememberVote(option) {
   state.votedOption = option;
   try {
-    localStorage.setItem(storageKey, option);
+    localStorage.setItem(storageKey, JSON.stringify({ voterId: state.voterId, option }));
   } catch {
-    // Keep the vote locked for this page session if browser storage is unavailable.
+    // Keep the current choice in memory if browser storage is unavailable.
   }
 }
 
 async function castVote(option) {
-  if (!state.available || state.busy || state.votedOption) {
+  if (!state.available || state.busy) {
+    return;
+  }
+  if (state.votedOption === option) {
+    setLocalizedFeedback("sameChoice");
     return;
   }
 
+  const previousOption = state.votedOption;
   state.busy = true;
   state.selectedOption = option;
   setFeedback("waiting");
   updateVoteButtons();
 
   try {
-    await submitVote(option);
+    const result = await submitVote(option, state.voterId, previousOption);
     rememberVote(option);
     state.busy = false;
     state.selectedOption = null;
     updateVoteButtons();
-    setFeedback(option === "try" ? "tryThanks" : "confirmed");
     await refreshCounts(option);
+    if (state.available) {
+      setFeedback(result.updated ? "updated" : (option === "try" ? "tryThanks" : "confirmed"));
+    }
   } catch {
     state.busy = false;
     state.selectedOption = null;
@@ -474,7 +509,9 @@ export async function initializeHydrationVote() {
     return;
   }
   state.initialized = true;
-  state.votedOption = readSavedVote();
+  const savedIdentity = readSavedIdentity();
+  state.voterId = savedIdentity.voterId;
+  state.votedOption = savedIdentity.option;
   elements.demo.hidden = !DEMO_MODE;
   updateLanguage();
   updateVoteButtons();
@@ -502,7 +539,7 @@ export async function initializeHydrationVote() {
   }
 
   if (state.votedOption) {
-    setLocalizedFeedback(state.votedOption === "try" ? "tryThanks" : "thanks");
+    setLocalizedFeedback("thanks");
   }
 
   setLocalizedConnection(DEMO_MODE ? "demo" : "connecting");
