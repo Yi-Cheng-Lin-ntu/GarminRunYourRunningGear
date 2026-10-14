@@ -1,8 +1,13 @@
-import { quizData, runnerTypes } from "./quizData.js";
 import { classificationRules } from "./classificationRules.js";
 import { classifyAnswers } from "./classificationEngine.js";
-import { resultData, q6ResultData } from "./resultData.js";
+import { loadContent } from "./contentData.js";
 import { initializeHydrationVote, setHydrationVoteLanguage } from "./hydrationVote.js";
+
+let quizData;
+let runnerTypes;
+let resultData;
+let q6ResultData;
+let uiContent;
 
 const translations = {
   zh: {
@@ -12,14 +17,6 @@ const translations = {
     "start.description": "六個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。",
     "start.button": "開始測驗",
     "start.note": "約 1 分鐘完成・無需登入",
-    "navigation.back": "返回",
-    "navigation.next": "下一題",
-    "result.eyebrow": "YOUR RUNNER STYLE",
-    "result.label": "你的跑者風格是",
-    "result.hydrationLabel": "適合你的補水方式",
-    "result.note": "每一種跑法，都能找到適合自己的補水方式。",
-    "result.retry": "重新測驗",
-    "result.vote": "加入永續補水行動"
   },
   en: {
     "start.eyebrow": "GARMIN RUN 2026",
@@ -28,14 +25,6 @@ const translations = {
     "start.description": "Six running moments reveal your runner style and the hydration approach that fits you.",
     "start.button": "Start quiz",
     "start.note": "About 1 minute・No sign-in",
-    "navigation.back": "Back",
-    "navigation.next": "Next",
-    "result.eyebrow": "YOUR RUNNER STYLE",
-    "result.label": "Your runner style is",
-    "result.hydrationLabel": "Your hydration match",
-    "result.note": "Every running style can find a hydration approach of its own.",
-    "result.retry": "Try again",
-    "result.vote": "Join the hydration action"
   }
 };
 
@@ -49,6 +38,8 @@ const state = {
 
 const elements = {
   appShell: document.querySelector(".app-shell"),
+  startButton: document.querySelector('[data-action="start"]'),
+  startDescription: document.querySelector('[data-i18n="start.description"]'),
   start: document.querySelector("#start"),
   quiz: document.querySelector("#quiz"),
   result: document.querySelector("#result"),
@@ -77,7 +68,8 @@ function text(value) {
 function updateStaticText() {
   document.documentElement.lang = state.language === "zh" ? "zh-Hant" : "en";
   document.querySelectorAll("[data-i18n]").forEach((element) => {
-    const value = translations[state.language][element.dataset.i18n];
+    const key = element.dataset.i18n;
+    const value = uiContent?.[key]?.[state.language] || translations[state.language][key];
     if (value) {
       element.textContent = value;
     }
@@ -135,8 +127,8 @@ function renderQuestion() {
   elements.progressBar.style.width = `${(questionNumber / totalQuestions) * 100}%`;
   elements.nextButton.disabled = !selectedAnswer;
   elements.nextButton.textContent = questionNumber === totalQuestions
-    ? (state.language === "zh" ? "看結果" : "See result")
-    : translations[state.language]["navigation.next"];
+    ? uiContent["quiz.seeResult"][state.language]
+    : uiContent["navigation.next"][state.language];
 
   elements.optionsList.innerHTML = options.map((option, index) => {
     const isSelected = option.id === selectedAnswer;
@@ -240,7 +232,7 @@ document.addEventListener("click", (event) => {
   if (action === "retry") startQuiz();
   if (action === "toggle-language") {
     state.language = state.language === "zh" ? "en" : "zh";
-    updateStaticText();
+    if (uiContent) updateStaticText();
     if (!elements.quiz.hidden) renderQuestion();
     if (!elements.result.hidden && state.result) renderResult();
   }
@@ -252,5 +244,13 @@ document.addEventListener("change", (event) => {
   }
 });
 
-updateStaticText();
-initializeHydrationVote();
+elements.startButton.disabled = true;
+loadContent().then((content) => {
+  ({ quizData, runnerTypes, resultData, q6ResultData, ui: uiContent } = content);
+  elements.startButton.disabled = false;
+  updateStaticText();
+  initializeHydrationVote();
+}).catch((error) => {
+  console.error(error);
+  elements.startDescription.textContent = "無法載入測驗內容，請確認 content.csv 可正常讀取後重新整理。";
+});
