@@ -1,6 +1,6 @@
 # Project Map
 
-這份文件依照目前 repo 的實際程式與相依關係整理，讓修改需求能快速對應到正確檔案。專案是 GitHub Pages 可部署的 static site，沒有 Node.js backend、package manifest 或 build pipeline。投票共用資料透過 Supabase；quiz classification 與投票資料彼此分離。
+這份文件依照目前 repo 的實際程式與相依關係整理，讓修改需求能快速對應到正確檔案。專案是 GitHub Pages 可部署的 static site，沒有 Node.js backend、package manifest 或 build pipeline。投票共用資料透過 Supabase；quiz classification 與投票資料彼此分離。README 負責快速啟動與 Supabase 設定；本文件是架構、資料契約與修改風險的主要參考。
 
 ## 風險標籤
 
@@ -47,6 +47,16 @@ flowchart TD
 | [`README.md`](README.md) | 專案說明、本機啟動、Supabase 建表與 RLS、Realtime、demo 測試與清票方式。 | 說明需與 HTML、JS、Supabase SQL 和實際設定保持一致。 | **低**：文件變更不影響執行期；設定文件錯誤可能導致部署或測試失敗。 |
 | [`PROJECT_MAP.md`](PROJECT_MAP.md) | 檔案職責、依賴圖、修改風險與需求定位指南。 | 依賴 repo 現有程式結構；功能或檔案異動後應同步更新本地圖。 | **低**：不影響執行期；內容過期會讓後續修改定位錯誤。 |
 | [`LICENSE`](LICENSE) | MIT License 授權文字。 | 無程式依賴。 | **低（執行期）**：不影響功能；修改授權文字會影響專案法律條款，請勿當一般文件任意調整。 |
+
+## 分類行為與資料契約
+
+- runner type 固定為 `experience`、`lifestyle`、`performance`，並須同時存在於 `classificationRules.js` 與 `content.csv` 的 `result` 列 `id`。
+- 分類器依答案選項的 `traits` 累計分數；目前 Q1–Q5 參與計分，Q6 不計入 runner type。分數最高者勝出，平手時依 `classificationRules.js` 的順序：`experience` > `lifestyle` > `performance`。
+- `sustainability=true` 是獨立 flag，不加進三向度分數；任一題的已選選項帶有此 flag，結果就會使用永續版本。每種 runner type 都需在 CSV 有相同 `id` 的 `result_sustainability` 列。
+- 分類在完成測驗時依目前所有答案重新計算；返回修改答案會以新答案取代舊答案，不會重複累加分數。
+- Q6 的識別目前由 `q6` id 決定；更名或新增題目時，需檢查 [`js/classificationEngine.js`](js/classificationEngine.js) 與 [`js/app.js`](js/app.js) 的相應邏輯。
+
+以上 tie-break 與計分方式是活動 prototype 的 placeholder，不代表正式心理測量結果。
 
 ## 編輯題目與結果 CSV
 

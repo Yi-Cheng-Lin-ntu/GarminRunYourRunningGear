@@ -21,35 +21,19 @@ Garmin Run 2026 的跑者風格與補水方式互動測驗 prototype。
 
 目前題目與結果文案已依 MVP 規格配置；分類仍是活動互動用途，不代表正式心理測量結果。
 
-## Project Structure
+## 本機預覽
 
-```text
-/
-├── index.html
-├── style.css
-├── README.md
-└── js/
-		├── app.js
-		├── hydrationVote.js
-		├── supabase.js
-		├── voteData.js
-		├── quizData.js
-		├── classificationEngine.js
-		├── classificationRules.js
-		└── resultData.js
+JavaScript 使用 ES modules，且測驗內容由瀏覽器 `fetch` 載入 CSV；請透過 local server 預覽，不要直接以 `file://` 開啟：
+
+```bash
+python3 -m http.server 8000
 ```
 
-### 資料與責任邊界
+再開啟 <http://localhost:8000>。
 
-- `quizData.js`：Q1-Q6、選項、雙語文字、`traits`、`isMeme` 與 `sustainability`
-- `classificationRules.js`：三向度 runner types 與 tie-break order
-- `classificationEngine.js`：計算三向度分數、sustainability flag 與最終 result object
-- `resultData.js`：三種 runner type、永續組合文案、補水建議、圖片路徑與 CTA 內容
-- `app.js`：測驗狀態、DOM rendering、答案儲存與頁面導覽
-- `hydrationVote.js`：永續補水投票頁、票數呈現、容器粒子、Realtime 與輪詢 fallback
-- `voteData.js`：共用票數讀取、投票寫入與 demo seed 設定
-- `supabase.js`：Supabase client 初始化與公開 URL / anon key 設定
-- `style.css`：mobile-first layout 與視覺樣式
+## 專案地圖與內容修改
+
+[`PROJECT_MAP.md`](PROJECT_MAP.md) 是技術架構與維護指南，集中說明檔案職責、相依關係、修改入口與風險。測驗題目、選項、結果與相關 UI 文案都由 [`content.csv`](content.csv) 提供；要修改內容或分類欄位，請先看 Project Map 的「編輯題目與結果 CSV」及「分類行為與資料契約」。
 
 ## 永續補水投票（Supabase）
 
@@ -144,61 +128,9 @@ const SUPABASE_ANON_KEY = "your-public-anon-or-publishable-key";
 
 - `js/voteData.js` 的 `DEMO_MODE` 預設為 `true`，方便尚未設定 Supabase 時點選測試；頁面會標示 development/demo，使用目前程式中的 seed 數字，投票只在目前頁面記憶體中模擬，不會寫入 Supabase。同一瀏覽器重新選擇時，demo 也會減去舊選項並加到新選項。設定 Supabase 後、正式部署前務必改成 `false`。
 - 測試不同總票數時，暫時將 `DEMO_SEED_COUNTS` 改成下列任一組，再重新載入頁面：10 票 `{ try: 4, watch: 3, pioneer: 3 }`、100 票 `{ try: 36, watch: 30, pioneer: 34 }`、1,000 票 `{ try: 360, watch: 300, pioneer: 340 }`、10,000 票 `{ try: 3600, watch: 3000, pioneer: 3400 }`。總票數會影響堆高，比例會影響顏色；視覺球最多 100 顆，因此 1,000 與 10,000 票都不會增加 DOM 數量。
-- 本機以 `python3 -m http.server 8000` 啟動後開啟 <http://localhost:8000>。填好 URL / key 與建表，並將 `DEMO_MODE` 設為 `false`，即可測試真實共用票數；若維持 `DEMO_MODE = false` 但尚未設定 Supabase，投票頁會顯示無法更新訊息，原測驗結果仍可正常使用。
+- 本機啟動方式見上方「本機預覽」。填好 URL / key 與建表，並將 `DEMO_MODE` 設為 `false`，即可測試真實共用票數；若維持 `DEMO_MODE = false` 但尚未設定 Supabase，投票頁會顯示無法更新訊息，原測驗結果仍可正常使用。
 - 用兩個分頁同時開啟投票頁，在其中一頁切換選項；另一頁應不用重新整理就更新票數。相同瀏覽器 token 重新選擇會更新既有列，只有第一次投票會增加總數。連線狀態顯示「即時更新中」代表 Realtime 已訂閱；暫停時會由 30 秒輪詢接手。
 - `localStorage.removeItem("garmin-run-hydration-vote")` 會建立新的匿名瀏覽器 token，不是清除或重設舊票。真實模式下，只有在刻意模擬另一位新跑者時才清除此值；要清測試票請使用下一項 SQL。
 - 清除 Supabase 測試票數（會刪除該資料表中的所有票）：在 SQL Editor 執行 `truncate table public.votes restart identity;`。正式活動資料也會一併清除，執行前請確認專案環境。
 
 GitHub Pages 可直接部署此 static site，不需要 Node.js backend。Supabase SDK 由 `supabase.js` 以瀏覽器 ESM CDN 載入。
-
-UI 不會判斷某個答案屬於哪一種跑者類型。分類器在完成最後一題時，依照目前 `answers` 重新計算所有 trait，因此返回修改答案不會產生 double scoring。
-
-## 修改題目或分類
-
-一般分類選項使用三向度的 `traits` 陣列：
-
-```js
-{
-	id: "q1_a",
-	text: {
-		zh: "選項文字",
-		en: "Option text"
-	},
-	traits: ["experience"]
-}
-```
-
-Meme 或 sustainability 選項不應增加三向度分數：
-
-```js
-traits: [],
-isMeme: true
-```
-
-永續選項使用獨立 flag：
-
-```js
-traits: [],
-sustainability: true
-```
-
-Q6 的所有選項都不影響 runnerType；只有 Q6 永續選項可以觸發 sustainability flag。
-
-目前 tie-break 流程是：
-
-1. 只計算 Q1-Q5 的 `experience`、`lifestyle`、`performance`
-2. 最高分唯一時直接使用該 runner type
-3. 平手時依 `classificationRules.js` 的順序：`experience` > `lifestyle` > `performance`
-4. Q2、Q4、Q6 的 sustainability option 只設定 flag，不進入 scores
-
-這些是 placeholder rules，尚未代表正式分類設計。
-
-## 本機預覽
-
-因為 JavaScript 使用 ES modules，請透過 local server 預覽：
-
-```bash
-python3 -m http.server 8000
-```
-
-再開啟 <http://localhost:8000>。
