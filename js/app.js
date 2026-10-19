@@ -1,7 +1,6 @@
 import { classificationRules } from "./classificationRules.js";
 import { classifyAnswers } from "./classificationEngine.js";
 import { loadContent } from "./contentData.js";
-import { initializeHydrationVote, setHydrationVoteLanguage } from "./hydrationVote.js";
 
 let quizData;
 let runnerTypes;
@@ -38,13 +37,11 @@ const state = {
 };
 
 const elements = {
-  appShell: document.querySelector(".app-shell"),
   startButton: document.querySelector('[data-action="start"]'),
   startDescription: document.querySelector('[data-i18n="start.description"]'),
   start: document.querySelector("#start"),
   quiz: document.querySelector("#quiz"),
   result: document.querySelector("#result"),
-  vote: document.querySelector("#hydration-vote"),
   questionCount: document.querySelector("[data-question-count]"),
   progressTrack: document.querySelector(".progress-track"),
   questionNumber: document.querySelector("[data-question-number]"),
@@ -77,11 +74,10 @@ function updateStaticText() {
     }
   });
   elements.languageLabel.textContent = state.language === "zh" ? "EN" : "中";
-  setHydrationVoteLanguage(state.language);
 }
 
 function showScreen(screen) {
-  [elements.start, elements.quiz, elements.result, elements.vote].forEach((item) => {
+  [elements.start, elements.quiz, elements.result].forEach((item) => {
     const isVisible = item === screen;
     item.hidden = !isVisible;
     item.classList.toggle("is-active", isVisible);
@@ -90,7 +86,6 @@ function showScreen(screen) {
       requestAnimationFrame(() => item.classList.add("is-entering"));
     }
   });
-  elements.appShell.classList.toggle("has-vote", screen === elements.vote);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -235,8 +230,6 @@ document.addEventListener("click", (event) => {
   if (action === "start") startQuiz();
   if (action === "next") goNext();
   if (action === "back") goBack();
-  if (action === "go-vote") showScreen(elements.vote);
-  if (action === "vote-back") showScreen(elements.result);
   if (action === "retry") startQuiz();
   if (action === "toggle-language") {
     state.language = state.language === "zh" ? "en" : "zh";
@@ -257,7 +250,6 @@ loadContent().then((content) => {
   ({ quizData, runnerTypes, resultData, q6ResultData, ui: uiContent } = content);
   elements.startButton.disabled = false;
   updateStaticText();
-  initializeHydrationVote();
 }).catch((error) => {
   console.error(error);
   elements.startDescription.textContent = "無法載入測驗內容，請確認 content.csv 可正常讀取後重新整理。";

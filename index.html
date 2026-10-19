@@ -75,48 +75,8 @@
             <p data-i18n="result.note">每一種跑法，都能找到適合自己的補水方式。</p>
           </div>
           <p class="result-cta" data-result-cta></p>
-          <button class="button button-primary button-wide result-vote-button" type="button" data-action="go-vote" data-i18n="result.vote">加入永續補水行動</button>
           <button class="button button-secondary button-wide" type="button" data-action="retry" data-i18n="result.retry">重新測驗</button>
         </div>
-      </section>
-
-      <section class="screen screen-vote" id="hydration-vote" aria-labelledby="vote-title" hidden>
-        <div class="vote-topline">
-          <button class="text-button" type="button" data-action="vote-back" data-vote-text="back">返回跑者結果</button>
-          <span class="vote-connection" data-vote-connection aria-live="polite"></span>
-        </div>
-        <header class="vote-header">
-          <p class="eyebrow" data-vote-text="eyebrow">RUN TOGETHER</p>
-          <h2 id="vote-title" data-vote-text="title">下一場，帶上自己的水</h2>
-          <p class="vote-description" data-vote-text="description">每個人的選擇，都會成為跑者一起累積的行動。</p>
-          <p class="vote-total" aria-live="polite"><span data-vote-total>—</span> <span data-vote-text="totalSuffix">位跑者已留下選擇</span></p>
-          <p class="vote-demo-label" data-vote-demo hidden>DEVELOPMENT / 測試資料</p>
-        </header>
-
-        <div class="vote-vessel" role="img" data-vote-vessel aria-label="跑者共同累積的三色補水選擇">
-          <div class="vessel-rim" aria-hidden="true"></div>
-          <div class="vessel-particles" data-vote-particles aria-hidden="true"></div>
-          <div class="vessel-base" aria-hidden="true"></div>
-        </div>
-
-        <div class="vote-options" role="group" data-vote-options aria-label="選擇你的補水行動">
-          <button class="vote-option vote-option-try" type="button" data-vote-option="try" aria-pressed="false">
-            <span class="vote-option-heading"><span class="vote-swatch" aria-hidden="true"></span><span data-vote-text="tryTitle">願意嘗試自帶補水容器</span></span>
-            <span class="vote-option-description" data-vote-text="tryDescription">下一場跑步，我想試著自己帶水。</span>
-            <span class="vote-option-count"><span data-vote-count="try">—</span><span data-vote-text="tryCountLabel">位跑者</span></span>
-          </button>
-          <button class="vote-option vote-option-watch" type="button" data-vote-option="watch" aria-pressed="false">
-            <span class="vote-option-heading"><span class="vote-swatch" aria-hidden="true"></span><span data-vote-text="watchTitle">再觀望一下</span></span>
-            <span class="vote-option-description" data-vote-text="watchDescription">我想先了解更多，再決定怎麼做。</span>
-            <span class="vote-option-count"><span data-vote-count="watch">—</span><span data-vote-text="watchCountLabel">位跑者</span></span>
-          </button>
-          <button class="vote-option vote-option-pioneer" type="button" data-vote-option="pioneer" aria-pressed="false">
-            <span class="vote-option-heading"><span class="vote-swatch" aria-hidden="true"></span><span data-vote-text="pioneerTitle">我已經是自帶補水容器的永續先鋒隊</span></span>
-            <span class="vote-option-description" data-vote-text="pioneerDescription">自帶補水容器，已經是我的跑步習慣。</span>
-            <span class="vote-option-count"><span data-vote-count="pioneer">—</span><span data-vote-text="pioneerCountLabel">位跑者</span></span>
-          </button>
-        </div>
-        <p class="vote-feedback" data-vote-feedback role="status" aria-live="polite"></p>
       </section>
     </main>
 
