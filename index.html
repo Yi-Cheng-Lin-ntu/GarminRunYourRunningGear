@@ -34,9 +34,11 @@
       <section class="screen screen-quiz" id="quiz" aria-labelledby="question-title" hidden>
         <div class="quiz-topline">
           <button class="text-button" type="button" data-action="back" data-i18n="navigation.back">返回</button>
-          <span class="question-count" data-question-count>1 / 6</span>
+          <span class="question-count" data-question-count>01 / 06</span>
         </div>
-        <div class="progress-track" aria-hidden="true"><div class="progress-bar" data-progress-bar></div></div>
+        <div class="progress-track" role="progressbar" aria-label="測驗進度" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1">
+          <div class="progress-bar" data-progress-bar></div>
+        </div>
         <div class="question-intro">
           <p class="eyebrow" data-question-number>QUESTION 01</p>
           <h2 id="question-title" data-question-prompt></h2>

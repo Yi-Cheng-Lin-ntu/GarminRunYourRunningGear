@@ -34,7 +34,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | [`index.html`](index.html) | 頁面骨架、各 screen、按鈕、投票選項與 DOM selector。修改區塊結構、可見文字 fallback、`data-action`、`data-vote-*` 或 `id`。 | 載入 `style.css` 與 `js/app.js`。`app.js`、`hydrationVote.js` 依賴這裡的 selector；class 也連到 CSS。 | **中**：改 selector 或 action 名稱時，必須同步檢查 JS；單純調整靜態文字通常較低風險。 |
 | [`content.csv`](content.csv) | Quiz 題目、選項、中英文內容、分類 traits、永續／meme 標記、結果頁文案、圖片替代文字與結果頁 UI 文案；是題目及結果的執行期內容來源。 | 由 `js/contentData.js` 以 `fetch` 載入。欄名及欄位順序必須符合載入器；runner type id、traits 和題目／選項 id 需符合分類器契約。 | **高**：欄位錯位或 ID／traits 拼錯會造成載入失敗或分類改變；僅修改既有文案通常較低風險。 |
-| [`style.css`](style.css) | 全站色彩、字體、排版、動畫、手機／桌面斷點，以及投票箱和球體外觀。 | 依賴 `index.html` 的 class；球體 class 由 `hydrationVote.js` 動態建立。 | **中**：改色彩、間距通常只影響外觀；改 `.screen[hidden]`、投票容器尺寸、粒子定位或動畫 class 可能影響流程呈現與球堆。 |
+| [`style.css`](style.css) | 全站共用色彩與間距 CSS variables、字體、排版、互動狀態、動畫、手機／桌面斷點，以及投票箱和球體外觀。 | 依賴 `index.html` 的 class；球體 class 由 `hydrationVote.js` 動態建立。 | **中**：改色彩、間距通常只影響外觀；改 `.screen[hidden]`、投票容器尺寸、粒子定位或動畫 class 可能影響流程呈現與球堆。 |
 | [`js/app.js`](js/app.js) | Quiz 狀態、題目 rendering、答案保存、分類呼叫、結果呈現、screen 導覽與共用語言切換。 | import `contentData.js`、`classificationRules.js`、`classificationEngine.js`、`hydrationVote.js`；啟動時載入 `content.csv`，並使用 `index.html` 的 `data-action`、screen id 與 DOM selector。 | **高**：核心流程入口。改導覽、答案或分類呼叫時會影響 quiz／result；投票頁語言與進出也由此串接。 |
 | [`js/contentData.js`](js/contentData.js) | 取得並解析 `content.csv`，驗證標頭／欄數及必要資料，再建構 quiz、結果、永續結果與 UI 文案物件。 | `app.js` 呼叫 `loadContent()`；CSV 標頭與順序由 `CSV_COLUMNS` 固定，改 schema 時要同步調整解析器。 | **高**：格式或映射錯誤會阻止內容載入；修改解析規則時應驗證 CSV 到資料物件的映射。 |
 | [`js/quizData.js`](js/quizData.js) | 舊版 JavaScript 題目資料；目前 app 不再匯入，執行期題目請改 `content.csv`。 | 無目前執行期引用；保留檔案不代表它會覆寫 CSV。 | **低**：修改此檔不會更新目前頁面內容，避免將它誤認為資料來源。 |

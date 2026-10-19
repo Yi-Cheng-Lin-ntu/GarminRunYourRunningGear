@@ -25,6 +25,7 @@ const translations = {
     "start.description": "Six running moments reveal your runner style and the hydration approach that fits you.",
     "start.button": "Start quiz",
     "start.note": "About 1 minute・No sign-in",
+    "quiz.progress": "Quiz progress",
   }
 };
 
@@ -45,6 +46,7 @@ const elements = {
   result: document.querySelector("#result"),
   vote: document.querySelector("#hydration-vote"),
   questionCount: document.querySelector("[data-question-count]"),
+  progressTrack: document.querySelector(".progress-track"),
   questionNumber: document.querySelector("[data-question-number]"),
   questionPrompt: document.querySelector("[data-question-prompt]"),
   optionsList: document.querySelector("[data-options-list]"),
@@ -119,7 +121,13 @@ function renderQuestion() {
   const questionNumber = state.currentQuestionIndex + 1;
   const totalQuestions = quizData.questions.length;
 
-  elements.questionCount.textContent = `${questionNumber} / ${totalQuestions}`;
+  elements.questionCount.textContent = `${String(questionNumber).padStart(2, "0")} / ${String(totalQuestions).padStart(2, "0")}`;
+  elements.progressTrack.setAttribute("aria-valuenow", String(questionNumber));
+  elements.progressTrack.setAttribute("aria-valuemax", String(totalQuestions));
+  elements.progressTrack.setAttribute(
+    "aria-label",
+    state.language === "zh" ? "測驗進度" : translations.en["quiz.progress"]
+  );
   elements.questionNumber.textContent = state.language === "zh"
     ? `QUESTION ${String(questionNumber).padStart(2, "0")}`
     : `QUESTION ${String(questionNumber).padStart(2, "0")}`;
