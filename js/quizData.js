@@ -16,19 +16,16 @@ export const quizData = {
         {
           id: "q1_experience",
           text: { zh: "Garmin Run 作為跑者盛會之一，當然要參加啦。", en: "Garmin Run is one of the biggest moments for runners, so of course I am joining." },
-          detail: { zh: "和跑友一起享受社群、活動與賽道體驗。", en: "I want to enjoy the community, event, and course experience with fellow runners." },
           traits: ["experience"]
         },
         {
           id: "q1_lifestyle",
           text: { zh: "Garmin Run 可是每年必定參加的固定賽事呢。", en: "Garmin Run is a race I make sure to join every year." },
-          detail: { zh: "跑步已經融入生活，自然而然成為習慣。", en: "Running is part of my lifestyle and this race is a natural yearly ritual." },
           traits: ["lifestyle"]
         },
         {
           id: "q1_performance",
           text: { zh: "目標賽事之一，11月底是突破 PB 的好時機。", en: "It is one of my target races, and late November is a great time to break my PB." },
-          detail: { zh: "為訓練設定目標，準備在賽道上突破自己。", en: "I train toward a goal and prepare to push my limits on race day." },
           traits: ["performance"]
         }
       ]
@@ -53,13 +50,11 @@ export const quizData = {
         {
           id: "q2_performance",
           text: { zh: "確認競速裝備與補給策略萬無一失。", en: "Plan my pace, fueling, and hydration schedule in advance." },
-          detail: { zh: "為訓練設定目標，準備在賽道上突破自己。", en: "I train toward a goal and prepare to push my limits on race day." },
           traits: ["performance"]
         },
         {
           id: "q2_sustainability",
           text: { zh: "帶上自己的補水裝備，讓明天的賽道更永續。", en: "Bring my own hydration gear to make tomorrow's course more sustainable." },
-          detail: { zh: "我超怕脫水！補水策略100分自己的補水自己掌握，能不進站就不進站。", en: "I train toward a goal and prepare to push my limits on race day." },
           traits: [],
           sustainability: true
         }
@@ -105,25 +100,21 @@ export const quizData = {
         {
           id: "q4_experience",
           text: { zh: "終於到補給站啦！", en: "Join everyone at the station and enjoy this part of the course experience." },
-          detail: { zh: "先喘口氣、喝水吃東西，順順的繼續上路。", en: "I train toward a goal and prepare to push my limits on race day." },
           traits: ["experience"]
         },
         {
           id: "q4_lifestyle",
           text: { zh: "來看看有什麼特別的", en: "Hydrate when it feels right, take a comfortable break, and keep going." },
-          detail: { zh: "難得參加比賽，補給站當然不能錯過。", en: "I train toward a goal and prepare to push my limits on race day." },
           traits: ["lifestyle"]
         },
         {
           id: "q4_performance",
           text: { zh: "精準進站", en: "Make a precise, quick hydration stop without disrupting my rhythm." },
-          detail: { zh: "快速拿水、補給，繼續追自己的配速。", en: "I train toward a goal and prepare to push my limits on race day." },
           traits: ["performance"]
         },
         {
           id: "q4_sustainability",
           text: { zh: "優雅地停下來使用自己的軟水杯／軟水壺裝水。", en: "Gracefully stop and fill my own soft cup or soft flask." },
-          detail: { zh: "用自己的容器裝水，既環保又特別。", en: "Fill my own cup with water, which is both environmentally friendly and practical." },
           traits: [],
           sustainability: true
         }
@@ -156,41 +147,6 @@ export const quizData = {
           text: { zh: "好累啊！下次不跑了嗚嗚，誰愛跑誰跑。", en: "I am so tired! I am never running again. Whoever likes running can do it." },
           traits: [],
           isMeme: true
-        }
-      ]
-    },
-    {
-      id: "q6",
-      prompt: {
-        zh: "恭喜完賽！下一場賽事你想……",
-        en: "Congratulations on finishing! For your next race, you want to try..."
-      },
-      options: [
-        {
-          id: "q6_soft_flask",
-          text: { zh: "軟水壺在手，攜帶不酸手", en: "A soft flask that is easy to carry without tiring my hand" },
-          traits: []
-        },
-        {
-          id: "q6_soft_cup",
-          text: { zh: "軟水杯輕便，停歇更輕快", en: "A lightweight soft cup for an easier break" },
-          traits: []
-        },
-        {
-          id: "q6_trail_vest",
-          text: { zh: "野跑背心，風格速度兼備", en: "A trail vest that combines style and speed" },
-          traits: []
-        },
-        {
-          id: "q6_performance_gear",
-          text: { zh: "屏除障礙，持續突破成績", en: "Remove obstacles and keep breaking my records" },
-          traits: []
-        },
-        {
-          id: "q6_sustainability",
-          text: { zh: "與跑友分享自己為什麼選擇自帶補水裝備", en: "Share with fellow runners why I choose to bring my own hydration gear" },
-          traits: [],
-          sustainability: true
         }
       ]
     }

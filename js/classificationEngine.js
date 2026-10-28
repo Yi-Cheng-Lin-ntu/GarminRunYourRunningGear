@@ -7,14 +7,10 @@ function getTraits(option) {
   return Array.isArray(option?.traits) ? option.traits : [];
 }
 
-function isRunnerTypeQuestion(question) {
-  return question.id !== "q6";
-}
-
 export function countRunnerTraits(questions, answers, runnerTypes) {
   const scores = Object.fromEntries(runnerTypes.map((type) => [type, 0]));
 
-  questions.filter(isRunnerTypeQuestion).forEach((question) => {
+  questions.forEach((question) => {
     const option = getOptionForAnswer(question, answers);
     getTraits(option).forEach((trait) => {
       if (trait in scores) {

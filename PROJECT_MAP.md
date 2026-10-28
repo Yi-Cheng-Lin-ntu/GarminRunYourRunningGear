@@ -35,10 +35,10 @@ flowchart TD
 ## 分類行為與資料契約
 
 - runner type 固定為 `experience`、`lifestyle`、`performance`，須同時存在於 `classificationRules.js` 與 `content.csv` 的 `result` 列 `id`。
-- 分類器依答案選項的 `traits` 累計分數；目前 Q1–Q5 參與計分，Q6 不計入 runner type。分數最高者勝出，平手依 `classificationRules.js` 的順序：`experience` > `lifestyle` > `performance`。
+- 分類器依答案選項的 `traits` 累計分數；目前 Q1–Q5 參與計分。分數最高者勝出，平手依 `classificationRules.js` 的順序：`experience` > `lifestyle` > `performance`。
 - `sustainability=true` 是獨立 flag，不加進三向度分數；任一題已選選項帶有此 flag，結果就會使用永續版本。每種 runner type 都需在 CSV 有相同 `id` 的 `result_sustainability` 列。
 - 分類在完成測驗時依目前所有答案重新計算；返回修改答案會以新答案取代舊答案，不會重複累加分數。
-- Q6 的識別目前由 `q6` id 決定；更名或新增題目時，需檢查 `js/classificationEngine.js` 與 `js/app.js` 的相應邏輯。
+- 新增題目時，預設會參與 `traits` 計分與 sustainability 判定；若某題不應計分或不應影響永續結果，需同步修改分類器邏輯。
 
 以上 tie-break 與計分方式是活動 prototype 的 placeholder，不代表正式心理測量結果。
 
@@ -51,9 +51,9 @@ flowchart TD
 | `type` | 用途與主要欄位 |
 | --- | --- |
 | `question` | 一題。`id` 是題目 key；`zh`、`en` 是題目文字。 |
-| `option` | 一個選項。`parent_id` 指向題目 `id`；`id` 是答案 key；`zh`、`en` 是選項文字；`detail_zh`、`detail_en` 是可選補充說明。 |
-| `result` | 一種 runner type。`id` 必須與分類器使用的 type key 一致；`zh`、`en` 是結果標題，`detail_zh`、`detail_en` 是結果描述；補水內容使用 `hydration_title_*`、`hydration_description_*`，CTA 使用 `cta_*`，圖片使用 `image_src` 與 `image_alt_*`。 |
-| `result_sustainability` | 對應 `id` 的永續結果版本；`zh`、`en` 是標題，`detail_zh`、`detail_en` 是描述。每個 `result` 都必須有一列。 |
+| `option` | 一個選項。`parent_id` 指向題目 `id`；`id` 是答案 key；`zh`、`en` 是唯一的選項文字。 |
+| `result` | 一種 runner type。`id` 必須與分類器使用的 type key 一致；`zh`、`en` 是結果標題，`description_zh`、`description_en` 是結果描述；補水內容使用 `hydration_title_*`、`hydration_description_*`，CTA 使用 `cta_*`，圖片使用 `image_src` 與 `image_alt_*`。 |
+| `result_sustainability` | 對應 `id` 的永續結果版本；`zh`、`en` 是標題，`description_zh`、`description_en` 是描述。每個 `result` 都必須有一列。 |
 | `ui` | 測驗／結果介面的雙語標籤；`id` 是 UI key，文字放在 `zh`、`en`。 |
 
 修改選項分類時，`traits` 可填 `experience`、`lifestyle`、`performance`，多個值以 `|` 分隔；`sustainability` 與 `is_meme` 只接受小寫 `true` 或 `false`。永續選項以 `sustainability=true` 標示，meme 選項以 `is_meme=true` 標示；不要只靠選項文字判斷分類。空欄代表沒有內容／旗標為 false。新增或更名題目、選項、runner type 時，需一併確認分類規則與分類器契約，避免 key 不相符。

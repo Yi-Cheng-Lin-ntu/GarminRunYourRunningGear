@@ -52,6 +52,3 @@ export const resultData = {
   }
 };
 
-export const q6ResultData = {
-  label: { zh: "下一場想嘗試", en: "What you want to try next" }
-};
