@@ -7,6 +7,9 @@
   --color-blue-mid: #a9def2;
   --color-accent: #00ff19;
   --color-line: rgba(255,255,255,.22);
+  --map-opacity: .14;
+  --motion-blue: rgba(214,242,255,.16);
+  --motion-green: rgba(0,255,25,.20);
   --space-xs: .5rem;
   --space-sm: .75rem;
   --space-md: 1.25rem;
@@ -17,18 +20,61 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
+  position: relative;
+  isolation: isolate;
   min-width: 320px;
+  min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   color: var(--color-text);
-  background-color: var(--color-bg);
-  background-image:
-    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background: var(--color-bg);
   font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.65;
 }
+
+/* Taipei road map: atmosphere only, never an information layer. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -4vh -22vw -8vh;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("./taipei_roadmap.svg");
+  background-repeat: no-repeat;
+  background-position: 58% 72%;
+  background-size: 165% auto;
+  opacity: var(--map-opacity);
+  filter: invert(1) sepia(.08) saturate(.7) hue-rotate(165deg) brightness(1.15);
+  mix-blend-mode: screen;
+}
+
+/* A restrained cluster of speed lines. Kept away from the main reading column. */
+body::after {
+  content: "";
+  position: fixed;
+  right: -42px;
+  bottom: 72px;
+  width: 250px;
+  height: 150px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .72;
+  background:
+    linear-gradient(-15deg, transparent 47.6%, var(--motion-green) 47.8%, var(--motion-green) 48.35%, transparent 48.55%),
+    linear-gradient(-15deg, transparent 56.4%, var(--motion-blue) 56.6%, var(--motion-blue) 57.05%, transparent 57.25%),
+    linear-gradient(-15deg, transparent 65.3%, rgba(214,242,255,.10) 65.5%, rgba(214,242,255,.10) 65.85%, transparent 66.05%);
+  transform: skewX(-8deg);
+  transform-origin: right bottom;
+}
+
+.site-header,
+.app-shell,
+.site-footer {
+  position: relative;
+  z-index: 1;
+}
+
 button, a { font: inherit; }
 button { cursor: pointer; }
 button:focus-visible, a:focus-visible {
@@ -343,10 +389,33 @@ h1, h2, h3 { margin-top: 0; }
 @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (min-width: 720px) {
+  body::before {
+    inset: -8vh -8vw -10vh;
+    background-position: 56% 66%;
+    background-size: max(1180px, 118vw) auto;
+    opacity: .12;
+  }
+  body::after {
+    right: max(28px, calc((100vw - 760px) / 2));
+    bottom: 92px;
+    width: 320px;
+  }
   .screen { padding-top: 38px; }
   .start-visual, .result-visual { margin-left: calc((620px - 100vw) / 2); margin-right: calc((620px - 100vw) / 2); }
 }
 @media (max-width: 420px) {
+  :root { --map-opacity: .12; }
+  body::before {
+    inset: -2vh -30vw -8vh;
+    background-position: 61% 72%;
+    background-size: 180% auto;
+  }
+  body::after {
+    right: -74px;
+    bottom: 56px;
+    width: 220px;
+    opacity: .58;
+  }
   .site-header, .app-shell, .site-footer { width: calc(100% - 32px); }
   .start-visual { margin-left: -16px; margin-right: -16px; }
   .result-visual { margin-left: -16px; margin-right: -16px; }
