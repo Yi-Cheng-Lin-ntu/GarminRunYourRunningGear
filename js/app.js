@@ -44,7 +44,7 @@ const elements = {
   questionNumber: document.querySelector("[data-question-number]"),
   questionPrompt: document.querySelector("[data-question-prompt]"),
   optionsList: document.querySelector("[data-options-list]"),
-  progressBar: document.querySelector("[data-progress-bar]"),
+  progressTrack: document.querySelector("[data-progress-track]"),
   nextButton: document.querySelector('[data-action="next"]'),
   resultVisual: document.querySelector("[data-result-visual]"),
   resultTitle: document.querySelector("[data-result-title]"),
@@ -55,6 +55,7 @@ const elements = {
   resultCta: document.querySelector("[data-result-cta]"),
   resultGear: document.querySelector("[data-result-gear]"),
   gearPanel: document.querySelector("[data-gear-panel]"),
+  recommendationSection: document.querySelector("[data-recommendation-section]"),
   languageLabel: document.querySelector("[data-language-label]")
 };
 
@@ -114,10 +115,13 @@ function renderQuestion() {
   const questionNumber = state.currentQuestionIndex + 1;
   const totalQuestions = quizData.questions.length;
 
-  elements.questionCount.textContent = `${questionNumber} / ${totalQuestions}`;
-  elements.questionNumber.textContent = `QUESTION ${String(questionNumber).padStart(2, "0")}`;
+  elements.questionCount.textContent = `${String(questionNumber).padStart(2, "0")} / ${String(totalQuestions).padStart(2, "0")}`;
+  elements.questionNumber.textContent = String(questionNumber).padStart(2, "0");
   elements.questionPrompt.textContent = text(question.prompt);
-  elements.progressBar.style.width = `${(questionNumber / totalQuestions) * 100}%`;
+  elements.progressTrack.querySelectorAll("span").forEach((segment, index) => {
+    segment.classList.toggle("is-complete", index < questionNumber - 1);
+    segment.classList.toggle("is-current", index === questionNumber - 1);
+  });
   elements.nextButton.disabled = !selectedAnswer;
   elements.nextButton.textContent = questionNumber === totalQuestions
     ? uiContent["quiz.seeResult"][state.language]
@@ -139,6 +143,7 @@ function renderQuestion() {
 function renderResult() {
   const result = resultData[state.result.runnerType];
   const isSustainability = state.result.sustainability;
+  elements.recommendationSection.classList.toggle("is-sustainability", isSustainability);
 
   const identityPrefix = state.language === "zh" ? "你是｜" : "You are | ";
   elements.resultTitle.textContent = `${identityPrefix}${text(result.title)}`;
@@ -166,10 +171,11 @@ function renderResult() {
     image.alt = text(result.image.alt);
     elements.resultVisual.append(image);
   } else {
-    const placeholder = document.createElement("span");
-    placeholder.className = "result-visual-placeholder";
-    placeholder.textContent = "IMAGE / COMING SOON";
-    elements.resultVisual.append(placeholder);
+    const marks = { experience: "EX\nPER", lifestyle: "LI\nFE", performance: "PB\n01" };
+    const runnerMark = document.createElement("span");
+    runnerMark.className = "result-visual-placeholder";
+    runnerMark.textContent = marks[state.result.runnerType] || "RUN\n01";
+    elements.resultVisual.append(runnerMark);
   }
 }
 

@@ -34,11 +34,15 @@
       <section class="screen screen-quiz" id="quiz" aria-labelledby="question-title" hidden>
         <div class="quiz-topline">
           <button class="text-button" type="button" data-action="back" data-i18n="navigation.back">返回</button>
-          <span class="question-count" data-question-count>1 / 5</span>
+          <span class="question-count"><span data-question-count>01 / 05</span></span>
         </div>
-        <div class="progress-track" aria-hidden="true"><div class="progress-bar" data-progress-bar></div></div>
+        <div class="progress-track" aria-label="Question progress" data-progress-track>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
         <div class="question-intro">
-          <p class="eyebrow" data-question-number>QUESTION 01</p>
+          <div class="question-number-wrap">
+            <span class="question-number" data-question-number>01</span><span class="question-total">/ 05</span>
+          </div>
           <h2 id="question-title" data-question-prompt></h2>
         </div>
         <form class="options-list" data-options-list></form>
@@ -61,7 +65,7 @@
         </div>
 
         <div class="result-content">
-          <section class="result-section recommendation-section">
+          <section class="result-section recommendation-section" data-recommendation-section>
             <p class="section-label" data-i18n="result.hydrationLabel">下一次可以試試</p>
             <p class="recommendation-kicker" data-result-hydration-title></p>
             <h3 class="recommendation-slogan" data-result-cta></h3>
