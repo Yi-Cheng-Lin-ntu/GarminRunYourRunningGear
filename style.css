@@ -97,26 +97,73 @@ h1, h2 { max-width: 11ch; margin-bottom: 18px; font-size: clamp(2.65rem, 12vw, 4
 .option-text { display: block; font-weight: 800; line-height: 1.45; }
 .quiz-actions { margin-top: 26px; }
 
-.result-header { margin-bottom: 40px; }
-.result-visual { display: flex; align-items: end; height: 200px; margin-bottom: 30px; padding: 24px; background: var(--teal); }
+.result-header { margin-bottom: 30px; }
+.result-visual { display: flex; align-items: end; height: 220px; margin-bottom: 32px; padding: 24px; background: var(--teal); }
 .result-visual.has-image { padding: 0; }
 .result-visual img { width: 100%; height: 100%; object-fit: cover; }
 .result-visual::before { position: absolute; top: 20%; right: 14%; width: 42%; aspect-ratio: 1; border: 1px solid var(--yellow); border-radius: 50%; content: ""; }
 .result-visual-placeholder { position: relative; z-index: 1; color: white; font-size: 1.5rem; font-weight: 900; letter-spacing: .05em; }
-.result-header h2 { max-width: 14ch; margin-bottom: 16px; font-size: clamp(2.5rem, 11vw, 4rem); }
-.result-description { max-width: 34rem; color: var(--muted); font-size: 1rem; line-height: 1.7; }
-.result-content { border-top: 1px solid var(--line); padding-top: 28px; }
-.hydration-panel { display: flex; align-items: start; justify-content: space-between; gap: 20px; min-height: 126px; margin-bottom: 28px; padding: 24px; background: var(--surface); }
-.hydration-panel h3 { margin-bottom: 8px; font-size: 1.2rem; }
-.hydration-panel p { max-width: 31rem; margin-bottom: 0; color: var(--muted); font-size: .92rem; line-height: 1.6; }
-.panel-arrow { color: var(--orange); font-size: 1.5rem; font-weight: 800; }
-.next-try-panel { margin: 0 0 28px; padding: 20px 24px; border: 1px solid var(--line); }
-.next-try-panel .section-label { margin-bottom: 8px; }
-.next-try-value { margin: 0; font-weight: 800; line-height: 1.5; }
-.sustainability-note { display: flex; gap: 14px; margin-bottom: 32px; color: var(--muted); font-size: .84rem; line-height: 1.5; }
-.sustainability-note p { margin: 0; }
-.note-line { width: 28px; height: 2px; margin-top: .65em; flex: 0 0 auto; background: var(--yellow); }
-.result-cta { margin: 0 0 18px; color: var(--teal); font-size: .86rem; font-weight: 800; }
+.result-header h2 { max-width: 15ch; margin-bottom: 14px; font-size: clamp(2.35rem, 10vw, 3.8rem); }
+.result-description { max-width: 34rem; margin-bottom: 0; color: var(--teal); font-size: 1.02rem; font-weight: 800; line-height: 1.65; }
+
+.result-detail-block {
+  margin-bottom: 38px;
+  padding: 26px 0 30px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.result-detail-block p {
+  margin: 0;
+  white-space: pre-line;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.result-content { padding-top: 0; }
+.result-section { margin-bottom: 28px; }
+.recommendation-section {
+  padding: 28px 26px;
+  background: var(--surface);
+  box-shadow: 0 10px 28px rgba(23, 33, 38, 0.06);
+}
+.recommendation-kicker {
+  margin: 0 0 10px;
+  color: var(--orange-dark);
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.recommendation-slogan {
+  margin: 0 0 18px;
+  font-size: clamp(1.55rem, 6vw, 2.15rem);
+  line-height: 1.05;
+  letter-spacing: -.025em;
+}
+.recommendation-description {
+  margin: 0;
+  white-space: pre-line;
+  color: var(--muted);
+  font-size: .96rem;
+  line-height: 1.8;
+}
+
+.gear-panel {
+  margin: 0 0 30px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+}
+.gear-panel[hidden] { display: none; }
+.gear-panel .section-label { margin-bottom: 10px; }
+.gear-value {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
 .site-footer { width: min(100% - 40px, 1120px); margin: 0 auto; padding: 22px 0 28px; color: var(--muted); font-size: .66rem; font-weight: 800; letter-spacing: .12em; }
 .site-footer span { float: right; color: var(--orange-dark); }
 
@@ -127,6 +174,7 @@ h1, h2 { max-width: 11ch; margin-bottom: 18px; font-size: clamp(2.65rem, 12vw, 4
   .screen { padding-top: 44px; }
   .start-visual { height: 330px; }
   .start-visual, .result-visual { border-radius: 2px; }
+  .recommendation-section { padding: 34px 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
