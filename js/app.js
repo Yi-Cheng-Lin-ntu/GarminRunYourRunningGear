@@ -49,14 +49,17 @@ const elements = {
   resultVisual: document.querySelector("[data-result-visual]"),
   resultTitle: document.querySelector("[data-result-title]"),
   resultDescription: document.querySelector("[data-result-description]"),
+  resultDetail: document.querySelector("[data-result-detail]"),
   hydrationTitle: document.querySelector("[data-result-hydration-title]"),
   hydrationDescription: document.querySelector("[data-result-hydration-description]"),
   resultCta: document.querySelector("[data-result-cta]"),
+  resultGear: document.querySelector("[data-result-gear]"),
+  gearPanel: document.querySelector("[data-gear-panel]"),
   languageLabel: document.querySelector("[data-language-label]")
 };
 
 function text(value) {
-  return value[state.language] || value.zh || value.en || "";
+  return value?.[state.language] || value?.zh || value?.en || "";
 }
 
 function updateStaticText() {
@@ -135,13 +138,25 @@ function renderQuestion() {
 
 function renderResult() {
   const result = resultData[state.result.runnerType];
-  const resultContent = state.result.sustainability ? result.sustainability : result;
+  const isSustainability = state.result.sustainability;
 
-  elements.resultTitle.textContent = text(resultContent.title);
-  elements.resultDescription.textContent = text(resultContent.description);
-  elements.hydrationTitle.textContent = text(result.hydration.title);
-  elements.hydrationDescription.textContent = text(result.hydration.description);
-  elements.resultCta.textContent = text(result.cta);
+  const identityPrefix = state.language === "zh" ? "你是｜" : "You are | ";
+  elements.resultTitle.textContent = `${identityPrefix}${text(result.title)}`;
+  elements.resultDescription.textContent = text(result.description);
+  elements.resultDetail.textContent = text(result.detail);
+  elements.resultGear.textContent = text(result.gear);
+
+  if (isSustainability) {
+    elements.hydrationTitle.textContent = text(result.sustainability.title);
+    elements.hydrationDescription.textContent = text(result.sustainability.description);
+    elements.resultCta.textContent = state.language === "zh" ? "永續先鋒隊" : "Sustainability Pioneer";
+    elements.gearPanel.hidden = true;
+  } else {
+    elements.hydrationTitle.textContent = text(result.hydration.title);
+    elements.hydrationDescription.textContent = text(result.hydration.description);
+    elements.resultCta.textContent = text(result.cta);
+    elements.gearPanel.hidden = false;
+  }
 
   elements.resultVisual.innerHTML = "";
   elements.resultVisual.classList.toggle("has-image", Boolean(result.image?.src));
