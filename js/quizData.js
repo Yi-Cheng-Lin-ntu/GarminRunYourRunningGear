@@ -149,41 +149,6 @@ export const quizData = {
           isMeme: true
         }
       ]
-    },
-    {
-      id: "q6",
-      prompt: {
-        zh: "恭喜完賽！下一場賽事你想……",
-        en: "Congratulations on finishing! For your next race, you want to try..."
-      },
-      options: [
-        {
-          id: "q6_soft_flask",
-          text: { zh: "軟水壺在手，攜帶不酸手", en: "A soft flask that is easy to carry without tiring my hand" },
-          traits: []
-        },
-        {
-          id: "q6_soft_cup",
-          text: { zh: "軟水杯輕便，停歇更輕快", en: "A lightweight soft cup for an easier break" },
-          traits: []
-        },
-        {
-          id: "q6_trail_vest",
-          text: { zh: "野跑背心，風格速度兼備", en: "A trail vest that combines style and speed" },
-          traits: []
-        },
-        {
-          id: "q6_performance_gear",
-          text: { zh: "屏除障礙，持續突破成績", en: "Remove obstacles and keep breaking my records" },
-          traits: []
-        },
-        {
-          id: "q6_sustainability",
-          text: { zh: "與跑友分享自己為什麼選擇自帶補水裝備", en: "Share with fellow runners why I choose to bring my own hydration gear" },
-          traits: [],
-          sustainability: true
-        }
-      ]
     }
   ]
 };

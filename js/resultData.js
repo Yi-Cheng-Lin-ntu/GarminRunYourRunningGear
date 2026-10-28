@@ -51,7 +51,3 @@ export const resultData = {
     cta: { zh: "讓每一步都更精準", en: "Make every step more precise" }
   }
 };
-
-export const q6ResultData = {
-  label: { zh: "下一場想嘗試", en: "What you want to try next" }
-};

@@ -35,10 +35,9 @@ flowchart TD
 ## 分類行為與資料契約
 
 - runner type 固定為 `experience`、`lifestyle`、`performance`，須同時存在於 `classificationRules.js` 與 `content.csv` 的 `result` 列 `id`。
-- 分類器依答案選項的 `traits` 累計分數；目前 Q1–Q5 參與計分，Q6 不計入 runner type。分數最高者勝出，平手依 `classificationRules.js` 的順序：`experience` > `lifestyle` > `performance`。
+- 分類器依答案選項的 `traits` 累計分數；Q1–Q5 參與計分。分數最高者勝出，平手依 `classificationRules.js` 的順序：`experience` > `lifestyle` > `performance`。
 - `sustainability=true` 是獨立 flag，不加進三向度分數；任一題已選選項帶有此 flag，結果就會使用永續版本。每種 runner type 都需在 CSV 有相同 `id` 的 `result_sustainability` 列。
 - 分類在完成測驗時依目前所有答案重新計算；返回修改答案會以新答案取代舊答案，不會重複累加分數。
-- Q6 的識別目前由 `q6` id 決定；更名或新增題目時，需檢查 `js/classificationEngine.js` 與 `js/app.js` 的相應邏輯。
 
 以上 tie-break 與計分方式是活動 prototype 的 placeholder，不代表正式心理測量結果。
 
