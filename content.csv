@@ -30,7 +30,7 @@ result,experience,,賽道體驗派,The Course Experience Runner,氣氛、特色�
 到了補給站停一下、自己裝水再繼續上路，或許也會成為另一種有趣的賽道體驗。","Running does not need to be complicated. Find a comfortable hydration approach that suits you, such as a lightweight soft cup.",軟水杯,,輕便、簡單嘗試,Enjoy a better course experience together,,賽道體驗派圖片預留位置,Course experience runner image placeholder
 result_sustainability,experience,,"自己的水自己背、Ready, Set, Change","Bring your own water — Ready, Set, Change","看來自帶補水裝備早就在你的跑步清單裡了。
 
-下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,,
+下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,
 result,lifestyle,,自在生活派,The Easy Lifestyle Runner,熟悉、從容、自己的節奏，跑步早已是生活的一部分。,Running naturally fits into your life. You run at your own pace and hydrate your own way.,"跑步對你來說，早就不是一件需要特別安排的大事。
 
 你有自己熟悉的節奏，也知道什麼樣的跑法最舒服。平常出去跑跑，偶爾站上賽道和大家一起跑；不用每一次都追著別人的目標，照自己的方式享受跑步就很好。",,,,,熟悉的跑法，也可以多一個新選擇,"Independent, flexible, and free from station limits","跑步已經融入你的日常，也可以試著把自己的補水方式帶進去。
@@ -38,20 +38,20 @@ result,lifestyle,,自在生活派,The Easy Lifestyle Runner,熟悉、從容、�
 帶上一個軟水壺，日常跑步時想喝就喝；參加比較輕鬆的賽事時，也可以按照自己的節奏補水。不用一次改變所有習慣，從一次平常的跑步開始就好。",Run your way and hydrate at your own pace. A soft flask or hydration vest can give you more freedom.,軟水壺,,自主、自由、隨時補水,Keep moving at your own pace,,自在生活派圖片預留位置,Easy lifestyle runner image placeholder
 result_sustainability,lifestyle,,"自己的水自己背、Ready, Set, Change","Bring your own water — Ready, Set, Change","看來自帶補水裝備早就在你的跑步清單裡了。
 
-下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,,
+下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,
 result,performance,,精準急速派,The Precision Speed Runner,目標、策略、執行，站上賽道就是要把今天的目標跑出來。,"You value training, goals, and efficiency. You like to control your pace and keep improving.","你喜歡知道自己為什麼而跑，也願意為目標好好準備。
 
-配速、訓練內容、裝備、補給與比賽策略都有它的位置。一次次訓練累積成賽道上的表現，設定目標、執行計畫，再看看自己究竟還能跑多快，正是跑步吸引你的地方。",,,,,"不是每一場比賽，都需要追 PB",Efficient hydration for each situation,"追求精準配速的你，連進站抓水杯都會嚴格練習，目標賽當然不可能停下來慢慢裝水。
+配速、訓練內容、裝備、補給與比賽策略都有它的位置。一次次訓練累積成賽道上的表現，設定目標、執行計畫，再看看自己究竟還能跑多快，正是跑步吸引你的地方。",,,,,不是每一場比賽，都需要追 PB,Efficient hydration for each situation,"追求精準配速的你，連進站抓水杯都會嚴格練習，目標賽當然不可能停下來慢慢裝水。
 
 但下一場不是目標賽的時候，也可以帶上軟水杯或軟水壺，停下來好好補水、看看沿途的賽道，試試和平常追求成績時不一樣的跑法。",Choose the hydration approach that least interrupts your rhythm for each training or race goal. No single product has to define you.,軟水杯／軟水壺,,效率、速度、控制,Make every step more precise,,精準急速派圖片預留位置,Precision speed runner image placeholder
 result_sustainability,performance,,"自己的水自己背、Ready, Set, Change","Bring your own water — Ready, Set, Change","看來自帶補水裝備早就在你的跑步清單裡了。
 
-下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,,
-ui,result.eyebrow,,YOUR RUNNER STYLE,YOUR RUNNER STYLE,,,,,,,,,,,,,,,,,,,
-ui,result.label,,跑者身分,Runner identity,,,,,,,,,,,,,,,,,,,
-ui,result.hydrationLabel,,下一次可以試試,Try this next time,,,,,,,,,,,,,,,,,,,
-ui,result.note,,補水裝備推薦,Hydration gear recommendation,,,,,,,,,,,,,,,,,,,
-ui,result.retry,,重新測驗,Try again,,,,,,,,,,,,,,,,,,,
-ui,navigation.back,,返回,Back,,,,,,,,,,,,,,,,,,,
-ui,navigation.next,,下一題,Next,,,,,,,,,,,,,,,,,,,
-ui,quiz.seeResult,,看結果,See result,,,,,,,,,,,,,,,,,,,
+下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,
+ui,result.eyebrow,,YOUR RUNNER STYLE,YOUR RUNNER STYLE,,,,,,,,,,,,,,,,,,
+ui,result.label,,跑者身分,Runner identity,,,,,,,,,,,,,,,,,,
+ui,result.hydrationLabel,,下一次可以試試,Try this next time,,,,,,,,,,,,,,,,,,
+ui,result.note,,補水裝備推薦,Hydration gear recommendation,,,,,,,,,,,,,,,,,,
+ui,result.retry,,重新測驗,Try again,,,,,,,,,,,,,,,,,,
+ui,navigation.back,,返回,Back,,,,,,,,,,,,,,,,,,
+ui,navigation.next,,下一題,Next,,,,,,,,,,,,,,,,,,
+ui,quiz.seeResult,,看結果,See result,,,,,,,,,,,,,,,,,,
