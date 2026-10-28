@@ -51,24 +51,28 @@
         <div class="result-header">
           <p class="eyebrow" data-i18n="result.eyebrow">YOUR RUNNER STYLE</p>
           <div class="result-visual" data-result-visual aria-hidden="true"></div>
-          <p class="section-label" data-i18n="result.label">你的跑者風格是</p>
+          <p class="section-label" data-i18n="result.label">跑者身分</p>
           <h2 id="result-title" data-result-title></h2>
           <p class="result-description" data-result-description></p>
         </div>
+
+        <div class="result-detail-block">
+          <p data-result-detail></p>
+        </div>
+
         <div class="result-content">
-          <p class="section-label" data-i18n="result.hydrationLabel">適合你的補水方式</p>
-          <div class="hydration-panel">
-            <div>
-              <h3 data-result-hydration-title></h3>
-              <p data-result-hydration-description></p>
-            </div>
-            <span class="panel-arrow" aria-hidden="true">↗</span>
-          </div>
-          <div class="sustainability-note">
-            <span class="note-line"></span>
-            <p data-i18n="result.note">每一種跑法，都能找到適合自己的補水方式。</p>
-          </div>
-          <p class="result-cta" data-result-cta></p>
+          <section class="result-section recommendation-section">
+            <p class="section-label" data-i18n="result.hydrationLabel">下一次可以試試</p>
+            <p class="recommendation-kicker" data-result-hydration-title></p>
+            <h3 class="recommendation-slogan" data-result-cta></h3>
+            <p class="recommendation-description" data-result-hydration-description></p>
+          </section>
+
+          <section class="gear-panel" data-gear-panel>
+            <p class="section-label" data-i18n="result.note">補水裝備推薦</p>
+            <p class="gear-value" data-result-gear></p>
+          </section>
+
           <button class="button button-secondary button-wide" type="button" data-action="retry" data-i18n="result.retry">重新測驗</button>
         </div>
       </section>
