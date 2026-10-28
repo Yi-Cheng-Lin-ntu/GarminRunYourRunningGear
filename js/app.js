@@ -5,7 +5,6 @@ import { loadContent } from "./contentData.js";
 let quizData;
 let runnerTypes;
 let resultData;
-let q6ResultData;
 let uiContent;
 
 const translations = {
@@ -13,7 +12,7 @@ const translations = {
     "start.eyebrow": "GARMIN RUN 2026",
     "start.label": "跑者風格測驗",
     "start.title": "找到你的跑者節奏",
-    "start.description": "六個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。",
+    "start.description": "五個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。",
     "start.button": "開始測驗",
     "start.note": "約 1 分鐘完成・無需登入",
   },
@@ -21,7 +20,7 @@ const translations = {
     "start.eyebrow": "GARMIN RUN 2026",
     "start.label": "RUNNER STYLE QUIZ",
     "start.title": "Find your running rhythm",
-    "start.description": "Six running moments reveal your runner style and the hydration approach that fits you.",
+    "start.description": "Five running moments reveal your runner style and the hydration approach that fits you.",
     "start.button": "Start quiz",
     "start.note": "About 1 minute・No sign-in",
   }
@@ -52,8 +51,6 @@ const elements = {
   resultDescription: document.querySelector("[data-result-description]"),
   hydrationTitle: document.querySelector("[data-result-hydration-title]"),
   hydrationDescription: document.querySelector("[data-result-hydration-description]"),
-  q6ResultLabel: document.querySelector("[data-q6-result-label]"),
-  q6ResultValue: document.querySelector("[data-q6-result-value]"),
   resultCta: document.querySelector("[data-result-cta]"),
   languageLabel: document.querySelector("[data-language-label]")
 };
@@ -115,9 +112,7 @@ function renderQuestion() {
   const totalQuestions = quizData.questions.length;
 
   elements.questionCount.textContent = `${questionNumber} / ${totalQuestions}`;
-  elements.questionNumber.textContent = state.language === "zh"
-    ? `QUESTION ${String(questionNumber).padStart(2, "0")}`
-    : `QUESTION ${String(questionNumber).padStart(2, "0")}`;
+  elements.questionNumber.textContent = `QUESTION ${String(questionNumber).padStart(2, "0")}`;
   elements.questionPrompt.textContent = text(question.prompt);
   elements.progressBar.style.width = `${(questionNumber / totalQuestions) * 100}%`;
   elements.nextButton.disabled = !selectedAnswer;
@@ -141,16 +136,12 @@ function renderQuestion() {
 function renderResult() {
   const result = resultData[state.result.runnerType];
   const resultContent = state.result.sustainability ? result.sustainability : result;
+
   elements.resultTitle.textContent = text(resultContent.title);
   elements.resultDescription.textContent = text(resultContent.description);
   elements.hydrationTitle.textContent = text(result.hydration.title);
   elements.hydrationDescription.textContent = text(result.hydration.description);
   elements.resultCta.textContent = text(result.cta);
-
-  const q6Question = quizData.questions.find((question) => question.id === "q6");
-  const q6Option = q6Question.options.find((option) => option.id === state.answers.q6);
-  elements.q6ResultLabel.textContent = text(q6ResultData.label);
-  elements.q6ResultValue.textContent = q6Option ? text(q6Option.text) : "";
 
   elements.resultVisual.innerHTML = "";
   elements.resultVisual.classList.toggle("has-image", Boolean(result.image?.src));
@@ -162,7 +153,7 @@ function renderResult() {
   } else {
     const placeholder = document.createElement("span");
     placeholder.className = "result-visual-placeholder";
-    placeholder.textContent = state.language === "zh" ? "IMAGE / COMING SOON" : "IMAGE / COMING SOON";
+    placeholder.textContent = "IMAGE / COMING SOON";
     elements.resultVisual.append(placeholder);
   }
 }
@@ -238,7 +229,7 @@ document.addEventListener("change", (event) => {
 
 elements.startButton.disabled = true;
 loadContent().then((content) => {
-  ({ quizData, runnerTypes, resultData, q6ResultData, ui: uiContent } = content);
+  ({ quizData, runnerTypes, resultData, ui: uiContent } = content);
   elements.startButton.disabled = false;
   updateStaticText();
 }).catch((error) => {
