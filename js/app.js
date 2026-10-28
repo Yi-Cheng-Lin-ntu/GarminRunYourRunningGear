@@ -133,7 +133,6 @@ function renderQuestion() {
         <label for="${option.id}">
           <span class="option-index">${String.fromCharCode(65 + index)}</span>
           <span class="option-text">${text(option.text)}</span>
-          ${option.detail ? `<span class="option-detail">${text(option.detail)}</span>` : ""}
         </label>
       </div>`;
   }).join("");

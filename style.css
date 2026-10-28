@@ -95,7 +95,6 @@ h1, h2 { max-width: 11ch; margin-bottom: 18px; font-size: clamp(2.65rem, 12vw, 4
 .option-card label { display: block; min-height: 76px; padding: 17px 20px 17px 50px; cursor: pointer; }
 .option-index { position: absolute; top: 18px; left: 20px; color: var(--orange-dark); font-size: .75rem; font-weight: 900; }
 .option-text { display: block; font-weight: 800; line-height: 1.45; }
-.option-detail { display: block; margin-top: 5px; color: var(--muted); font-size: .86rem; line-height: 1.5; }
 .quiz-actions { margin-top: 26px; }
 
 .result-header { margin-bottom: 40px; }

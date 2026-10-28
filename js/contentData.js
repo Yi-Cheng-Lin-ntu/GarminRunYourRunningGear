@@ -6,8 +6,8 @@ const CSV_COLUMNS = [
   "parent_id",
   "zh",
   "en",
-  "detail_zh",
-  "detail_en",
+  "description_zh",
+  "description_en",
   "traits",
   "sustainability",
   "is_meme",
@@ -102,9 +102,6 @@ function buildContent(rows) {
     question.options.push({
       id: row.id,
       text: localized(row.zh, row.en),
-      ...(row.detail_zh || row.detail_en
-        ? { detail: localized(row.detail_zh, row.detail_en) }
-        : {}),
       traits: row.traits ? row.traits.split("|").filter(Boolean) : [],
       sustainability: readBoolean(row.sustainability, "sustainability", row.id),
       isMeme: readBoolean(row.is_meme, "is_meme", row.id)
@@ -118,7 +115,7 @@ function buildContent(rows) {
   const resultRows = rows.filter((row) => row.type === "result");
   const resultData = Object.fromEntries(resultRows.map((row) => [row.id, {
     title: localized(row.zh, row.en),
-    description: localized(row.detail_zh, row.detail_en),
+    description: localized(row.description_zh, row.description_en),
     hydration: {
       title: localized(row.hydration_title_zh, row.hydration_title_en),
       description: localized(row.hydration_description_zh, row.hydration_description_en)
@@ -138,7 +135,7 @@ function buildContent(rows) {
     }
     result.sustainability = {
       title: localized(row.zh, row.en),
-      description: localized(row.detail_zh, row.detail_en)
+      description: localized(row.description_zh, row.description_en)
     };
   });
 

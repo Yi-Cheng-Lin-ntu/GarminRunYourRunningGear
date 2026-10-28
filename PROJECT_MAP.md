@@ -51,9 +51,9 @@ flowchart TD
 | `type` | 用途與主要欄位 |
 | --- | --- |
 | `question` | 一題。`id` 是題目 key；`zh`、`en` 是題目文字。 |
-| `option` | 一個選項。`parent_id` 指向題目 `id`；`id` 是答案 key；`zh`、`en` 是選項文字；`detail_zh`、`detail_en` 是可選補充說明。 |
-| `result` | 一種 runner type。`id` 必須與分類器使用的 type key 一致；`zh`、`en` 是結果標題，`detail_zh`、`detail_en` 是結果描述；補水內容使用 `hydration_title_*`、`hydration_description_*`，CTA 使用 `cta_*`，圖片使用 `image_src` 與 `image_alt_*`。 |
-| `result_sustainability` | 對應 `id` 的永續結果版本；`zh`、`en` 是標題，`detail_zh`、`detail_en` 是描述。每個 `result` 都必須有一列。 |
+| `option` | 一個選項。`parent_id` 指向題目 `id`；`id` 是答案 key；`zh`、`en` 是唯一的選項文字。 |
+| `result` | 一種 runner type。`id` 必須與分類器使用的 type key 一致；`zh`、`en` 是結果標題，`description_zh`、`description_en` 是結果描述；補水內容使用 `hydration_title_*`、`hydration_description_*`，CTA 使用 `cta_*`，圖片使用 `image_src` 與 `image_alt_*`。 |
+| `result_sustainability` | 對應 `id` 的永續結果版本；`zh`、`en` 是標題，`description_zh`、`description_en` 是描述。每個 `result` 都必須有一列。 |
 | `ui` | 測驗／結果介面的雙語標籤；`id` 是 UI key，文字放在 `zh`、`en`。 |
 
 修改選項分類時，`traits` 可填 `experience`、`lifestyle`、`performance`，多個值以 `|` 分隔；`sustainability` 與 `is_meme` 只接受小寫 `true` 或 `false`。永續選項以 `sustainability=true` 標示，meme 選項以 `is_meme=true` 標示；不要只靠選項文字判斷分類。空欄代表沒有內容／旗標為 false。新增或更名題目、選項、runner type 時，需一併確認分類規則與分類器契約，避免 key 不相符。
