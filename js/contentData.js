@@ -1,6 +1,6 @@
 const CSV_URL = new URL("../content.csv", import.meta.url);
 
-const CSV_COLUMNS = [
+const REQUIRED_COLUMNS = [
   "type",
   "id",
   "parent_id",
@@ -76,7 +76,7 @@ function parseCsv(source) {
 }
 
 function localized(zh, en) {
-  return { zh, en };
+  return { zh: zh || "", en: en || "" };
 }
 
 function readBoolean(value, column, id) {
@@ -116,13 +116,15 @@ function buildContent(rows) {
   const resultData = Object.fromEntries(resultRows.map((row) => [row.id, {
     title: localized(row.zh, row.en),
     description: localized(row.description_zh, row.description_en),
+    detail: localized(row.detail_zh, row.detail_en),
     hydration: {
       title: localized(row.hydration_title_zh, row.hydration_title_en),
       description: localized(row.hydration_description_zh, row.hydration_description_en)
     },
+    gear: localized(row.gear_zh, row.gear_en),
     sustainability: {},
     image: {
-      src: row.image_src,
+      src: row.image_src || "",
       alt: localized(row.image_alt_zh, row.image_alt_en)
     },
     cta: localized(row.cta_zh, row.cta_en)
@@ -166,8 +168,8 @@ export async function loadContent() {
   }
 
   const [header, ...dataRows] = parseCsv((await response.text()).replace(/^\uFEFF/, ""));
-  if (!header || header.length !== CSV_COLUMNS.length || header.some((column, index) => column !== CSV_COLUMNS[index])) {
-    throw new Error("content.csv has an unexpected column header.");
+  if (!header || REQUIRED_COLUMNS.some((column) => !header.includes(column))) {
+    throw new Error("content.csv is missing one or more required columns.");
   }
 
   const records = dataRows.map((cells, index) => {
