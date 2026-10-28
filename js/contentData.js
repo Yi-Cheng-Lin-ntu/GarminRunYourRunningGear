@@ -155,7 +155,6 @@ function buildContent(rows) {
     quizData: { questions },
     runnerTypes: resultRows.map((row) => row.id),
     resultData,
-    q6ResultData: { label: ui["q6Result.label"] },
     ui
   };
 }
