@@ -40,7 +40,7 @@ body::before {
   inset: -4vh -22vw -8vh;
   z-index: 0;
   pointer-events: none;
-  background-image: url("./taipei_roadmap.svg");
+  background-image: url("./taipei.svg");
   background-repeat: no-repeat;
   background-position: 58% 72%;
   background-size: 165% auto;
@@ -408,7 +408,7 @@ h1, h2, h3 { margin-top: 0; }
   body::before {
     inset: -2vh -30vw -8vh;
     background-position: 61% 72%;
-    background-size: 180% auto;
+    background-size: 210% auto;
   }
   body::after {
     right: -74px;
