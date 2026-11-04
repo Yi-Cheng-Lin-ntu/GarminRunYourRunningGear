@@ -571,6 +571,10 @@ h1, h2, h3 { margin-top: 0; }
   color: var(--color-muted);
   text-align: center;
 }
+.screen-redemption:not(.is-sustainable) .prize-image {
+  background: var(--color-blue);
+  color: var(--color-bg);
+}
 .prize-image.has-image { min-height: 280px; }
 .prize-image img { width: 100%; height: 280px; object-fit: contain; }
 .prize-name {

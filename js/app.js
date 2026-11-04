@@ -369,10 +369,9 @@ function renderRedemption(allocation) {
   }
   const redemptionInstruction = document.querySelector(".redemption-instruction");
   if (allocationPaused && redemptionInstruction) {
-    redemptionInstruction.textContent = text(allocation.message) || (state.language === "zh"
-      ? "目前獎品分配暫停，請洽現場工作人員"
-      : "Prize allocation is paused. Please contact a staff member.");
+    redemptionInstruction.hidden = true;
   } else if (redemptionInstruction) {
+    redemptionInstruction.hidden = false;
     redemptionInstruction.textContent = state.language === "zh"
       ? "請至攤位找工作人員領取 Garmin 周邊"
       : "Please visit the booth to collect Garmin merchandise from a staff member";
