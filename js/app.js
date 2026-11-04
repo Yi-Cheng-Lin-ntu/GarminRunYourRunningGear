@@ -322,9 +322,12 @@ function renderRedemption(allocation) {
   elements.redemptionRunner.textContent = `${identityPrefix}${runnerTitle}`;
 
   const prize = allocation.prize;
-  elements.prizeName.textContent = prize
-    ? text({ zh: prize.nameZh, en: prize.nameEn })
-    : (state.language === "zh" ? "獎品資料尚未確認" : "Prize details unavailable");
+  const allocationPaused = allocation.allocationStatus === "paused";
+  elements.prizeName.textContent = allocationPaused
+    ? text(allocation.message)
+    : prize
+      ? text({ zh: prize.nameZh, en: prize.nameEn })
+      : (state.language === "zh" ? "獎品資料尚未確認" : "Prize details unavailable");
 
   elements.prizeImage.classList.remove("has-image");
   elements.prizeImage.replaceChildren();
@@ -351,7 +354,9 @@ function renderRedemption(allocation) {
 
   const greenVersion = allocation.sustainabilityRewardEligible === true;
   elements.redemption.classList.toggle("is-sustainable", greenVersion);
-  elements.redemptionTitle.textContent = state.language === "zh" ? "你的獲得獎品" : "Your prize";
+  elements.redemptionTitle.textContent = allocationPaused
+    ? (state.language === "zh" ? "獎品分配狀態" : "Prize allocation status")
+    : (state.language === "zh" ? "你的獲得獎品" : "Your prize");
 
   if (greenVersion) {
     elements.sustainabilityMessage.hidden = false;
@@ -361,6 +366,16 @@ function renderRedemption(allocation) {
   } else {
     elements.sustainabilityMessage.hidden = true;
     elements.sustainabilityMessage.textContent = "";
+  }
+  const redemptionInstruction = document.querySelector(".redemption-instruction");
+  if (allocationPaused && redemptionInstruction) {
+    redemptionInstruction.textContent = text(allocation.message) || (state.language === "zh"
+      ? "目前獎品分配暫停，請洽現場工作人員"
+      : "Prize allocation is paused. Please contact a staff member.");
+  } else if (redemptionInstruction) {
+    redemptionInstruction.textContent = state.language === "zh"
+      ? "請至攤位找工作人員領取 Garmin 周邊"
+      : "Please visit the booth to collect Garmin merchandise from a staff member";
   }
   showScreen(elements.redemption);
 }
@@ -644,7 +659,7 @@ elements.participationForm.addEventListener("submit", async (event) => {
 
   try {
     const response = await submitParticipation(payload);
-    if (!response.ok) {
+    if (!response.ok && response.allocationStatus !== "paused") {
       throw new Error(state.language === "zh" ? response.message.zh : response.message.en);
     }
     clearPendingRequest();

@@ -79,17 +79,21 @@ test("premium fallback moves to general pool when shopping bag is empty", async 
   assert.notEqual(result.prize.prizeId, "shopping_bag");
 });
 
-test("general-empty allocation pauses without deducting stock or creating records", async () => {
+test("general-empty allocation records participant and shows paused result without prize records", async () => {
   mockApi.resetMockTestData();
   mockApi.applyMockScenario("general_empty");
   const before = mockApi.getMockSnapshot();
   const result = await mockApi.submitParticipation(basePayload("general-empty"));
   const after = mockApi.getMockSnapshot();
 
-  assert.equal(result.ok, false);
+  assert.equal(result.ok, true);
   assert.equal(result.code, "ALLOCATION_PAUSED");
-  assert.equal(after.requestCount, before.requestCount);
+  assert.equal(result.allocationStatus, "paused");
+  assert.equal(result.prize, null);
+  assert.equal(after.requestCount, before.requestCount + 1);
   assert.equal(after.allocations.length, before.allocations.length);
+  assert.equal(after.participants.length, before.participants.length + 1);
+  assert.equal(after.participants.at(-1).allocationStatus, "paused");
   assert.equal(Object.values(after.stock).filter((value) => value < 0).length, 0);
 });
 

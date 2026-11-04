@@ -224,16 +224,46 @@ export async function submitParticipation(payload) {
     }
 
     if (!prizeId) {
-      return {
-        ok: false,
+      const participantId = `demo_${payload.requestId.slice(-12)}`;
+      const pausedResult = {
+        ok: true,
         retryable: false,
         code: "ALLOCATION_PAUSED",
         message: {
-          zh: "目前獎品分配暫停，請洽現場工作人員",
-          en: "Allocation is paused. Please contact a staff member."
+          zh: "現場獎品已贈送完畢，謝謝您的參與~",
+          en: "All prizes have been given out. Thank you for participating!"
         },
+        participantId,
+        requestId: payload.requestId,
+        sessionId: payload.sessionId,
+        allocationStatus: "paused",
+        runnerType: payload.runnerType,
+        prize: null,
+        sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
         demoMode: true
       };
+      const participants = getJsonArray(MOCK_PARTICIPANTS_KEY);
+      participants.push({
+        participantId,
+        requestId: payload.requestId,
+        createdAt: new Date().toISOString(),
+        runnerType: payload.runnerType,
+        existingSelfHydration: payload.existingSelfHydration,
+        hydrationCommitment: payload.hydrationCommitment,
+        sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
+        premiumPrizeEligible: payload.premiumPrizeEligible,
+        raffleOptIn: payload.raffleOptIn === true,
+        name: payload.raffleOptIn === true ? payload.name : "",
+        email: payload.raffleOptIn === true ? payload.email : "",
+        prizeId: "",
+        allocationStatus: "paused",
+        redemptionStatus: "not_applicable"
+      });
+      requests[payload.requestId] = pausedResult;
+      saveJson(MOCK_PARTICIPANTS_KEY, participants);
+      saveJson(MOCK_REQUESTS_KEY, requests);
+      saveAllocationRecovery(pausedResult);
+      return { ...pausedResult, idempotentReplay: false };
     }
 
     const participantId = `demo_${payload.requestId.slice(-12)}`;

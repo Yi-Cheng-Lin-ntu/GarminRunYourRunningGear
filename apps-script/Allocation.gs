@@ -149,19 +149,41 @@ function submitParticipation(payload) {
 }
 
 function allocationPausedResult(payload, names, requestSheet, now, code) {
+  var participantId = payload.demoMode
+    ? "demo_" + Utilities.getUuid()
+    : "participant_" + Utilities.getUuid();
+  var pausedZh = code === "RAFFLE_DISABLED"
+    ? "賽後抽獎目前暫停，但感謝你的參與"
+    : "現場獎品已贈送完畢，謝謝您的參與~";
+  var pausedEn = code === "RAFFLE_DISABLED"
+    ? "Raffle registration is paused, but thank you for participating."
+    : "All prizes have been given out. Thank you for participating!";
   var result = {
-    ok: false,
+    ok: true,
     retryable: false,
     demoMode: payload.demoMode,
     code: code || "ALLOCATION_PAUSED",
     message: {
-      zh: "目前獎品分配暫停，請洽現場工作人員",
-      en: "Allocation is paused. Please contact a staff member."
+      zh: pausedZh,
+      en: pausedEn
     },
+    participantId: participantId,
+    sessionId: payload.sessionId,
+    allocationStatus: "paused",
+    runnerType: payload.runnerType,
+    prize: null,
+    sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
     requestId: payload.requestId
   };
+  var participantSheet = SpreadsheetApp.getActive().getSheetByName(names.participants);
+  participantSheet.appendRow([
+    participantId, payload.requestId, now, payload.runnerType, payload.existingSelfHydration,
+    payload.hydrationCommitment, payload.sustainabilityRewardEligible, payload.premiumPrizeEligible,
+    payload.raffleOptIn, payload.name, payload.email, payload.privacyNoticeVersion,
+    payload.privacyAcknowledgedAt, "", "paused", now, "", "not_applicable"
+  ]);
   requestSheet.appendRow([
-    payload.requestId, payload.sessionId, "", "paused", JSON.stringify(result), now, now
+    payload.requestId, payload.sessionId, participantId, "paused", JSON.stringify(result), now, now
   ]);
   return result;
 }
