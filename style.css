@@ -5,7 +5,7 @@
   --brand-surface: #11171a;
   --brand-white: #f7faf8;
   --brand-muted: #8e9ba0;
-  --brand-blue: #5aceff;
+  --brand-blue: #7bccff;
   --brand-blue-mid: #a9def2;
   --brand-green: #00ff19;
   /* Semantic roles */
@@ -46,7 +46,7 @@
   --content-width: 620px;
   --gutter: 20px;
   --motion-duration: 160ms;
-  --map-opacity: .07;
+  --map-opacity: .2;
   --motion-blue: rgba(214,242,255,.12);
   /* Compatibility aliases for existing components */
   --color-bg: var(--bg-primary);
@@ -82,7 +82,7 @@ body::before {
   inset: -4vh -22vw -8vh;
   z-index: 0;
   pointer-events: none;
-  background-color: var(--brand-blue);
+  background-color: #85fdd3;
   mask-image: url("./taipei.svg");
   mask-repeat: no-repeat;
   mask-position: 58% 72%;
