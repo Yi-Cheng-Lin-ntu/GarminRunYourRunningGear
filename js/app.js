@@ -265,10 +265,14 @@ function resetFlowState({ preservePendingRequest = false } = {}) {
   elements.prizeName.textContent = "";
   elements.sustainabilityMessage.textContent = "";
   elements.sustainabilityMessage.hidden = true;
+  elements.redemptionTitle.hidden = false;
   elements.prizeImage.classList.remove("has-image");
   elements.prizeImage.replaceChildren();
+  elements.prizeImage.hidden = false;
   clearAllocationRecovery();
   elements.redemption.classList.remove("is-sustainable");
+  elements.redemption.classList.remove("is-non-sustainable");
+  elements.prizeImage.classList.remove("is-non-sustainable");
   if (!preservePendingRequest) clearPendingRequest();
 }
 
@@ -333,7 +337,10 @@ function renderRedemption(allocation) {
   elements.prizeImage.replaceChildren();
   const catalogPrize = prize?.prizeId ? prizeCatalog[prize.prizeId] : null;
   const prizeImagePath = prize?.imagePath || catalogPrize?.imagePath || "";
-  if (prizeImagePath) {
+  if (allocationPaused) {
+    elements.prizeImage.hidden = true;
+  } else if (prizeImagePath) {
+    elements.prizeImage.hidden = false;
     const image = document.createElement("img");
     image.src = prizeImagePath;
     image.alt = text({ zh: prize.nameZh, en: prize.nameEn });
@@ -341,22 +348,35 @@ function renderRedemption(allocation) {
       elements.prizeImage.classList.remove("has-image");
       elements.prizeImage.replaceChildren();
       const placeholder = document.createElement("span");
-      placeholder.textContent = state.language === "zh" ? "獎品圖片尚未提供" : "Prize image not yet available";
+      placeholder.textContent = state.language === "zh"
+        ? "獎品圖片尚未提供"
+        : "Prize image not yet available";
       elements.prizeImage.append(placeholder);
     };
     elements.prizeImage.append(image);
     elements.prizeImage.classList.add("has-image");
   } else {
+    elements.prizeImage.hidden = false;
     const placeholder = document.createElement("span");
-    placeholder.textContent = state.language === "zh" ? "獎品圖片尚未提供" : "Prize image not yet available";
+    placeholder.textContent = state.language === "zh"
+      ? "獎品圖片尚未提供"
+      : "Prize image not yet available";
     elements.prizeImage.append(placeholder);
   }
 
   const greenVersion = allocation.sustainabilityRewardEligible === true;
   elements.redemption.classList.toggle("is-sustainable", greenVersion);
-  elements.redemptionTitle.textContent = allocationPaused
-    ? (state.language === "zh" ? "獎品分配狀態" : "Prize allocation status")
-    : (state.language === "zh" ? "你的獲得獎品" : "Your prize");
+  elements.redemption.classList.toggle("is-non-sustainable", !greenVersion);
+  elements.prizeImage.classList.toggle("is-non-sustainable", !greenVersion);
+  if (allocationPaused) {
+    elements.redemptionTitle.textContent = "";
+    elements.redemptionTitle.hidden = true;
+  } else {
+    elements.redemptionTitle.hidden = false;
+    elements.redemptionTitle.textContent = state.language === "zh"
+      ? "你的獲得獎品"
+      : "Your prize";
+  }
 
   if (greenVersion) {
     elements.sustainabilityMessage.hidden = false;

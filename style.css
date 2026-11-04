@@ -571,7 +571,8 @@ h1, h2, h3 { margin-top: 0; }
   color: var(--color-muted);
   text-align: center;
 }
-.screen-redemption:not(.is-sustainable) .prize-image {
+.screen-redemption.is-non-sustainable .prize-image,
+.prize-image.is-non-sustainable {
   background: var(--color-blue);
   color: var(--color-bg);
 }
