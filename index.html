@@ -77,7 +77,95 @@
             <p class="gear-value" data-result-gear></p>
           </section>
 
+          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="result.continue">下一步｜領取活動獎品</button>
           <button class="button button-secondary button-wide" type="button" data-action="retry" data-i18n="result.retry">重新測驗</button>
+        </div>
+      </section>
+
+      <section class="screen screen-participation" id="participation" aria-labelledby="participation-title" hidden>
+        <div class="participation-header">
+          <p class="eyebrow" data-i18n="participation.eyebrow">現場領獎程序</p>
+          <p class="demo-badge" data-i18n="participation.demoBadge">DEMO MODE｜測試資料，不會正式登記抽獎</p>
+          <h2 id="participation-title" data-i18n="participation.title">完成測驗，還有機會抽 Forerunner 170！</h2>
+        </div>
+
+        <form class="participation-form" data-participation-form novalidate>
+          <section class="form-section raffle-section">
+            <h3 data-i18n="participation.raffleTitle">賽後抽獎登記</h3>
+            <p data-i18n="participation.raffleDescription">想參加賽後抽獎嗎？留下姓名與電子郵件即可登記。不參加也能繼續領取現場獎品。</p>
+            <label class="toggle-row">
+              <input type="checkbox" data-raffle-toggle />
+              <span data-i18n="participation.raffleToggle">我要參加賽後抽獎</span>
+            </label>
+            <div class="raffle-fields" data-raffle-fields hidden>
+              <label>
+                <span data-i18n="participation.name">姓名</span>
+                <input type="text" maxlength="80" autocomplete="name" data-name />
+              </label>
+              <label>
+                <span>Email</span>
+                <input type="email" maxlength="254" autocomplete="email" data-email />
+              </label>
+              <div class="privacy-copy" data-i18n="participation.privacyPlaceholder">［待核准個資告知文字］僅供正式法務核准前的介面占位，不代表 Garmin 已核准蒐集或使用方式。</div>
+              <label class="toggle-row privacy-row">
+                <input type="checkbox" data-privacy-check />
+                <span data-i18n="participation.privacyConfirm">我已閱讀並確認上述個資告知</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section hydration-section" data-hydration-section>
+            <div data-existing-hydration hidden>
+              <p class="section-label" data-i18n="participation.existingLabel">永續行動</p>
+              <h3 data-i18n="participation.existingTitle">謝謝你已經開始自帶補水！</h3>
+              <p data-i18n="participation.existingDescription">自帶補水已經是你的跑步選擇。邀請你繼續保持，也和身邊的跑友分享這種補水方式。</p>
+            </div>
+            <fieldset data-hydration-options>
+              <legend>
+                <span class="section-label" data-i18n="participation.inviteLabel">下一場跑步</span>
+                <span class="hydration-title" data-i18n="participation.inviteTitle">下一場跑步，你願意試試自帶補水裝備嗎？</span>
+              </legend>
+              <p data-i18n="participation.inviteDescription">從軟水杯、軟水壺或其他適合自己的裝備開始，讓補水方式多一個選擇。</p>
+              <label class="choice-card">
+                <input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice />
+                <span>
+                  <strong data-i18n="participation.joined">我願意加入永續先鋒行動</strong>
+                  <small data-i18n="participation.joinedDescription">下一次跑步，我願意嘗試自帶補水裝備。</small>
+                </span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice />
+                <span>
+                  <strong data-i18n="participation.considering">我會好好考慮的</strong>
+                  <small data-i18n="participation.consideringDescription">先認識不同的補水方式，再找適合自己的選擇。</small>
+                </span>
+              </label>
+            </fieldset>
+          </section>
+
+          <p class="form-error" data-form-error role="alert" hidden></p>
+          <button class="button button-primary button-wide submit-button" type="submit" data-submit data-i18n="participation.submit">確認並領取現場獎品</button>
+        </form>
+      </section>
+
+      <section class="screen screen-redemption" id="redemption" aria-labelledby="redemption-title" hidden>
+        <div class="redemption-banner">
+          <p class="eyebrow" data-i18n="redemption.eyebrow">現場兌換</p>
+          <p class="demo-badge" data-i18n="redemption.demoBadge">DEMO MODE｜此頁僅為功能測試，不代表正式獎品憑證</p>
+          <p class="runner-type" data-redemption-runner></p>
+          <h2 id="redemption-title" data-redemption-title>你的獲得獎品</h2>
+        </div>
+        <div class="prize-card">
+          <div class="prize-image" data-prize-image>
+            <span data-i18n="redemption.placeholder">獎品圖片尚未提供</span>
+          </div>
+          <p class="prize-name" data-prize-name></p>
+        </div>
+        <p class="sustainability-message" data-sustainability-message hidden></p>
+        <p class="redemption-instruction" data-i18n="redemption.instruction">請至攤位找工作人員領取 Garmin 周邊</p>
+        <div class="redemption-code">
+          <span data-i18n="redemption.codeLabel">兌換編號</span>
+          <strong data-redemption-code></strong>
         </div>
       </section>
     </main>

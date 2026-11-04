@@ -1,6 +1,8 @@
 import { classificationRules } from "./classificationRules.js";
 import { classifyAnswers } from "./classificationEngine.js";
 import { loadContent } from "./contentData.js";
+import { derivePrizeEligibility } from "./prizeEligibility.js";
+import { submitParticipation, getExistingAllocation } from "./apiClient.js";
 
 let quizData;
 let runnerTypes;
@@ -31,7 +33,12 @@ const state = {
   answers: {},
   optionOrder: {},
   result: null,
-  language: "zh"
+  language: "zh",
+  eligibility: null,
+  raffleOptIn: false,
+  hydrationCommitment: null,
+  submitInProgress: false,
+  requestId: null
 };
 
 const elements = {
@@ -40,6 +47,8 @@ const elements = {
   start: document.querySelector("#start"),
   quiz: document.querySelector("#quiz"),
   result: document.querySelector("#result"),
+  participation: document.querySelector("#participation"),
+  redemption: document.querySelector("#redemption"),
   questionCount: document.querySelector("[data-question-count]"),
   questionNumber: document.querySelector("[data-question-number]"),
   questionPrompt: document.querySelector("[data-question-prompt]"),
@@ -56,7 +65,23 @@ const elements = {
   resultGear: document.querySelector("[data-result-gear]"),
   gearPanel: document.querySelector("[data-gear-panel]"),
   recommendationSection: document.querySelector("[data-recommendation-section]"),
-  languageLabel: document.querySelector("[data-language-label]")
+  languageLabel: document.querySelector("[data-language-label]"),
+  participationForm: document.querySelector("[data-participation-form]"),
+  raffleToggle: document.querySelector("[data-raffle-toggle]"),
+  raffleFields: document.querySelector("[data-raffle-fields]"),
+  nameInput: document.querySelector("[data-name]"),
+  emailInput: document.querySelector("[data-email]"),
+  privacyCheck: document.querySelector("[data-privacy-check]"),
+  existingHydration: document.querySelector("[data-existing-hydration]"),
+  hydrationOptions: document.querySelector("[data-hydration-options]"),
+  formError: document.querySelector("[data-form-error]"),
+  submitButton: document.querySelector("[data-submit]"),
+  redemptionRunner: document.querySelector("[data-redemption-runner]"),
+  redemptionTitle: document.querySelector("[data-redemption-title]"),
+  prizeImage: document.querySelector("[data-prize-image]"),
+  prizeName: document.querySelector("[data-prize-name]"),
+  sustainabilityMessage: document.querySelector("[data-sustainability-message]"),
+  redemptionCode: document.querySelector("[data-redemption-code]")
 };
 
 function text(value) {
@@ -76,7 +101,7 @@ function updateStaticText() {
 }
 
 function showScreen(screen) {
-  [elements.start, elements.quiz, elements.result].forEach((item) => {
+  [elements.start, elements.quiz, elements.result, elements.participation, elements.redemption].forEach((item) => {
     const isVisible = item === screen;
     item.hidden = !isVisible;
     item.classList.toggle("is-active", isVisible);
@@ -184,8 +209,115 @@ function startQuiz() {
   state.answers = {};
   state.optionOrder = createOptionOrder();
   state.result = null;
+  state.eligibility = null;
+  state.hydrationCommitment = null;
   renderQuestion();
   showScreen(elements.quiz);
+}
+
+function createRequestId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `garmin-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function renderParticipation() {
+  if (!state.result) return;
+
+  state.eligibility = derivePrizeEligibility({
+    runnerType: state.result.runnerType,
+    existingSelfHydration: state.result.sustainability
+  });
+
+  const existing = state.eligibility.existingSelfHydration;
+  elements.existingHydration.hidden = !existing;
+  elements.hydrationOptions.hidden = existing;
+  if (existing) {
+    state.hydrationCommitment = "existing";
+  } else if (!["joined", "considering"].includes(state.hydrationCommitment)) {
+    state.hydrationCommitment = null;
+  }
+
+  document.querySelectorAll("[data-hydration-choice]").forEach((input) => {
+    input.checked = input.value === state.hydrationCommitment;
+  });
+  elements.formError.hidden = true;
+  showScreen(elements.participation);
+}
+
+function renderRedemption(allocation) {
+  const runnerType = allocation.runnerType || state.result?.runnerType;
+  const runnerTitle = runnerType && resultData?.[runnerType]
+    ? text(resultData[runnerType].title)
+    : runnerType || "";
+  const identityPrefix = state.language === "zh" ? "跑者類型｜" : "Runner type | ";
+  elements.redemptionRunner.textContent = `${identityPrefix}${runnerTitle}`;
+  elements.redemptionCode.textContent = allocation.redemptionCode || "";
+
+  const prize = allocation.prize;
+  elements.prizeName.textContent = prize
+    ? text({ zh: prize.nameZh, en: prize.nameEn })
+    : (state.language === "zh" ? "獎品資料尚未確認" : "Prize details unavailable");
+
+  elements.prizeImage.classList.remove("has-image");
+  elements.prizeImage.replaceChildren();
+  if (prize?.imagePath) {
+    const image = document.createElement("img");
+    image.src = prize.imagePath;
+    image.alt = text({ zh: prize.nameZh, en: prize.nameEn });
+    image.onerror = () => {
+      elements.prizeImage.classList.remove("has-image");
+      elements.prizeImage.replaceChildren();
+      const placeholder = document.createElement("span");
+      placeholder.textContent = state.language === "zh" ? "獎品圖片尚未提供" : "Prize image not yet available";
+      elements.prizeImage.append(placeholder);
+    };
+    elements.prizeImage.append(image);
+    elements.prizeImage.classList.add("has-image");
+  } else {
+    const placeholder = document.createElement("span");
+    placeholder.textContent = state.language === "zh" ? "獎品圖片尚未提供" : "Prize image not yet available";
+    elements.prizeImage.append(placeholder);
+  }
+
+  const greenVersion = allocation.sustainabilityRewardEligible === true;
+  elements.redemption.classList.toggle("is-sustainable", greenVersion);
+  elements.redemptionTitle.textContent = state.language === "zh" ? "你的獲得獎品" : "Your prize";
+
+  if (greenVersion) {
+    elements.sustainabilityMessage.hidden = false;
+    elements.sustainabilityMessage.textContent = state.language === "zh"
+      ? "謝謝你一起響應自帶補水行動｜另可領取永續行動貼紙與飄帶"
+      : "Thank you for supporting reusable hydration | You may also receive a sustainability sticker and ribbon";
+  } else {
+    elements.sustainabilityMessage.hidden = true;
+    elements.sustainabilityMessage.textContent = "";
+  }
+  showScreen(elements.redemption);
+}
+
+function validateParticipation() {
+  if (!state.raffleOptIn && !state.eligibility?.existingSelfHydration && !state.hydrationCommitment) {
+    return state.language === "zh"
+      ? "請選擇「加入永續先鋒行動」或「我會好好考慮的」。"
+      : "Please choose one of the two hydration commitment options.";
+  }
+  if (!state.eligibility?.existingSelfHydration && !state.hydrationCommitment) {
+    return state.language === "zh"
+      ? "請選擇你對下一場跑步的補水意願。"
+      : "Please choose your hydration commitment for your next run.";
+  }
+  if (state.raffleOptIn) {
+    if (!elements.nameInput.value.trim()) {
+      return state.language === "zh" ? "參加抽獎需填寫姓名。" : "Name is required to enter the raffle.";
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(elements.emailInput.value.trim())) {
+      return state.language === "zh" ? "請輸入有效的 Email。" : "Please enter a valid email address.";
+    }
+    if (!elements.privacyCheck.checked) {
+      return state.language === "zh" ? "參加抽獎需確認個資告知。" : "Privacy acknowledgement is required for raffle entry.";
+    }
+  }
+  return "";
 }
 
 function selectAnswer(optionId) {
@@ -234,17 +366,98 @@ document.addEventListener("click", (event) => {
   if (action === "next") goNext();
   if (action === "back") goBack();
   if (action === "retry") startQuiz();
+  if (action === "continue") renderParticipation();
   if (action === "toggle-language") {
     state.language = state.language === "zh" ? "en" : "zh";
     if (uiContent) updateStaticText();
     if (!elements.quiz.hidden) renderQuestion();
     if (!elements.result.hidden && state.result) renderResult();
+    if (!elements.participation.hidden) renderParticipation();
   }
 });
 
 document.addEventListener("change", (event) => {
   if (event.target.matches("input[type=radio]")) {
-    selectAnswer(event.target.value);
+    if (event.target.matches("[data-hydration-choice]")) {
+      state.hydrationCommitment = event.target.value;
+      document.querySelectorAll("[data-hydration-choice]").forEach((input) => {
+        input.closest(".choice-card").classList.toggle("is-selected", input.checked);
+      });
+    } else {
+      selectAnswer(event.target.value);
+    }
+  }
+  if (event.target.matches("[data-raffle-toggle]")) {
+    state.raffleOptIn = event.target.checked;
+    elements.raffleFields.hidden = !state.raffleOptIn;
+    if (!state.raffleOptIn) {
+      elements.nameInput.value = "";
+      elements.emailInput.value = "";
+      elements.privacyCheck.checked = false;
+    }
+  }
+});
+
+elements.participationForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (state.submitInProgress) return;
+
+  const validationError = validateParticipation();
+  if (validationError) {
+    elements.formError.textContent = validationError;
+    elements.formError.hidden = false;
+    return;
+  }
+
+  if (!state.requestId) state.requestId = createRequestId();
+  const existing = state.eligibility.existingSelfHydration;
+  const eligibility = derivePrizeEligibility({
+    runnerType: state.result.runnerType,
+    existingSelfHydration: existing,
+    hydrationCommitment: state.hydrationCommitment
+  });
+
+  const payload = {
+    demoMode: true,
+    requestId: state.requestId,
+    answers: { ...state.answers },
+    runnerType: eligibility.runnerType,
+    hydrationCommitment: eligibility.hydrationCommitment,
+    existingSelfHydration: eligibility.existingSelfHydration,
+    sustainabilityRewardEligible: eligibility.sustainabilityRewardEligible,
+    premiumPrizeEligible: eligibility.premiumPrizeEligible,
+    raffleOptIn: state.raffleOptIn
+  };
+
+  if (state.raffleOptIn) {
+    payload.name = elements.nameInput.value.trim();
+    payload.email = elements.emailInput.value.trim();
+    payload.privacyNoticeVersion = "DRAFT_NOT_APPROVED";
+    payload.privacyAcknowledgedAt = new Date().toISOString();
+  }
+
+  state.submitInProgress = true;
+  elements.submitButton.disabled = true;
+  elements.submitButton.textContent = state.language === "zh" ? "處理中…" : "Processing…";
+  elements.formError.hidden = true;
+
+  try {
+    const response = await submitParticipation(payload);
+    if (!response.ok) {
+      throw new Error(state.language === "zh" ? response.message.zh : response.message.en);
+    }
+    renderRedemption(response);
+  } catch (error) {
+    elements.formError.textContent = error.message || (state.language === "zh"
+      ? "提交失敗，請檢查網路後重試。"
+      : "Submission failed. Please check your connection and try again.");
+    elements.formError.hidden = false;
+  } finally {
+    state.submitInProgress = false;
+    elements.submitButton.disabled = false;
+    elements.submitButton.textContent = state.language === "zh"
+      ? "確認並領取現場獎品"
+      : "Confirm and collect your gift";
   }
 });
 
@@ -253,6 +466,11 @@ loadContent().then((content) => {
   ({ quizData, runnerTypes, resultData, ui: uiContent } = content);
   elements.startButton.disabled = false;
   updateStaticText();
+  getExistingAllocation().then((allocation) => {
+    if (allocation.found && allocation.ok) {
+      renderRedemption(allocation);
+    }
+  }).catch(() => {});
 }).catch((error) => {
   console.error(error);
   elements.startDescription.textContent = "無法載入測驗內容，請確認 content.csv 可正常讀取後重新整理。";
