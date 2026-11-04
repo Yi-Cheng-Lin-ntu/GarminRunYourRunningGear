@@ -10,7 +10,8 @@ import {
   setMockStock,
   applyMockScenario,
   getMockSnapshot,
-  getExistingAllocation
+  getExistingAllocation,
+  prizeCatalog
 } from "./apiClient.js";
 import {
   clearAllocationRecovery,
@@ -97,7 +98,6 @@ const elements = {
   prizeImage: document.querySelector("[data-prize-image]"),
   prizeName: document.querySelector("[data-prize-name]"),
   sustainabilityMessage: document.querySelector("[data-sustainability-message]"),
-  redemptionCode: document.querySelector("[data-redemption-code]"),
   mockPanel: document.querySelector("[data-mock-panel]"),
   mockStockEditor: document.querySelector("[data-mock-stock-editor]"),
   mockPrizes: document.querySelector("[data-mock-prizes]"),
@@ -261,7 +261,6 @@ function resetFlowState({ preservePendingRequest = false } = {}) {
     input.closest(".choice-card")?.classList.remove("is-selected");
   });
   elements.redemptionRunner.textContent = "";
-  elements.redemptionCode.textContent = "";
   elements.redemptionTitle.textContent = "";
   elements.prizeName.textContent = "";
   elements.sustainabilityMessage.textContent = "";
@@ -321,7 +320,6 @@ function renderRedemption(allocation) {
     : runnerType || "";
   const identityPrefix = state.language === "zh" ? "跑者類型｜" : "Runner type | ";
   elements.redemptionRunner.textContent = `${identityPrefix}${runnerTitle}`;
-  elements.redemptionCode.textContent = allocation.redemptionCode || "";
 
   const prize = allocation.prize;
   elements.prizeName.textContent = prize
@@ -330,9 +328,11 @@ function renderRedemption(allocation) {
 
   elements.prizeImage.classList.remove("has-image");
   elements.prizeImage.replaceChildren();
-  if (prize?.imagePath) {
+  const catalogPrize = prize?.prizeId ? prizeCatalog[prize.prizeId] : null;
+  const prizeImagePath = prize?.imagePath || catalogPrize?.imagePath || "";
+  if (prizeImagePath) {
     const image = document.createElement("img");
-    image.src = prize.imagePath;
+    image.src = prizeImagePath;
     image.alt = text({ zh: prize.nameZh, en: prize.nameEn });
     image.onerror = () => {
       elements.prizeImage.classList.remove("has-image");

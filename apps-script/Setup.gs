@@ -14,11 +14,11 @@ var SHEET_NAMES = {
 };
 
 var PRIZE_ROWS = [
-  ["cap", "Garmin 牛仔帽", "Garmin Cap", "general", 150, 150, 0, true],
-  ["soft_cup", "Garmin 軟水杯", "Garmin Soft Cup", "general", 260, 260, 0, true],
-  ["socks", "Garmin 襪子", "Garmin Socks", "general", 470, 470, 0, true],
-  ["arm_sleeves", "Garmin 袖套", "Garmin Arm Sleeves", "general", 125, 125, 0, true],
-  ["shopping_bag", "Garmin 鏤空購物袋", "Garmin Shopping Bag", "premium", 120, 120, 0, true]
+  ["cap", "Garmin 牛仔帽", "Garmin Cap", "general", 150, 150, 0, true, "./assets/prizes/Garmin漁夫帽.png"],
+  ["soft_cup", "Garmin 軟水杯", "Garmin Soft Cup", "general", 260, 260, 0, true, "./assets/prizes/Garmin軟水杯.png"],
+  ["socks", "Garmin 襪子", "Garmin Socks", "general", 470, 470, 0, true, "./assets/prizes/Garmin襪子.png"],
+  ["arm_sleeves", "Garmin 袖套", "Garmin Arm Sleeves", "general", 125, 125, 0, true, "./assets/prizes/Garmin袖套.png"],
+  ["shopping_bag", "Garmin 鏤空購物袋", "Garmin Shopping Bag", "premium", 120, 120, 0, true, "./assets/prizes/Garmin簍空購物袋.png"]
 ];
 
 function setupActivitySheets() {
@@ -74,6 +74,8 @@ function setupActivitySheets() {
 
   initializePrizesIfEmpty(ss, SHEET_NAMES.Prizes);
   initializePrizesIfEmpty(ss, SHEET_NAMES.DemoPrizes);
+  ensurePrizeImagePaths(ss, SHEET_NAMES.Prizes);
+  ensurePrizeImagePaths(ss, SHEET_NAMES.DemoPrizes);
   return { ok: true };
 }
 
@@ -88,9 +90,26 @@ function initializePrizesIfEmpty(ss, sheetName) {
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet || sheet.getLastRow() > 1) return;
   var output = PRIZE_ROWS.map(function (row) {
-    return [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], ""];
+    return [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]];
   });
   sheet.getRange(2, 1, output.length, 9).setValues(output);
+}
+
+function ensurePrizeImagePaths(ss, sheetName) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return;
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][8] || "").trim()) continue;
+    var prize = null;
+    for (var j = 0; j < PRIZE_ROWS.length; j++) {
+      if (PRIZE_ROWS[j][0] === String(rows[i][0])) {
+        prize = PRIZE_ROWS[j];
+        break;
+      }
+    }
+    if (prize && prize[8]) sheet.getRange(i + 1, 9).setValue(prize[8]);
+  }
 }
 
 function onOpen() {

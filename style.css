@@ -589,15 +589,6 @@ h1, h2, h3 { margin-top: 0; }
   font-weight: 900;
 }
 .redemption-instruction { font-weight: 800; }
-.redemption-code {
-  display: grid;
-  gap: 4px;
-  border-top: 1px solid var(--color-line);
-  padding-top: 14px;
-}
-.redemption-code span { color: var(--color-muted); font-size: .72rem; font-weight: 900; letter-spacing: .12em; }
-.screen-redemption.is-sustainable .redemption-code { border-color: rgba(8,11,13,.35); }
-.screen-redemption.is-sustainable .redemption-code span { color: var(--color-bg); }
 .redemption-restart { margin-top: 20px; }
 
 @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

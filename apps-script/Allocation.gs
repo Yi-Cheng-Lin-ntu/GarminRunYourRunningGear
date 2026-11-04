@@ -24,6 +24,17 @@ function weightedPrize(prizeRows, randomValue) {
   return null;
 }
 
+function getPrizeImagePath(prizeId) {
+  var paths = {
+    cap: "./assets/prizes/Garmin漁夫帽.png",
+    soft_cup: "./assets/prizes/Garmin軟水杯.png",
+    socks: "./assets/prizes/Garmin襪子.png",
+    arm_sleeves: "./assets/prizes/Garmin袖套.png",
+    shopping_bag: "./assets/prizes/Garmin簍空購物袋.png"
+  };
+  return paths[prizeId] || "";
+}
+
 function submitParticipation(payload) {
   var now = new Date();
   var names = getModeSheetNames(payload.demoMode);
@@ -100,7 +111,7 @@ function submitParticipation(payload) {
       prizeId: prizeId,
       nameZh: prize.values[1],
       nameEn: prize.values[2],
-      imagePath: prize.values[8] || ""
+      imagePath: String(prize.values[8] || "").trim() || getPrizeImagePath(prizeId)
     },
     redemptionCode: redemptionCode,
     allocationMethod: allocationMethod,
