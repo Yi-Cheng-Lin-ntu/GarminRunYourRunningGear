@@ -9,9 +9,15 @@ import {
   clearMockData,
   setMockStock,
   applyMockScenario,
-  getMockSnapshot
+  getMockSnapshot,
+  getExistingAllocation
 } from "./apiClient.js";
-import { clearAllocationRecovery, clearPendingRequest, savePendingRequest } from "./sessionRecovery.js";
+import {
+  clearAllocationRecovery,
+  clearPendingRequest,
+  readPendingRequest,
+  savePendingRequest
+} from "./sessionRecovery.js";
 
 let quizData;
 let runnerTypes;
@@ -225,7 +231,7 @@ function createRequestId() {
   return `garmin-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function resetFlowState() {
+function resetFlowState({ preservePendingRequest = false } = {}) {
   state.currentQuestionIndex = 0;
   state.answers = {};
   state.optionOrder = {};
@@ -263,7 +269,8 @@ function resetFlowState() {
   elements.prizeImage.classList.remove("has-image");
   elements.prizeImage.replaceChildren();
   clearAllocationRecovery();
-  clearPendingRequest();
+  elements.redemption.classList.remove("is-sustainable");
+  if (!preservePendingRequest) clearPendingRequest();
 }
 
 function startQuiz() {
@@ -276,6 +283,11 @@ function startQuiz() {
   state.hydrationCommitment = null;
   renderQuestion();
   showScreen(elements.quiz);
+}
+
+function goHome() {
+  resetFlowState();
+  showScreen(elements.start);
 }
 
 function renderParticipation() {
@@ -508,12 +520,14 @@ document.addEventListener("click", (event) => {
   if (!action) {
     return;
   }
+  if (action === "home") event.preventDefault();
 
   if (action === "start") startQuiz();
   if (action === "next") goNext();
   if (action === "back") goBack();
-  if (action === "retry") startQuiz();
-  if (action === "restart") startQuiz();
+  if (action === "home") goHome();
+  if (action === "retry") goHome();
+  if (action === "restart") goHome();
   if (action === "continue") renderParticipation();
   if (action === "mock-tools") {
     elements.mockPanel.hidden = false;
@@ -651,7 +665,7 @@ elements.participationForm.addEventListener("submit", async (event) => {
 });
 
 elements.startButton.disabled = true;
-resetFlowState();
+resetFlowState({ preservePendingRequest: true });
 
 if (APPS_SCRIPT_DEMO_MODE) {
   document.querySelector(".mock-mode-badge")?.replaceChildren(
@@ -662,6 +676,23 @@ if (APPS_SCRIPT_DEMO_MODE) {
 }
 
 showScreen(elements.start);
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  resetFlowState({ preservePendingRequest: true });
+  showScreen(elements.start);
+});
+
+const pendingRequest = readPendingRequest();
+if (pendingRequest?.sessionId && pendingRequest?.requestId) {
+  getExistingAllocation()
+    .then((result) => {
+      if (result?.ok && result?.found) clearPendingRequest();
+    })
+    .catch(() => {
+      // Keep the short-lived pending request for a later reload/retry check.
+    });
+}
+
 loadContent().then((content) => {
   ({ quizData, runnerTypes, resultData, ui: uiContent } = content);
   elements.startButton.disabled = false;

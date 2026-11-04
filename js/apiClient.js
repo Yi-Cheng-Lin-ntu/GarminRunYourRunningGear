@@ -182,6 +182,9 @@ export async function submitParticipation(payload) {
       } catch {
         throw new Error("APPS_SCRIPT_INVALID_RESPONSE");
       }
+      if (result?.ok && result?.participantId && result?.requestId) {
+        saveAllocationRecovery(result);
+      }
       return result;
     } finally {
       globalThis.clearTimeout(timeoutId);
