@@ -82,6 +82,46 @@ button:focus-visible, a:focus-visible {
   outline-offset: 3px;
 }
 
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.mock-mode-badge {
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: var(--color-accent);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.mock-tools-button {
+  border: 0;
+  background: transparent;
+  color: var(--color-blue);
+  font-size: .76rem;
+  font-weight: 800;
+}
+.mock-tools-panel {
+  position: fixed;
+  inset: 88px 20px 20px;
+  z-index: 20;
+  overflow-y: auto;
+  border: 1px solid var(--color-accent);
+  background: rgba(8,11,13,.98);
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+}
+.mock-tools-panel[hidden] { display: none; }
+.mock-tools-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.mock-tools-header h2 { margin: 0; }
+.mock-tools-note { color: var(--color-blue); }
+.mock-scenarios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mock-scenarios .button { min-height: 44px; padding-inline: 10px; font-size: .78rem; }
+.mock-stock-editor { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 16px 0; }
+.mock-stock-editor label { display: grid; gap: 4px; color: var(--color-blue); font-size: .78rem; }
+.mock-stock-editor input { min-height: 44px; border: 1px solid var(--color-line); background: var(--color-bg-soft); color: white; padding: 8px; }
+.mock-snapshot h3 { margin: 18px 0 8px; color: var(--color-accent); }
+.mock-table { width: 100%; border-collapse: collapse; font-size: .72rem; }
+.mock-table th, .mock-table td { border: 1px solid var(--color-line); padding: 6px; text-align: left; vertical-align: top; }
+
 .site-header {
   display: flex;
   align-items: center;
@@ -558,6 +598,7 @@ h1, h2, h3 { margin-top: 0; }
 .redemption-code span { color: var(--color-muted); font-size: .72rem; font-weight: 900; letter-spacing: .12em; }
 .screen-redemption.is-sustainable .redemption-code { border-color: rgba(8,11,13,.35); }
 .screen-redemption.is-sustainable .redemption-code span { color: var(--color-bg); }
+.redemption-restart { margin-top: 20px; }
 
 @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -578,6 +619,12 @@ h1, h2, h3 { margin-top: 0; }
 }
 @media (max-width: 420px) {
   :root { --map-opacity: .12; }
+  .mock-mode-badge { display: none; }
+  .mock-tools-button { font-size: 0; }
+  .mock-tools-button::after { content: "測試"; font-size: .76rem; }
+  .mock-tools-panel { inset: 88px 16px 16px; padding: 16px; }
+  .mock-scenarios { grid-template-columns: 1fr; }
+  .mock-stock-editor { grid-template-columns: 1fr; }
   body::before {
     inset: -2vh -30vw -8vh;
     background-position: 61% 72%;

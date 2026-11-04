@@ -2,7 +2,16 @@ import { classificationRules } from "./classificationRules.js";
 import { classifyAnswers } from "./classificationEngine.js";
 import { loadContent } from "./contentData.js";
 import { derivePrizeEligibility } from "./prizeEligibility.js";
-import { submitParticipation, getExistingAllocation } from "./apiClient.js";
+import {
+  APPS_SCRIPT_DEMO_MODE,
+  submitParticipation,
+  resetMockTestData,
+  clearMockData,
+  setMockStock,
+  applyMockScenario,
+  getMockSnapshot
+} from "./apiClient.js";
+import { clearAllocationRecovery, clearPendingRequest, savePendingRequest } from "./sessionRecovery.js";
 
 let quizData;
 let runnerTypes;
@@ -38,7 +47,8 @@ const state = {
   raffleOptIn: false,
   hydrationCommitment: null,
   submitInProgress: false,
-  requestId: null
+  requestId: null,
+  sessionId: null
 };
 
 const elements = {
@@ -81,7 +91,13 @@ const elements = {
   prizeImage: document.querySelector("[data-prize-image]"),
   prizeName: document.querySelector("[data-prize-name]"),
   sustainabilityMessage: document.querySelector("[data-sustainability-message]"),
-  redemptionCode: document.querySelector("[data-redemption-code]")
+  redemptionCode: document.querySelector("[data-redemption-code]"),
+  mockPanel: document.querySelector("[data-mock-panel]"),
+  mockStockEditor: document.querySelector("[data-mock-stock-editor]"),
+  mockPrizes: document.querySelector("[data-mock-prizes]"),
+  mockParticipants: document.querySelector("[data-mock-participants]"),
+  mockAllocations: document.querySelector("[data-mock-allocations]"),
+  mockInventoryLog: document.querySelector("[data-mock-inventory-log]")
 };
 
 function text(value) {
@@ -204,7 +220,54 @@ function renderResult() {
   }
 }
 
+function createRequestId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `garmin-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function resetFlowState() {
+  state.currentQuestionIndex = 0;
+  state.answers = {};
+  state.optionOrder = {};
+  state.result = null;
+  state.eligibility = null;
+  state.raffleOptIn = false;
+  state.hydrationCommitment = null;
+  state.submitInProgress = false;
+  state.requestId = null;
+  state.sessionId = globalThis.crypto?.randomUUID
+    ? globalThis.crypto.randomUUID()
+    : `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  elements.raffleToggle.checked = false;
+  elements.raffleFields.hidden = true;
+  elements.nameInput.value = "";
+  elements.emailInput.value = "";
+  elements.privacyCheck.checked = false;
+  elements.formError.hidden = true;
+  elements.formError.textContent = "";
+  elements.submitButton.disabled = false;
+  elements.submitButton.textContent = state.language === "zh"
+    ? "確認並領取現場獎品"
+    : "Confirm and collect your gift";
+  document.querySelectorAll("[data-hydration-choice]").forEach((input) => {
+    input.checked = false;
+    input.closest(".choice-card")?.classList.remove("is-selected");
+  });
+  elements.redemptionRunner.textContent = "";
+  elements.redemptionCode.textContent = "";
+  elements.redemptionTitle.textContent = "";
+  elements.prizeName.textContent = "";
+  elements.sustainabilityMessage.textContent = "";
+  elements.sustainabilityMessage.hidden = true;
+  elements.prizeImage.classList.remove("has-image");
+  elements.prizeImage.replaceChildren();
+  clearAllocationRecovery();
+  clearPendingRequest();
+}
+
 function startQuiz() {
+  resetFlowState();
   state.currentQuestionIndex = 0;
   state.answers = {};
   state.optionOrder = createOptionOrder();
@@ -213,11 +276,6 @@ function startQuiz() {
   state.hydrationCommitment = null;
   renderQuestion();
   showScreen(elements.quiz);
-}
-
-function createRequestId() {
-  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-  return `garmin-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function renderParticipation() {
@@ -295,6 +353,94 @@ function renderRedemption(allocation) {
   showScreen(elements.redemption);
 }
 
+function renderMockTable(container, columns, rows) {
+  if (!container) return;
+  container.replaceChildren();
+  if (!rows.length) {
+    const empty = document.createElement("p");
+    empty.textContent = state.language === "zh" ? "目前沒有資料" : "No records";
+    container.append(empty);
+    return;
+  }
+  const table = document.createElement("table");
+  table.className = "mock-table";
+  const head = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  columns.forEach((column) => {
+    const th = document.createElement("th");
+    th.textContent = column.label;
+    headRow.append(th);
+  });
+  head.append(headRow);
+  table.append(head);
+  const body = document.createElement("tbody");
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    columns.forEach((column) => {
+      const td = document.createElement("td");
+      const value = row[column.key];
+      td.textContent = value === true ? "true" : value === false ? "false" : (value ?? "");
+      tr.append(td);
+    });
+    body.append(tr);
+  });
+  table.append(body);
+  container.append(table);
+}
+
+function renderMockTools() {
+  const snapshot = getMockSnapshot();
+  elements.mockStockEditor.replaceChildren();
+  snapshot.prizes.forEach((prize) => {
+    const label = document.createElement("label");
+    label.textContent = state.language === "zh" ? prize.nameZh : prize.nameEn;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "0";
+    input.step = "1";
+    input.dataset.mockPrize = prize.prizeId;
+    input.value = String(prize.remainingStock);
+    label.append(input);
+    elements.mockStockEditor.append(label);
+  });
+  const addApplyButton = document.createElement("button");
+  addApplyButton.type = "button";
+  addApplyButton.className = "button button-primary";
+  addApplyButton.dataset.action = "mock-set-stock";
+  addApplyButton.textContent = state.language === "zh" ? "套用庫存數量" : "Apply stock quantities";
+  elements.mockStockEditor.append(addApplyButton);
+
+  renderMockTable(elements.mockPrizes, [
+    { key: "prizeId", label: "Prize ID" },
+    { key: "initialStock", label: "Initial" },
+    { key: "allocatedCount", label: "Allocated" },
+    { key: "remainingStock", label: "Remaining" }
+  ], snapshot.prizes);
+  renderMockTable(elements.mockParticipants, [
+    { key: "participantId", label: "Participant" },
+    { key: "runnerType", label: "Type" },
+    { key: "existingSelfHydration", label: "Existing" },
+    { key: "hydrationCommitment", label: "Commitment" },
+    { key: "raffleOptIn", label: "Raffle" },
+    { key: "prizeId", label: "Prize" },
+    { key: "allocationStatus", label: "Status" }
+  ], snapshot.participants);
+  renderMockTable(elements.mockAllocations, [
+    { key: "allocationId", label: "Allocation" },
+    { key: "requestId", label: "Request" },
+    { key: "prizeId", label: "Prize" },
+    { key: "allocationMethod", label: "Method" },
+    { key: "allocationStatus", label: "Status" }
+  ], snapshot.allocations);
+  renderMockTable(elements.mockInventoryLog, [
+    { key: "prizeId", label: "Prize" },
+    { key: "quantityDelta", label: "Delta" },
+    { key: "beforeStock", label: "Before" },
+    { key: "afterStock", label: "After" },
+    { key: "reason", label: "Reason" }
+  ], snapshot.inventoryLog);
+}
+
 function validateParticipation() {
   if (!state.raffleOptIn && !state.eligibility?.existingSelfHydration && !state.hydrationCommitment) {
     return state.language === "zh"
@@ -349,6 +495,7 @@ function goNext() {
 
 function goBack() {
   if (state.currentQuestionIndex === 0) {
+    resetFlowState();
     showScreen(elements.start);
     return;
   }
@@ -366,7 +513,43 @@ document.addEventListener("click", (event) => {
   if (action === "next") goNext();
   if (action === "back") goBack();
   if (action === "retry") startQuiz();
+  if (action === "restart") startQuiz();
   if (action === "continue") renderParticipation();
+  if (action === "mock-tools") {
+    elements.mockPanel.hidden = false;
+    renderMockTools();
+  }
+  if (action === "close-mock-tools") {
+    elements.mockPanel.hidden = true;
+  }
+  if (action === "mock-scenario") {
+    applyMockScenario(event.target.dataset.scenario);
+    renderMockTools();
+  }
+  if (action === "mock-reset") {
+    resetMockTestData();
+    renderMockTools();
+  }
+  if (action === "mock-clear") {
+    if (window.confirm(state.language === "zh"
+      ? "確定清除所有 Mock 測試參與、庫存與分配紀錄？"
+      : "Clear all Mock participants, stock, and allocation records?")) {
+      clearMockData();
+      renderMockTools();
+    }
+  }
+  if (action === "mock-set-stock") {
+    const stock = Object.fromEntries(
+      Array.from(elements.mockStockEditor.querySelectorAll("[data-mock-prize]"))
+        .map((input) => [input.dataset.mockPrize, input.value])
+    );
+    const result = setMockStock(stock);
+    if (!result.ok) {
+      window.alert(state.language === "zh" ? "庫存數量必須是 0 或正整數。" : "Stock quantities must be non-negative integers.");
+      return;
+    }
+    renderMockTools();
+  }
   if (action === "toggle-language") {
     state.language = state.language === "zh" ? "en" : "zh";
     if (uiContent) updateStaticText();
@@ -410,6 +593,7 @@ elements.participationForm.addEventListener("submit", async (event) => {
   }
 
   if (!state.requestId) state.requestId = createRequestId();
+  savePendingRequest({ sessionId: state.sessionId, requestId: state.requestId });
   const existing = state.eligibility.existingSelfHydration;
   const eligibility = derivePrizeEligibility({
     runnerType: state.result.runnerType,
@@ -420,6 +604,7 @@ elements.participationForm.addEventListener("submit", async (event) => {
   const payload = {
     demoMode: true,
     requestId: state.requestId,
+    sessionId: state.sessionId,
     answers: { ...state.answers },
     runnerType: eligibility.runnerType,
     hydrationCommitment: eligibility.hydrationCommitment,
@@ -432,7 +617,9 @@ elements.participationForm.addEventListener("submit", async (event) => {
   if (state.raffleOptIn) {
     payload.name = elements.nameInput.value.trim();
     payload.email = elements.emailInput.value.trim();
-    payload.privacyNoticeVersion = "DRAFT_NOT_APPROVED";
+    payload.privacyNoticeVersion = APPS_SCRIPT_DEMO_MODE
+      ? "DEMO_ONLY"
+      : "DRAFT_NOT_APPROVED";
     payload.privacyAcknowledgedAt = new Date().toISOString();
   }
 
@@ -446,6 +633,8 @@ elements.participationForm.addEventListener("submit", async (event) => {
     if (!response.ok) {
       throw new Error(state.language === "zh" ? response.message.zh : response.message.en);
     }
+    clearPendingRequest();
+    if (!elements.mockPanel.hidden) renderMockTools();
     renderRedemption(response);
   } catch (error) {
     elements.formError.textContent = error.message || (state.language === "zh"
@@ -462,15 +651,21 @@ elements.participationForm.addEventListener("submit", async (event) => {
 });
 
 elements.startButton.disabled = true;
+resetFlowState();
+
+if (APPS_SCRIPT_DEMO_MODE) {
+  document.querySelector(".mock-mode-badge")?.replaceChildren(
+    document.createTextNode("APPS SCRIPT DEMO")
+  );
+  document.querySelector(".mock-tools-button")?.remove();
+  elements.mockPanel?.remove();
+}
+
+showScreen(elements.start);
 loadContent().then((content) => {
   ({ quizData, runnerTypes, resultData, ui: uiContent } = content);
   elements.startButton.disabled = false;
   updateStaticText();
-  getExistingAllocation().then((allocation) => {
-    if (allocation.found && allocation.ok) {
-      renderRedemption(allocation);
-    }
-  }).catch(() => {});
 }).catch((error) => {
   console.error(error);
   elements.startDescription.textContent = "無法載入測驗內容，請確認 content.csv 可正常讀取後重新整理。";

@@ -10,10 +10,43 @@
   <body>
     <header class="site-header">
       <a class="brand" href="#start" aria-label="Garmin Run home">GARMIN <span>RUN</span></a>
-      <button class="language-toggle" type="button" data-action="toggle-language" aria-label="Switch language">
-        <span data-language-label>EN</span>
-      </button>
+      <div class="header-actions">
+        <span class="mock-mode-badge">MOCK MODE</span>
+        <button class="mock-tools-button" type="button" data-action="mock-tools">測試工具</button>
+        <button class="language-toggle" type="button" data-action="toggle-language" aria-label="Switch language">
+          <span data-language-label>EN</span>
+        </button>
+      </div>
     </header>
+
+    <aside class="mock-tools-panel" data-mock-panel hidden aria-label="Mock Mode 測試工具">
+      <div class="mock-tools-header">
+        <div>
+          <p class="eyebrow">MOCK TEST ENVIRONMENT</p>
+          <h2>活動驗收工具</h2>
+        </div>
+        <button class="text-button" type="button" data-action="close-mock-tools">關閉</button>
+      </div>
+      <p class="mock-tools-note">僅使用瀏覽器本機測試資料，不會連接或修改 Google Sheets。</p>
+      <div class="mock-scenarios">
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_available">購物袋有庫存</button>
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_empty">購物袋耗盡</button>
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="general_empty">一般獎品耗盡</button>
+        <button class="button button-secondary" type="button" data-action="mock-reset">重置初始庫存</button>
+        <button class="button button-secondary" type="button" data-action="mock-clear">清除測試資料</button>
+      </div>
+      <div class="mock-stock-editor" data-mock-stock-editor></div>
+      <div class="mock-snapshot">
+        <h3>Prizes</h3>
+        <div data-mock-prizes></div>
+        <h3>Participants</h3>
+        <div data-mock-participants></div>
+        <h3>Allocations</h3>
+        <div data-mock-allocations></div>
+        <h3>Inventory Log</h3>
+        <div data-mock-inventory-log></div>
+      </div>
+    </aside>
 
     <main class="app-shell">
       <section class="screen screen-start is-active" id="start" aria-labelledby="start-title">
@@ -167,6 +200,7 @@
           <span data-i18n="redemption.codeLabel">兌換編號</span>
           <strong data-redemption-code></strong>
         </div>
+        <button class="button button-secondary button-wide redemption-restart" type="button" data-action="restart" data-i18n="redemption.restart">再測一次</button>
       </section>
     </main>
 

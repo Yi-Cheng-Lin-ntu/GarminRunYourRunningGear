@@ -1,4 +1,5 @@
 const RECOVERY_KEY = "garminRunDemoAllocation";
+const PENDING_KEY = "garminRunPendingRequest";
 
 export function saveAllocationRecovery({ participantId, requestId, allocationStatus }) {
   if (!participantId || !requestId) return;
@@ -21,4 +22,21 @@ export function readAllocationRecovery() {
 
 export function clearAllocationRecovery() {
   localStorage.removeItem(RECOVERY_KEY);
+}
+
+export function savePendingRequest({ sessionId, requestId }) {
+  if (!sessionId || !requestId) return;
+  localStorage.setItem(PENDING_KEY, JSON.stringify({ sessionId, requestId }));
+}
+
+export function readPendingRequest() {
+  try {
+    return JSON.parse(localStorage.getItem(PENDING_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingRequest() {
+  localStorage.removeItem(PENDING_KEY);
 }
