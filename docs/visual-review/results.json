@@ -1,0 +1,67 @@
+[
+  {
+    "width": 375,
+    "errors": [],
+    "colors": [
+      "#080b0d",
+      "#11171a",
+      "#8e9ba0",
+      "#f7faf8",
+      "#d6f2ff",
+      "#00ff19"
+    ],
+    "passed": true
+  },
+  {
+    "width": 390,
+    "errors": [],
+    "colors": [
+      "#080b0d",
+      "#11171a",
+      "#8e9ba0",
+      "#f7faf8",
+      "#d6f2ff",
+      "#00ff19"
+    ],
+    "passed": true
+  },
+  {
+    "width": 430,
+    "errors": [],
+    "colors": [
+      "#080b0d",
+      "#11171a",
+      "#8e9ba0",
+      "#f7faf8",
+      "#d6f2ff",
+      "#00ff19"
+    ],
+    "passed": true
+  },
+  {
+    "width": 768,
+    "errors": [],
+    "colors": [
+      "#080b0d",
+      "#11171a",
+      "#8e9ba0",
+      "#f7faf8",
+      "#d6f2ff",
+      "#00ff19"
+    ],
+    "passed": true
+  },
+  {
+    "width": 1280,
+    "errors": [],
+    "colors": [
+      "#080b0d",
+      "#11171a",
+      "#8e9ba0",
+      "#f7faf8",
+      "#d6f2ff",
+      "#00ff19"
+    ],
+    "passed": true
+  }
+]

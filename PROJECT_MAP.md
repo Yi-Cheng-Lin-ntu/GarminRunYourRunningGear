@@ -505,3 +505,10 @@ http://localhost:8000/?mode=apps-script-demo
 ```
 
 若要微調 UI，先只修改 CSS／HTML／`content.csv`，完成後重新執行測試；不要順手修改分類、獎品資格、庫存或 Apps Script。Mock Mode 可自由驗收，Apps Script Demo 只測試資料，不碰正式 Sheets。
+
+## 18. 視覺系統 v1.0
+
+- [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)：Urban Athletic Minimalism、雙層 Token、字階、元件與主題規範。
+- [UI_REVIEW.md](UI_REVIEW.md)：Audit、Before / After、RWD、對比計算、Mock 驗證與剩餘限制。
+- [tests/uiRegression.cjs](tests/uiRegression.cjs)：選用 Playwright 瀏覽器回歸；安裝與執行方式見 UI Review。只測本機 Mock，外部請求封鎖。
+- `.screen-redemption` 預設冰藍，`.is-sustainable` 覆寫為綠色；主題代表行動響應，不代表 A 級資格。

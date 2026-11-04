@@ -49,6 +49,7 @@ const state = {
   answers: {},
   optionOrder: {},
   result: null,
+  displayedAllocation: null,
   language: "zh",
   eligibility: null,
   raffleOptIn: false,
@@ -236,6 +237,7 @@ function resetFlowState({ preservePendingRequest = false } = {}) {
   state.answers = {};
   state.optionOrder = {};
   state.result = null;
+  state.displayedAllocation = null;
   state.eligibility = null;
   state.raffleOptIn = false;
   state.hydrationCommitment = null;
@@ -282,6 +284,7 @@ function startQuiz() {
   state.answers = {};
   state.optionOrder = createOptionOrder();
   state.result = null;
+  state.displayedAllocation = null;
   state.eligibility = null;
   state.hydrationCommitment = null;
   renderQuestion();
@@ -318,6 +321,7 @@ function renderParticipation() {
 }
 
 function renderRedemption(allocation) {
+  state.displayedAllocation = allocation;
   const runnerType = allocation.runnerType || state.result?.runnerType;
   const runnerTitle = runnerType && resultData?.[runnerType]
     ? text(resultData[runnerType].title)
@@ -514,8 +518,10 @@ function validateParticipation() {
 
 function selectAnswer(optionId) {
   const question = quizData.questions[state.currentQuestionIndex];
+  const restoreFocus = elements.optionsList.contains(document.activeElement);
   state.answers[question.id] = optionId;
   renderQuestion();
+  if (restoreFocus) document.getElementById(optionId)?.focus({ preventScroll: true });
 }
 
 function goNext() {
@@ -604,6 +610,8 @@ document.addEventListener("click", (event) => {
     if (!elements.quiz.hidden) renderQuestion();
     if (!elements.result.hidden && state.result) renderResult();
     if (!elements.participation.hidden) renderParticipation();
+    if (!elements.redemption.hidden && state.displayedAllocation) renderRedemption(state.displayedAllocation);
+    if (elements.mockPanel.isConnected && !elements.mockPanel.hidden) renderMockTools();
   }
 });
 

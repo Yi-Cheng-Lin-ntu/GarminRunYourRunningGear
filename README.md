@@ -167,3 +167,7 @@ node --test tests/*.test.mjs
 ## 專案地圖與內容修改
 
 [`PROJECT_MAP.md`](PROJECT_MAP.md) 是技術架構與維護指南，集中說明檔案職責、相依關係、修改入口與風險。測驗題目、選項、結果與相關 UI 文案都由 [`content.csv`](content.csv) 提供；要修改內容或分類欄位，請先看 Project Map 的「編輯題目與結果 CSV」及「分類行為與資料契約」。
+
+## 視覺設計與 UI 驗收
+
+視覺規範請見 [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)；Audit、前後截圖、五種寬度與 Mock 回歸驗證請見 [UI_REVIEW.md](UI_REVIEW.md)。新元件沿用 `style.css` 的語意 Token，維持既有測驗與分配契約。
