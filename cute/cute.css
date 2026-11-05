@@ -1,0 +1,257 @@
+/* Alternate presentation only. The requested seven primitive HEX values are fixed in the Cute scope.
+   Every selector is scoped: this stylesheet never styles the Urban variant. */
+html[data-ui-variant="cute"] {
+  --brand-black: #080B0D;
+  --brand-surface: #11171A;
+  --brand-white: #F7FAF8;
+  --brand-muted: #8E9BA0;
+  --brand-blue: #D6F2FF;
+  --brand-blue-mid: #A9DEF2;
+  --brand-green: #00FF19;
+  --bg-primary: var(--brand-white);
+  --bg-surface: var(--brand-white);
+  --text-primary: var(--brand-black);
+  --text-secondary: var(--brand-surface);
+  --text-highlight: var(--brand-surface);
+  --action-secondary: var(--brand-surface);
+  --border-default: rgba(8,11,13,.18);
+  --border-strong: rgba(8,11,13,.5);
+  --radius-card: 18px;
+  --radius-control: 14px;
+  --type-display: clamp(2.25rem, 6vw, 3.5rem);
+  --type-h1: clamp(1.875rem, 5vw, 2.625rem);
+  --type-h2: clamp(1.5rem, 4vw, 2rem);
+  --font-sans: ui-rounded, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+html[data-ui-variant="cute"] body { background: var(--brand-blue); }
+html[data-ui-variant="cute"] body::before,
+html[data-ui-variant="cute"] body::after { content: none; }
+html[data-ui-variant="cute"] .site-header,
+html[data-ui-variant="cute"] .app-shell,
+html[data-ui-variant="cute"] .site-footer { max-width: 680px; }
+html[data-ui-variant="cute"] .site-header {
+  border: 0;
+  min-height: 88px;
+}
+html[data-ui-variant="cute"] .brand { color: var(--brand-black); letter-spacing: .08em; }
+html[data-ui-variant="cute"] .brand span { color: var(--brand-black); }
+html[data-ui-variant="cute"] .header-actions { flex-wrap: wrap; }
+html[data-ui-variant="cute"] .mock-mode-badge {
+  background: var(--brand-white);
+  border: 1px solid var(--border-strong);
+  border-radius: 100px;
+  color: var(--brand-surface);
+}
+html[data-ui-variant="cute"] .mock-tools-button,
+html[data-ui-variant="cute"] .language-toggle { color: var(--brand-black); }
+html[data-ui-variant="cute"] .screen {
+  min-height: auto;
+  background: var(--brand-white);
+  border-radius: 24px;
+  padding: 28px 24px 32px;
+  margin-bottom: 24px;
+}
+html[data-ui-variant="cute"] .eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--brand-surface);
+  margin-bottom: 16px;
+}
+html[data-ui-variant="cute"] .section-label { color: var(--brand-surface); }
+html[data-ui-variant="cute"] .cute-club-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+html[data-ui-variant="cute"] .club-stamp {
+  display: grid;
+  place-content: center;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border: 1.5px solid var(--brand-black);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  letter-spacing: .04em;
+}
+html[data-ui-variant="cute"] .cute-club-heading p { font-size: 14px; margin: 0; }
+html[data-ui-variant="cute"] .cute-hero {
+  position: relative;
+  height: clamp(220px, 47vw, 300px);
+  border-radius: 18px;
+  background: var(--brand-blue) url("./assets/club-route.svg") center / cover no-repeat;
+  overflow: hidden;
+  margin: 0 -8px;
+}
+html[data-ui-variant="cute"] .hero-dog { position: absolute; object-fit: contain; height: auto; }
+html[data-ui-variant="cute"] .hero-doberman { width: 48%; left: -1%; top: 8%; }
+html[data-ui-variant="cute"] .hero-shiba { width: 48%; right: -2%; top: 0; }
+html[data-ui-variant="cute"] .hero-dachshund { width: 48%; left: 26%; bottom: -1%; }
+html[data-ui-variant="cute"] .club-mile {
+  position: absolute; left: 20px; top: 16px;
+  font-size: 11px; letter-spacing: .12em; color: var(--brand-surface);
+}
+html[data-ui-variant="cute"] .club-route-label {
+  position: absolute; right: 14px; bottom: 14px;
+  font-size: 9px; font-weight: 700; letter-spacing: .04em;
+}
+html[data-ui-variant="cute"] .cute-concept-note {
+  font-size: 12px;
+  color: var(--brand-surface);
+  margin: 8px 0 24px;
+  text-align: right;
+}
+html[data-ui-variant="cute"] #start-title {
+  font-size: var(--type-display);
+  white-space: pre-line;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+html[data-ui-variant="cute"] .lead { color: var(--brand-surface); margin-bottom: 24px; }
+html[data-ui-variant="cute"] .microcopy { color: var(--brand-surface); font-weight: 500; }
+html[data-ui-variant="cute"] .button {
+  min-height: 54px;
+  border-radius: 100px;
+  font-size: 16px;
+  letter-spacing: .01em;
+  text-transform: none;
+}
+html[data-ui-variant="cute"] .button:hover:not(:disabled),
+html[data-ui-variant="cute"] .option-card:hover { transform: none; }
+html[data-ui-variant="cute"] .button-primary { color: var(--brand-black); background: var(--brand-green); }
+html[data-ui-variant="cute"] .button-secondary {
+  color: var(--brand-black);
+  border-color: var(--brand-black);
+}
+html[data-ui-variant="cute"] .button-secondary:hover { background: var(--brand-blue); }
+html[data-ui-variant="cute"] button:focus-visible,
+html[data-ui-variant="cute"] a:focus-visible,
+html[data-ui-variant="cute"] input:focus-visible { outline-color: var(--brand-black); }
+html[data-ui-variant="cute"] .quiz-topline { margin-bottom: 16px; }
+html[data-ui-variant="cute"] .text-button { color: var(--brand-surface); }
+html[data-ui-variant="cute"] .progress-track { gap: 8px; margin-bottom: 24px; }
+html[data-ui-variant="cute"] .progress-track span {
+  height: 8px;
+  border-radius: 100px;
+  border-color: var(--border-strong);
+  background: var(--brand-blue);
+}
+html[data-ui-variant="cute"] .progress-track span.is-current { background: var(--brand-black); }
+html[data-ui-variant="cute"] .progress-track span.is-complete { background: var(--brand-green); }
+html[data-ui-variant="cute"] .question-number { font-size: 20px; color: var(--brand-surface); }
+html[data-ui-variant="cute"] .question-number-wrap { margin-bottom: 12px; }
+html[data-ui-variant="cute"] .question-total { margin-left: 0; }
+html[data-ui-variant="cute"] .question-intro h2 { max-width: none; line-height: 1.45; font-weight: 700; }
+html[data-ui-variant="cute"] .options-list { gap: 12px; }
+html[data-ui-variant="cute"] .option-card {
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--brand-white);
+}
+html[data-ui-variant="cute"] .option-card label { padding: 18px 40px 18px 14px; min-height: 80px; gap: 8px; }
+html[data-ui-variant="cute"] .option-text { font-weight: 500; }
+html[data-ui-variant="cute"] .option-index {
+  display: grid; place-items: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--brand-blue); color: var(--brand-black);
+}
+html[data-ui-variant="cute"] .option-card.is-selected {
+  background: var(--brand-blue);
+  border: 2px solid var(--brand-black);
+  box-shadow: inset 5px 0 var(--brand-green);
+}
+html[data-ui-variant="cute"] .option-card.is-selected .option-index { background: var(--brand-green); color: var(--brand-black); }
+html[data-ui-variant="cute"] .option-card:has(input:checked)::after { color: var(--brand-black); }
+html[data-ui-variant="cute"] .result-visual {
+  height: clamp(240px, 60vw, 320px);
+  margin: 0;
+  border: 0;
+  border-radius: 18px;
+  background: var(--brand-blue) url("./assets/club-route.svg") center / cover no-repeat;
+}
+html[data-ui-variant="cute"] .result-visual::before,
+html[data-ui-variant="cute"] .result-visual::after { content: none; }
+html[data-ui-variant="cute"] .result-visual img { object-fit: contain; filter: none; padding: 8px; }
+html[data-ui-variant="cute"] .result-header h2 { line-height: 1.4; max-width: none; font-size: var(--type-h1); }
+html[data-ui-variant="cute"] .result-description { color: var(--brand-surface); font-weight: 500; }
+html[data-ui-variant="cute"] .result-detail-block { border-top: 0; padding-top: 0; }
+html[data-ui-variant="cute"] .recommendation-section,
+html[data-ui-variant="cute"] .gear-panel,
+html[data-ui-variant="cute"] .form-section { background: var(--brand-blue); border: 0; border-radius: 18px; }
+html[data-ui-variant="cute"] .recommendation-section.is-sustainability { border-left: 6px solid var(--brand-green); }
+html[data-ui-variant="cute"] .recommendation-section .section-label,
+html[data-ui-variant="cute"] .recommendation-section.is-sustainability .section-label,
+html[data-ui-variant="cute"] .gear-panel .section-label,
+html[data-ui-variant="cute"] .gear-value,
+html[data-ui-variant="cute"] .form-section > p,
+html[data-ui-variant="cute"] .form-section div > p { color: var(--brand-surface); }
+html[data-ui-variant="cute"] .participation-form { gap: 20px; }
+html[data-ui-variant="cute"] .participation-header h2 { line-height: 1.4; }
+html[data-ui-variant="cute"] .demo-badge {
+  border-radius: 10px;
+  border-color: var(--border-strong);
+  color: var(--brand-surface);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+}
+html[data-ui-variant="cute"] .raffle-fields input[type="text"],
+html[data-ui-variant="cute"] .raffle-fields input[type="email"] {
+  background: var(--brand-white); color: var(--brand-black);
+  min-height: 52px; border-radius: 12px;
+}
+html[data-ui-variant="cute"] .toggle-row { font-weight: 600; }
+html[data-ui-variant="cute"] .privacy-copy { color: var(--brand-surface); border-color: var(--brand-surface); }
+html[data-ui-variant="cute"] .hydration-title { font-weight: 700; line-height: 1.4; }
+html[data-ui-variant="cute"] .choice-card { background: var(--brand-white); border-radius: 14px; }
+html[data-ui-variant="cute"] .choice-card span { min-height: 88px; }
+html[data-ui-variant="cute"] .choice-card small { color: var(--brand-surface); }
+html[data-ui-variant="cute"] .choice-card span::before { border-color: var(--brand-black); }
+html[data-ui-variant="cute"] .choice-card.is-selected,
+html[data-ui-variant="cute"] .choice-card:has(input:checked) {
+  background: var(--brand-white); border: 2px solid var(--brand-black);
+  box-shadow: inset 5px 0 var(--brand-green);
+}
+html[data-ui-variant="cute"] .choice-card:has(input:checked) span::before {
+  background: var(--brand-green); border-color: var(--brand-black);
+  box-shadow: inset 0 0 0 3px var(--brand-white);
+}
+html[data-ui-variant="cute"] .form-error {
+  background: var(--brand-surface); color: var(--brand-white);
+  border: 2px solid var(--brand-black); border-radius: 12px;
+}
+html[data-ui-variant="cute"] .form-error::before { content: "! "; font-weight: 700; }
+html[data-ui-variant="cute"] .screen-redemption {
+  margin-inline: 0;
+  background: var(--theme-general);
+  border: 1px solid var(--border-strong);
+}
+html[data-ui-variant="cute"] .screen-redemption.is-sustainable { background: var(--theme-sustainability); }
+html[data-ui-variant="cute"] .prize-card { border-radius: 18px; }
+html[data-ui-variant="cute"] .prize-image { padding: 24px; }
+html[data-ui-variant="cute"] .sustainability-message { border-radius: 4px; font-weight: 600; }
+html[data-ui-variant="cute"] .site-footer { border: 0; padding: 8px 8px 32px; line-height: 1.7; letter-spacing: .02em; }
+html[data-ui-variant="cute"] .cute-footer-brand { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+html[data-ui-variant="cute"] .site-footer span { float: none; }
+html[data-ui-variant="cute"] .site-footer p { font-weight: 400; font-size: 12px; }
+html[data-ui-variant="cute"] .site-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--brand-black); font-size: 14px; }
+html[data-ui-variant="cute"] .mock-tools-panel { background: var(--brand-white); color: var(--brand-black); border-radius: 18px; }
+html[data-ui-variant="cute"] .mock-tools-note,
+html[data-ui-variant="cute"] .mock-stock-editor label,
+html[data-ui-variant="cute"] .mock-snapshot h3 { color: var(--brand-surface); }
+html[data-ui-variant="cute"] .mock-stock-editor input { background: var(--brand-white); color: var(--brand-black); border-color: var(--border-strong); }
+html[data-ui-variant="cute"] .mock-tools-panel .button-primary { background: var(--brand-blue); }
+@media (max-width: 430px) {
+  html[data-ui-variant="cute"] .screen { padding: 24px 18px; border-radius: 20px; }
+  html[data-ui-variant="cute"] .site-header { gap: 4px; }
+  html[data-ui-variant="cute"] .brand { letter-spacing: 0; font-size: 12px; }
+  html[data-ui-variant="cute"] .cute-hero { margin-inline: -6px; }
+  html[data-ui-variant="cute"] .club-route-label { font-size: 8px; right: 10px; }
+  html[data-ui-variant="cute"] .form-section { padding: 16px; }
+}

@@ -1,0 +1,106 @@
+[
+  {
+    "variant": "urban",
+    "width": 390,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": true,
+    "passed": true
+  },
+  {
+    "variant": "urban",
+    "width": 375,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "urban",
+    "width": 390,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "urban",
+    "width": 430,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "urban",
+    "width": 1280,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "urban",
+    "width": 390,
+    "projectPath": true,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "urban",
+    "width": 390,
+    "projectPath": true,
+    "demoFixture": true,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "cute",
+    "width": 375,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "cute",
+    "width": 390,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "cute",
+    "width": 430,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "cute",
+    "width": 1280,
+    "projectPath": false,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "cute",
+    "width": 390,
+    "projectPath": true,
+    "demoFixture": false,
+    "baseline": false,
+    "passed": true
+  },
+  {
+    "variant": "cute",
+    "width": 390,
+    "projectPath": true,
+    "demoFixture": true,
+    "baseline": false,
+    "passed": true
+  }
+]

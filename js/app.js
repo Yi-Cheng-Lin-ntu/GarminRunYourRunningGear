@@ -1,3 +1,4 @@
+import { getUiVariant, presentResults, resolveProjectAsset } from "./uiVariant.js";
 import { classificationRules } from "./classificationRules.js";
 import { classifyAnswers } from "./classificationEngine.js";
 import { loadContent } from "./contentData.js";
@@ -19,6 +20,8 @@ import {
   readPendingRequest,
   savePendingRequest
 } from "./sessionRecovery.js";
+
+const visualVariant = getUiVariant(document.documentElement.dataset.uiVariant);
 
 let quizData;
 let runnerTypes;
@@ -115,7 +118,8 @@ function updateStaticText() {
   document.documentElement.lang = state.language === "zh" ? "zh-Hant" : "en";
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     const key = element.dataset.i18n;
-    const value = uiContent?.[key]?.[state.language] || translations[state.language][key];
+    const value = visualVariant.copy[key]?.[state.language]
+      || uiContent?.[key]?.[state.language] || translations[state.language][key];
     if (value) {
       element.textContent = value;
     }
@@ -193,7 +197,8 @@ function renderResult() {
   const isSustainability = state.result.sustainability;
   elements.recommendationSection.classList.toggle("is-sustainability", isSustainability);
 
-  const identityPrefix = state.language === "zh" ? "你是｜" : "You are | ";
+  const identityPrefix = visualVariant.resultPrefix?.[state.language]
+    ?? (state.language === "zh" ? "你是｜" : "You are | ");
   elements.resultTitle.textContent = `${identityPrefix}${text(result.title)}`;
   elements.resultDescription.textContent = text(result.description);
   elements.resultDetail.textContent = text(result.detail);
@@ -211,11 +216,13 @@ function renderResult() {
     elements.gearPanel.hidden = false;
   }
 
+  // Cute concepts have meaningful alt text; retain the original decorative behavior.
+  if (visualVariant.id === "cute") elements.resultVisual.removeAttribute("aria-hidden");
   elements.resultVisual.innerHTML = "";
   elements.resultVisual.classList.toggle("has-image", Boolean(result.image?.src));
   if (result.image?.src) {
     const image = document.createElement("img");
-    image.src = result.image.src;
+    image.src = resolveProjectAsset(result.image.src);
     image.alt = text(result.image.alt);
     elements.resultVisual.append(image);
   } else {
@@ -346,7 +353,7 @@ function renderRedemption(allocation) {
   } else if (prizeImagePath) {
     elements.prizeImage.hidden = false;
     const image = document.createElement("img");
-    image.src = prizeImagePath;
+    image.src = resolveProjectAsset(prizeImagePath);
     image.alt = text({ zh: prize.nameZh, en: prize.nameEn });
     image.onerror = () => {
       elements.prizeImage.classList.remove("has-image");
@@ -737,6 +744,7 @@ if (pendingRequest?.sessionId && pendingRequest?.requestId) {
 
 loadContent().then((content) => {
   ({ quizData, runnerTypes, resultData, ui: uiContent } = content);
+  resultData = presentResults(resultData, visualVariant);
   elements.startButton.disabled = false;
   updateStaticText();
 }).catch((error) => {

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 280" fill="none">
+  <title>Curious race-day Shiba — character concept</title>
+  <g stroke="#080B0D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M66 244h188" stroke="#A9DEF2" stroke-dasharray="3 12"/>
+    <path d="M219 164c47 14 51-35 28-32-21 4-9 24 3 15" stroke="#BA855C" stroke-width="18"/>
+    <path d="M126 197l-25 29-22 1" stroke="#BA855C" stroke-width="21"/>
+    <path d="M181 198l12 29 25 4" stroke="#BA855C" stroke-width="21"/>
+    <path d="M77 220l25 4 2 15H67c-5-8 0-15 10-19Z" fill="#D6F2FF"/>
+    <path d="M204 222l19 7 9 11h-39v-14Z" fill="#D6F2FF"/>
+    <path d="M125 126c-21 12-27 64-13 78 18 16 65 16 84-3 12-14 1-63-18-75" fill="#BA855C"/>
+    <path d="M126 142c-12 19-12 41-5 52 13 12 42 14 56 0 7-14 4-35-10-52" fill="#F7FAF8" stroke="none"/>
+    <path d="M115 144l-26 24-12-6M186 145l24 18 13-9" stroke="#BA855C" stroke-width="17"/>
+    <path d="M103 78l-5-46c23 1 32 18 38 31M169 62l28-33 12 53" fill="#BA855C"/>
+    <path d="M113 64l-5-17 17 13M184 61l10-15 3 22" fill="#080B0D" stroke-width="2"/>
+    <path d="M98 86c2-32 100-45 115-6l9 30c-5 40-108 50-129 11Z" fill="#BA855C"/>
+    <path d="M96 107c21 7 27 25 55 23 29-2 41-21 65-28l5 12c-16 38-108 39-124 8Z" fill="#F7FAF8" stroke="none"/>
+    <path d="M119 93l8-4M179 87l8 4"/>
+    <ellipse cx="128" cy="101" rx="3" ry="4" fill="#080B0D" stroke="none"/>
+    <ellipse cx="181" cy="101" rx="3" ry="4" fill="#080B0D" stroke="none"/>
+    <path d="M148 111l11-1-4 7Z" fill="#080B0D" stroke-width="2"/>
+    <path d="M154 117v6m-12-1c5 7 17 7 23-2" stroke-width="3"/>
+    <path d="M117 139c18 10 47 11 66-1" stroke="#00FF19" stroke-width="9"/>
+    <rect x="130" y="158" width="44" height="31" rx="5" fill="#D6F2FF" stroke-width="3"/>
+    <path d="M140 167v12m8-12v12m8-12v12m8-12v12" stroke-width="2"/>
+    <path d="M49 113v-9m-5 4h10M249 72v-9m-5 4h10" stroke="#A9DEF2" stroke-width="3"/>
+  </g>
+</svg>

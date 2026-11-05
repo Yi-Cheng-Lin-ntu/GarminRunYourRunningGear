@@ -84,7 +84,7 @@ async function run() {
           getComputedStyle(element).backgroundColor
         );
 
-        await page.goto("http://127.0.0.1:8011/");
+        await page.goto(process.env.UI_BASE_URL || "http://127.0.0.1:8011/");
         await ready();
         await check("landing");
         await quiz();
@@ -104,7 +104,8 @@ async function run() {
         await submit();
         await check("general");
         if (!before) {
-          assert.equal(await theme(), "rgb(214, 242, 255)");
+          // Current Urban baseline (c693ed9) uses #7BCCFF, not the earlier #D6F2FF.
+          assert.equal(await theme(), "rgb(123, 204, 255)");
           await click("[data-action=toggle-language]");
           assert.match(await page.locator("[data-redemption-runner]").innerText(), /Runner type/);
           await check("english-prize");

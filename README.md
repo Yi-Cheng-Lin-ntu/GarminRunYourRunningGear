@@ -171,3 +171,9 @@ node --test tests/*.test.mjs
 ## 視覺設計與 UI 驗收
 
 視覺規範請見 [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)；Audit、前後截圖、五種寬度與 Mock 回歸驗證請見 [UI_REVIEW.md](UI_REVIEW.md)。新元件沿用 `style.css` 的語意 Token，維持既有測驗與分配契約。
+
+## Cute Running Club 視覺測試版
+
+原版 `/` 保留；開啟 `/cute/` 可預覽獨立的可愛跑步俱樂部版本。兩版均預設 Mock，均可搭配 `?mode=apps-script-demo`；同來源共用 Mock 紀錄，Demo 也共用既有 Demo 庫存。
+
+狗狗圖目前是 SVG 概念稿，英文名稱暫定。設計與維護方式見 [CUTE_DESIGN_SYSTEM.md](CUTE_DESIGN_SYSTEM.md)，截圖及驗收見 [CUTE_UI_REVIEW.md](CUTE_UI_REVIEW.md)。

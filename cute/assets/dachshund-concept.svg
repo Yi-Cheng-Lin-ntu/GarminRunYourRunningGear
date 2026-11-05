@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 280" fill="none">
+  <title>Easygoing running Dachshund — character concept</title>
+  <g stroke="#080B0D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M46 244h235" stroke="#A9DEF2" stroke-dasharray="3 12"/>
+    <path d="M76 172c-23-2-28-17-26-27" stroke="#946443" stroke-width="12"/>
+    <path d="M104 203l-12 28-19 1M207 203l13 26 18 1" stroke="#946443" stroke-width="17"/>
+    <path d="M72 225l22 1 2 14H62c-3-7 3-12 10-15ZM224 223l17 5 10 12h-35v-11Z" fill="#D6F2FF"/>
+    <path d="M74 159c21-18 106-7 139-14 16-4 32 11 28 28-4 33-31 42-72 41l-68-3c-35-1-44-33-27-52Z" fill="#946443"/>
+    <path d="M182 153c-9 15-12 32-8 55" stroke="#D6F2FF" stroke-width="13"/>
+    <path d="M207 148c-7-17-6-43 7-54 17-16 48-9 53 11l16 7c17 1 18 19 4 26-10 5-16 4-25 7-14 18-40 18-55 3Z" fill="#946443"/>
+    <path d="M213 103c-16-1-23 15-20 35 2 17 17 23 24 9 6-11 8-34-4-44Z" fill="#BA855C"/>
+    <path d="M220 95c11-9 28-7 38 3" stroke="#00FF19" stroke-width="11"/>
+    <path d="M218 96l-9-4" stroke="#00FF19" stroke-width="5"/>
+    <path d="M247 113l7 1" stroke-width="3"/>
+    <ellipse cx="253" cy="119" rx="3" ry="4" fill="#080B0D" stroke="none"/>
+    <path d="M282 114l10 3-6 7Z" fill="#080B0D" stroke-width="2"/>
+    <path d="M268 134c6 3 12 1 15-2" stroke-width="3"/>
+    <rect x="151" y="163" width="25" height="33" rx="8" fill="#D6F2FF" stroke-width="3"/>
+    <path d="M158 163v-6h11v6M158 177h11" stroke-width="3"/>
+    <path d="M55 95c0-6 8-6 8 0s-8 6-8 0ZM103 117c0-4 6-4 6 0s-6 4-6 0Z" fill="#D6F2FF" stroke="none"/>
+    <path d="M126 85v9m-5-4h10" stroke="#A9DEF2" stroke-width="3"/>
+  </g>
+</svg>

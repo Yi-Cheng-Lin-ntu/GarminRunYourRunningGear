@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-Hant" data-ui-variant="cute">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Garmin Run 跑者風格與補水方式互動測驗" />
+    <title>Garmin Run | Cute Running Club — UI Prototype</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="./cute.css" />
+    <link rel="icon" href="./assets/shiba-concept.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#start" data-action="home" aria-label="Garmin Run home">GARMIN <span>RUN</span></a>
+      <div class="header-actions">
+        <span class="mock-mode-badge">MOCK MODE</span>
+        <button class="mock-tools-button" type="button" data-action="mock-tools">測試工具</button>
+        <button class="language-toggle" type="button" data-action="toggle-language" aria-label="Switch language">
+          <span data-language-label>EN</span>
+        </button>
+      </div>
+    </header>
+
+    <aside class="mock-tools-panel" data-mock-panel hidden aria-label="Mock Mode 測試工具">
+      <div class="mock-tools-header">
+        <div>
+          <p class="eyebrow">MOCK TEST ENVIRONMENT</p>
+          <h2>活動驗收工具</h2>
+        </div>
+        <button class="text-button" type="button" data-action="close-mock-tools">關閉</button>
+      </div>
+      <p class="mock-tools-note">僅使用瀏覽器本機測試資料，不會連接或修改 Google Sheets。</p>
+      <div class="mock-scenarios">
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_available">購物袋有庫存</button>
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_empty">購物袋耗盡</button>
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="general_empty">一般獎品耗盡</button>
+        <button class="button button-secondary" type="button" data-action="mock-reset">重置初始庫存</button>
+        <button class="button button-secondary" type="button" data-action="mock-clear">清除測試資料</button>
+      </div>
+      <div class="mock-stock-editor" data-mock-stock-editor></div>
+      <div class="mock-snapshot">
+        <h3>Prizes</h3>
+        <div data-mock-prizes></div>
+        <h3>Participants</h3>
+        <div data-mock-participants></div>
+        <h3>Allocations</h3>
+        <div data-mock-allocations></div>
+        <h3>Inventory Log</h3>
+        <div data-mock-inventory-log></div>
+      </div>
+    </aside>
+
+    <main class="app-shell">
+      <section class="screen screen-start is-active" id="start" aria-labelledby="start-title">
+        <div class="eyebrow" data-i18n="start.eyebrow">GARMIN RUN 2026</div>
+        <div class="cute-club-heading">
+          <span class="club-stamp" aria-hidden="true">RUN<br>CLUB</span>
+          <p data-i18n="cute.clubNote">每個步調，都有好夥伴。</p>
+        </div>
+        <div class="cute-hero" aria-hidden="true">
+          <span class="club-mile">01 — 02 — 03</span>
+          <img class="hero-dog hero-doberman" src="./assets/doberman-concept.svg" alt="" width="320" height="280" />
+          <img class="hero-dog hero-shiba" src="./assets/shiba-concept.svg" alt="" width="320" height="280" />
+          <img class="hero-dog hero-dachshund" src="./assets/dachshund-concept.svg" alt="" width="320" height="280" />
+          <span class="club-route-label">MEET YOU AT THE START.</span>
+        </div>
+        <p class="cute-concept-note" data-i18n="cute.prototype">插圖概念稿・非正式定稿</p>
+        <p class="section-label" data-i18n="start.label">跑者風格測驗</p>
+        <h1 id="start-title" data-i18n="start.title">一起跑，跑出你的可愛</h1>
+        <p class="lead" data-i18n="start.description">五個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。</p>
+        <button class="button button-primary button-wide" type="button" data-action="start" data-i18n="start.button" disabled>出發！找我的跑步夥伴</button>
+        <p class="microcopy" data-i18n="start.note">約 1 分鐘完成・無需登入</p>
+      </section>
+
+      <section class="screen screen-quiz" id="quiz" aria-labelledby="question-title" hidden>
+        <div class="quiz-topline">
+          <button class="text-button" type="button" data-action="back" data-i18n="navigation.back">返回</button>
+          <span class="question-count"><span data-question-count>01 / 05</span></span>
+        </div>
+        <div class="progress-track" aria-label="Question progress" data-progress-track>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="question-intro">
+          <div class="question-number-wrap">
+            <span class="question-number" data-question-number>01</span><span class="question-total">/ 05</span>
+          </div>
+          <h2 id="question-title" data-question-prompt></h2>
+        </div>
+        <form class="options-list" data-options-list></form>
+        <div class="quiz-actions">
+          <button class="button button-primary button-wide" type="button" data-action="next" data-i18n="navigation.next" disabled>下一題</button>
+        </div>
+      </section>
+
+      <section class="screen screen-result" id="result" aria-labelledby="result-title" hidden>
+        <div class="result-header">
+          <p class="eyebrow" data-i18n="result.eyebrow">YOUR RUNNER STYLE</p>
+          <div class="result-visual" data-result-visual></div>
+          <p class="cute-concept-note" data-i18n="cute.prototype">插圖概念稿・非正式定稿</p>
+          <p class="section-label" data-i18n="result.label">跑者身分</p>
+          <h2 id="result-title" data-result-title></h2>
+          <p class="result-description" data-result-description></p>
+        </div>
+
+        <div class="result-detail-block">
+          <p data-result-detail></p>
+        </div>
+
+        <div class="result-content">
+          <section class="result-section recommendation-section" data-recommendation-section>
+            <p class="section-label" data-i18n="result.hydrationLabel">下一次可以試試</p>
+            <p class="recommendation-kicker" data-result-hydration-title></p>
+            <h3 class="recommendation-slogan" data-result-cta></h3>
+            <p class="recommendation-description" data-result-hydration-description></p>
+          </section>
+
+          <section class="gear-panel" data-gear-panel>
+            <p class="section-label" data-i18n="result.note">補水裝備推薦</p>
+            <p class="gear-value" data-result-gear></p>
+          </section>
+
+          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="result.continue">下一步｜領取活動獎品</button>
+          <button class="button button-secondary button-wide" type="button" data-action="retry" data-i18n="result.retry">重新測驗</button>
+        </div>
+      </section>
+
+      <section class="screen screen-participation" id="participation" aria-labelledby="participation-title" hidden>
+        <div class="participation-header">
+          <p class="eyebrow" data-i18n="participation.eyebrow">現場領獎程序</p>
+          <p class="demo-badge" data-i18n="participation.demoBadge">DEMO MODE｜測試資料，不會正式登記抽獎</p>
+          <h2 id="participation-title" data-i18n="participation.title">完成測驗，還有機會抽 Forerunner 170！</h2>
+        </div>
+
+        <form class="participation-form" data-participation-form novalidate>
+          <section class="form-section raffle-section">
+            <h3 data-i18n="participation.raffleTitle">賽後抽獎登記</h3>
+            <p data-i18n="participation.raffleDescription">想參加賽後抽獎嗎？留下姓名與電子郵件即可登記。不參加也能繼續領取現場獎品。</p>
+            <label class="toggle-row">
+              <input type="checkbox" data-raffle-toggle />
+              <span data-i18n="participation.raffleToggle">我要參加賽後抽獎</span>
+            </label>
+            <div class="raffle-fields" data-raffle-fields hidden>
+              <label>
+                <span data-i18n="participation.name">姓名</span>
+                <input type="text" maxlength="80" autocomplete="name" data-name />
+              </label>
+              <label>
+                <span>Email</span>
+                <input type="email" maxlength="254" autocomplete="email" data-email />
+              </label>
+              <div class="privacy-copy" data-i18n="participation.privacyPlaceholder">［待核准個資告知文字］僅供正式法務核准前的介面占位，不代表 Garmin 已核准蒐集或使用方式。</div>
+              <label class="toggle-row privacy-row">
+                <input type="checkbox" data-privacy-check />
+                <span data-i18n="participation.privacyConfirm">我已閱讀並確認上述個資告知</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section hydration-section" data-hydration-section>
+            <div data-existing-hydration hidden>
+              <p class="section-label" data-i18n="participation.existingLabel">永續行動</p>
+              <h3 data-i18n="participation.existingTitle">謝謝你已經開始自帶補水！</h3>
+              <p data-i18n="participation.existingDescription">自帶補水已經是你的跑步選擇。邀請你繼續保持，也和身邊的跑友分享這種補水方式。</p>
+            </div>
+            <fieldset data-hydration-options>
+              <legend>
+                <span class="section-label" data-i18n="participation.inviteLabel">下一場跑步</span>
+                <span class="hydration-title" data-i18n="participation.inviteTitle">下一場跑步，你願意試試自帶補水裝備嗎？</span>
+              </legend>
+              <p data-i18n="participation.inviteDescription">從軟水杯、軟水壺或其他適合自己的裝備開始，讓補水方式多一個選擇。</p>
+              <label class="choice-card">
+                <input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice />
+                <span>
+                  <strong data-i18n="participation.joined">我願意加入永續先鋒行動</strong>
+                  <small data-i18n="participation.joinedDescription">下一次跑步，我願意嘗試自帶補水裝備。</small>
+                </span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice />
+                <span>
+                  <strong data-i18n="participation.considering">我會好好考慮的</strong>
+                  <small data-i18n="participation.consideringDescription">先認識不同的補水方式，再找適合自己的選擇。</small>
+                </span>
+              </label>
+            </fieldset>
+          </section>
+
+          <p class="form-error" data-form-error role="alert" aria-live="polite" hidden></p>
+          <button class="button button-primary button-wide submit-button" type="submit" data-submit data-i18n="participation.submit">確認並領取現場獎品</button>
+        </form>
+      </section>
+
+      <section class="screen screen-redemption" id="redemption" aria-labelledby="redemption-title" hidden>
+        <div class="redemption-banner">
+          <p class="eyebrow" data-i18n="redemption.eyebrow">現場兌換</p>
+          <p class="demo-badge" data-i18n="redemption.demoBadge">DEMO MODE｜此頁僅為功能測試，不代表正式獎品憑證</p>
+          <p class="runner-type" data-redemption-runner></p>
+          <h2 id="redemption-title" data-redemption-title>你的獲得獎品</h2>
+        </div>
+        <div class="prize-card">
+          <div class="prize-image" data-prize-image>
+            <span data-i18n="redemption.placeholder">獎品圖片尚未提供</span>
+          </div>
+          <p class="prize-name" data-prize-name></p>
+        </div>
+        <p class="sustainability-message" data-sustainability-message hidden></p>
+        <p class="redemption-instruction" data-i18n="redemption.instruction">請至攤位找工作人員領取 Garmin 周邊</p>
+        <button class="button button-secondary button-wide redemption-restart" type="button" data-action="restart" data-i18n="redemption.restart">再測一次</button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="cute-footer-brand">GARMIN RUN <span>CUTE RUNNING CLUB</span></div>
+      <p data-i18n="cute.variantNote">另一種風格，同一場跑步。</p>
+      <p data-i18n="cute.sharedData">UI 測試版本｜與原版共用同來源 Mock 資料；Apps Script Demo 亦共用 Demo 庫存。</p>
+      <a href="../" data-urban-link data-i18n="cute.backToUrban">看看原版風格 ↗</a>
+    </footer>
+    <script type="module" src="./preview.js"></script>
+  </body>
+</html>

@@ -512,3 +512,15 @@ http://localhost:8000/?mode=apps-script-demo
 - [UI_REVIEW.md](UI_REVIEW.md)：Audit、Before / After、RWD、對比計算、Mock 驗證與剩餘限制。
 - [tests/uiRegression.cjs](tests/uiRegression.cjs)：選用 Playwright 瀏覽器回歸；安裝與執行方式見 UI Review。只測本機 Mock，外部請求封鎖。
 - `.screen-redemption` 預設冰藍，`.is-sustainable` 覆寫為綠色；主題代表行動響應，不代表 A 級資格。
+
+## 19. 雙版本 UI Prototype：Cute Running Club（2026-11-05）
+
+- 原版入口 `/` 不變；新版為 [`cute/index.html`](cute/index.html)，發布後路徑 `/GarminRunYourRunningGear/cute/`。
+- 新版 [`cute/cute.css`](cute/cute.css) 的 selector 僅限 `html[data-ui-variant="cute"]`，原版不載入此樣式。
+- [`js/uiVariant.js`](js/uiVariant.js) 集中狗狗名稱、圖像及少量首頁文案；`app.js` 只在顯示階段套用，不改 runnerType、答案、分類或提交 payload。
+- 兩版共用 `js/`、`content.csv`、Mock Backend、Apps Script URL；不複製計分或分配程式。HTML UI 殼獨立維護，修改共用 data selector 時須同步檢查兩入口。
+- 視覺版本由 HTML 的 `data-ui-variant` 決定；API Mode 仍只由既有 query `?mode=apps-script-demo` 決定，可組合使用。
+- 資產透過 module 相對根目錄解析，支援 `/cute/` 與 GitHub Pages 專案子路徑；不可將獎品路徑改成 `/assets/...` 這類忽略專案前綴的絕對路徑。
+- **庫存共用**：同來源原／新版共用 localStorage Mock 資料；Apps Script Demo 亦共用既有 Demo 庫存。UI variant 不代表另一個庫存環境。
+- 狗狗圖為簡化 SVG 概念稿，放在 `cute/assets/`；正式替換接口與視覺規範見 [`CUTE_DESIGN_SYSTEM.md`](CUTE_DESIGN_SYSTEM.md)。
+- [`CUTE_UI_REVIEW.md`](CUTE_UI_REVIEW.md) 保存驗收紀錄；測試 Demo fixture 不接觸遠端 Sheets。本次不修改部署、不 push。
