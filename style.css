@@ -706,7 +706,7 @@ label {
   --result-title-size: clamp(1.625rem, 4vw, 2.25rem);
   --result-slogan-size: 16px;
   --result-title-slogan-gap: 8px;
-  --result-visual-height: 220px;
+  --result-visual-ratio: 1672 / 941;
   --result-section-gap: 24px;
   --result-tags-gap: 10px;
   --result-tag-font-size: 13px;
@@ -746,11 +746,23 @@ label {
 
 .runner-visual {
   width: 100%;
-  height: var(--result-visual-height);
+  aspect-ratio: var(--result-visual-ratio);
   margin: var(--result-section-gap) 0 12px;
   background: transparent;
   border: 0;
   box-shadow: none;
+}
+
+.runner-visual-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-card);
+  object-fit: contain;
+}
+
+.runner-visual-image[hidden] {
+  display: none;
 }
 
 .runner-tags {
@@ -1050,6 +1062,41 @@ label {
 
 .screen-redemption.is-sustainable {
   --redemption-theme: var(--theme-sustainability);
+  --redemption-ribbon-aspect-ratio: 20 / 1;
+  --redemption-ribbon-opacity: 1;
+  --redemption-ribbon-offset: 0px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.screen-redemption.is-sustainable::before,
+.screen-redemption.is-sustainable::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: var(--redemption-ribbon-aspect-ratio);
+  background-image: url("./assets/永續先鋒隊裝飾.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  opacity: var(--redemption-ribbon-opacity);
+  pointer-events: none;
+}
+
+.screen-redemption.is-sustainable::before {
+  top: var(--redemption-ribbon-offset);
+}
+
+.screen-redemption.is-sustainable::after {
+  bottom: var(--redemption-ribbon-offset);
+}
+
+.screen-redemption.is-sustainable > * {
+  position: relative;
+  z-index: 1;
 }
 
 .screen-redemption .eyebrow {
@@ -1329,7 +1376,6 @@ html:lang(en) .eyebrow {
   }
 
   .screen-result {
-    --result-visual-height: 260px;
     --hydration-image-size: 96px;
   }
 }
@@ -1407,7 +1453,6 @@ html:lang(en) .eyebrow {
 
   .screen-result {
     --hydration-choice-gap: 8px;
-    --result-visual-height: 180px;
     --hydration-image-size: 68px;
   }
 

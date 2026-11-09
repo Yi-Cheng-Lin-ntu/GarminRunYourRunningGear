@@ -11,6 +11,11 @@ import { APPS_SCRIPT_DEMO_MODE, submitParticipation, getPublicCampaignStatus,
 import { clearAllocationRecovery, clearPendingRequest, savePendingRequest } from "./sessionRecovery.js";
 
 const $ = (selector) => document.querySelector(selector);
+const RESULT_ILLUSTRATIONS = {
+  experience: "./assets/result/賽事收藏家.png",
+  lifestyle: "./assets/result/自在巡航員.png",
+  performance: "./assets/result/配速計算機.png"
+};
 const elements = {
   start: $("#start"), quiz: $("#quiz"), result: $("#result"), participation: $("#participation"), redemption: $("#redemption"),
   redemptionRunner: $("[data-redemption-runner]"), redemptionTitle: $("[data-redemption-title]"),
@@ -116,6 +121,11 @@ function renderResult() {
   const result = content.resultData[state.result.runnerType];
   $("[data-result-title]").textContent = text(result.title);
   $("[data-result-slogan]").textContent = text(result.slogan);
+  const illustration = RESULT_ILLUSTRATIONS[state.result.runnerType];
+  const runnerImage = $("[data-runner-image]");
+  runnerImage.hidden = !illustration;
+  if (illustration) runnerImage.src = resolveProjectAsset(illustration);
+  else runnerImage.removeAttribute("src");
   document.querySelectorAll("[data-result-tag]").forEach((tag, index) => {
     const value = result.tags[index]?.[state.language] || "";
     tag.textContent = value;
