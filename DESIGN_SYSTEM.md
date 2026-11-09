@@ -6,7 +6,7 @@
 
 主網站維持深黑、冰藍、螢光綠的 Garmin Run 品牌語言，以使用者提供的狗狗 PNG 為中心。結果圖直接融入深色頁面，不使用白色外框卡片；保留低對比道路紋理，裝飾不與圖片及文字競爭。系統 Sans-serif、直立字體，不額外下載字型。
 
-V2 只載入 `style.css` 與 `v2.css`；所有新樣式限定 `html[data-ui-version="2"]`，避免影響 Cute。原有 base CSS 的歷史色值保留，但 V2 scope 明確使用：
+主網站只載入 `style.css`。Cute 使用自己的 `cute/base.css` 與 `cute/cute.css`，不載入主站樣式。主站目前的品牌色以 `style.css` 的 tokens 為準：
 
 | Token | HEX | 用途 |
 |---|---|---|
@@ -14,7 +14,7 @@ V2 只載入 `style.css` 與 `v2.css`；所有新樣式限定 `html[data-ui-vers
 | --brand-surface | #11171A | 選項、推薦、輸入框背景 |
 | --brand-white | #F7FAF8 | 深色畫面主要文字 |
 | --brand-muted | #8E9BA0 | 次要文字與測試標記 |
-| --brand-blue | #D6F2FF | 資訊、次要互動、道路、一般領獎背景 |
+| --brand-blue | #7BCCFF | 資訊、次要互動、一般領獎背景 |
 | --brand-blue-mid | #A9DEF2 | 標籤層次 |
 | --brand-green | #00FF19 | CTA、選取、完成進度、永續領獎 |
 
@@ -46,7 +46,9 @@ V2 只載入 `style.css` 與 `v2.css`；所有新樣式限定 `html[data-ui-vers
 - `assets/result/我就是來看看柴犬.png`：156×342、RGBA，64,579 bytes。
 - `assets/result/突破PB飆速杜賓.png`：156×297、RGBA，30,869 bytes。
 
-中央row手機220px、桌機260px，圖片width/height100%、object-fit:contain；臘腸橫幅與直立犬共用相同slot，不以逐圖座標調整。長英文標籤自然換行，拉高自己的row，不侵入中央圖片。`--runner-tag-gap` 保留旋轉後的安全距離；`--runner-tag-stagger` 控制四角錯位，空標籤寬度由 `--runner-blank-tag-width` 決定。使用module相對root解析支援GitHub Pages子路徑。
+中央row手機220px、桌機260px，圖片width/height100%、object-fit:contain；臘腸橫幅與直立犬共用相同slot，不以逐圖座標調整。長英文標籤自然換行，拉高自己的row，不侵入中央圖片。結果頁主要尺寸與標籤位置由 `style.css` 的 `RESULT PAGE — QUICK TUNING` variables 控制，完整對照見 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
+
+補水裝備圖片只出現在推薦區，使用 `js/hydrationEquipment.js` 以穩定的 `runnerType:hydrationStyle` 對應；pioneer 不顯示裝備圖。圖片使用 `object-fit:contain` 與獨立小尺寸區域，不影響狗狗圖或四角標籤。
 
 ## 聯絡與領獎
 
@@ -62,4 +64,4 @@ V2 只載入 `style.css` 與 `v2.css`；所有新樣式限定 `html[data-ui-vers
 
 至少驗收375／390／430／768／1280px、中文／英文、四格位置、長標籤、完整PNG、邀請gating、必填聯絡與Mock領獎。證據與限制見 `V2_REVIEW.md`。英文為暫譯待核定；實機Safari／Android與螢幕閱讀器仍需人工驗收。
 
-最新 UI 排版修正與截圖見 `V2_LAYOUT_REVIEW.md`；先前 `docs/v2-review/` 為上一輪淺色提案的歷史證據。
+`V2_REVIEW.md` 與 `docs/v2-review/` 是既有驗收紀錄；目前可人工調整的 CSS 與文案位置請以 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md) 及目前程式為準。

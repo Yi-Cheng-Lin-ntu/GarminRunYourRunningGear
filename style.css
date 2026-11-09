@@ -56,11 +56,6 @@
   --color-blue-mid: var(--brand-blue-mid);
   --color-accent: var(--action-primary);
   --color-line: var(--border-default);
-  --runner-image-height: 220px;
-  --runner-tag-gap: 16px;
-  --runner-tag-stagger: 20px;
-  --runner-blank-tag-width: 72px;
-  --hydration-choice-gap: 12px;
 }
 
 /* Foundations and Taipei map */
@@ -262,7 +257,11 @@ label {
 }
 
 .screen-result .button-primary {
-  margin-bottom: 12px;
+  margin-bottom: var(--result-continue-margin-bottom);
+}
+
+.v2-invitation > [data-action="continue"] {
+  margin-top: var(--result-continue-margin-top);
 }
 
 .screen:not(.screen-redemption) {
@@ -617,6 +616,46 @@ label {
 
 /* Runner result and hydration invitation */
 
+.screen-result {
+  /* RESULT PAGE — QUICK TUNING (mobile defaults; desktop overrides below) */
+  --result-title-size: clamp(1.625rem, 4vw, 2.25rem);
+  --result-slogan-size: 16px;
+  --result-title-slogan-gap: 8px;
+  --result-title-image-gap: 24px;
+  --result-image-recommendation-gap: 32px;
+  --result-dog-height: 220px;
+  --result-dog-width: 100%;
+  --result-tag-row-height: 70px;
+  --result-tag-row-gap: 16px;
+  --result-tag-stagger: 20px;
+  --result-tag-font-size: 13px;
+  --result-tag-padding: 8px 12px;
+  --result-blank-tag-width: 72px;
+  --tag-1-x: 0px;
+  --tag-1-y: 0px;
+  --tag-1-rotation: -5deg;
+  --tag-2-x: 0px;
+  --tag-2-y: 0px;
+  --tag-2-rotation: 4deg;
+  --tag-3-x: 0px;
+  --tag-3-y: 0px;
+  --tag-3-rotation: -3deg;
+  --tag-4-x: 0px;
+  --tag-4-y: 0px;
+  --tag-4-rotation: 5deg;
+  --recommendation-padding: 20px;
+  --recommendation-heading-size: 20px;
+  --recommendation-copy-size: 16px;
+  --hydration-image-size: 92px;
+  --hydration-image-gap: 12px;
+  --hydration-image-text-gap: 16px;
+  --hydration-choice-gap: 12px;
+  --hydration-choice-height: 100px;
+  --hydration-choice-font-size: .95rem;
+  --result-continue-margin-top: 0px;
+  --result-continue-margin-bottom: 12px;
+}
+
 .v2-result-heading {
   text-align: center;
 }
@@ -626,13 +665,13 @@ label {
 }
 
 .v2-result-heading h2 {
-  font-size: clamp(1.625rem, 4vw, 2.25rem);
+  font-size: var(--result-title-size);
   line-height: 1.4;
-  margin-bottom: 8px;
+  margin-bottom: var(--result-title-slogan-gap);
 }
 
 .v2-slogan {
-  font-size: 16px;
+  font-size: var(--result-slogan-size);
   margin: 0;
   line-height: 1.6;
 }
@@ -640,9 +679,9 @@ label {
 .runner-scene {
   display: grid;
   grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-  grid-template-rows: minmax(70px,auto) var(--runner-image-height) minmax(70px,auto);
-  gap: var(--runner-tag-gap);
-  margin: 24px 0 32px;
+  grid-template-rows: minmax(var(--result-tag-row-height),auto) var(--result-dog-height) minmax(var(--result-tag-row-height),auto);
+  gap: var(--result-tag-row-gap);
+  margin: var(--result-title-image-gap) 0 var(--result-image-recommendation-gap);
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -659,8 +698,9 @@ label {
 
 .runner-image img {
   display: block;
-  width: 100%;
+  width: var(--result-dog-width);
   height: 100%;
+  margin-inline: auto;
   padding: 0 8px;
   object-fit: contain;
 }
@@ -672,8 +712,8 @@ label {
   width: fit-content;
   max-width: calc(100% - 16px);
   min-height: 36px;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: var(--result-tag-padding);
+  font-size: var(--result-tag-font-size);
   font-weight: 600;
   line-height: 1.5;
   text-align: center;
@@ -691,7 +731,7 @@ label {
 }
 
 .runner-tag[aria-hidden="true"] {
-  width: var(--runner-blank-tag-width);
+  width: var(--result-blank-tag-width);
   min-height: 24px;
   padding: 0;
 }
@@ -701,23 +741,26 @@ label {
   align-self: start;
   justify-self: start;
   margin-left: 8px;
-  transform: rotate(-5deg);
+  translate: var(--tag-1-x) var(--tag-1-y);
+  transform: rotate(var(--tag-1-rotation));
 }
 
 .tag-2 {
   grid-area: 1 / 2;
   align-self: end;
   justify-self: end;
-  margin: var(--runner-tag-stagger) 8px 0 0;
-  transform: rotate(4deg);
+  margin: var(--result-tag-stagger) 8px 0 0;
+  translate: var(--tag-2-x) var(--tag-2-y);
+  transform: rotate(var(--tag-2-rotation));
 }
 
 .tag-3 {
   grid-area: 3 / 1;
   align-self: end;
   justify-self: start;
-  margin: var(--runner-tag-stagger) 0 0 8px;
-  transform: rotate(-3deg);
+  margin: var(--result-tag-stagger) 0 0 8px;
+  translate: var(--tag-3-x) var(--tag-3-y);
+  transform: rotate(var(--tag-3-rotation));
 }
 
 .tag-4 {
@@ -725,11 +768,13 @@ label {
   align-self: start;
   justify-self: end;
   margin-right: 8px;
-  transform: rotate(5deg);
+  translate: var(--tag-4-x) var(--tag-4-y);
+  transform: rotate(var(--tag-4-rotation));
 }
 
 .v2-recommendation {
-  padding: 20px;
+  min-width: 0;
+  padding: var(--recommendation-padding);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-card);
   background: var(--brand-surface);
@@ -737,18 +782,44 @@ label {
 }
 
 .v2-recommendation h3 {
-  font-size: 20px;
+  font-size: var(--recommendation-heading-size);
   line-height: 1.45;
   margin-bottom: 8px;
 }
 
-.v2-recommendation p:last-child {
+.v2-recommendation [data-recommendation-description] {
   margin: 0;
+  font-size: var(--recommendation-copy-size);
   line-height: 1.7;
+}
+
+.hydration-equipment {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hydration-image-gap);
+  max-width: 100%;
+  margin-top: var(--hydration-image-text-gap);
+}
+
+.hydration-equipment[hidden] {
+  display: none;
+}
+
+.hydration-equipment-image {
+  flex: 0 1 var(--hydration-image-size);
+  width: var(--hydration-image-size);
+  height: var(--hydration-image-size);
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .v2-recommendation.is-pioneer {
   border-left: 5px solid var(--brand-green);
+}
+
+.hydration-choices .choice-card strong {
+  font-size: var(--hydration-choice-font-size);
 }
 
 .v2-invitation {
@@ -787,7 +858,7 @@ label {
 }
 
 .hydration-choices .choice-card span {
-  min-height: 100px;
+  min-height: var(--hydration-choice-height);
   height: 100%;
   padding: 40px 10px 16px;
   text-align: center;
@@ -1220,9 +1291,10 @@ html:lang(en) .eyebrow {
     padding-top: 38px;
   }
 
-  :root {
-    --runner-image-height: 260px;
-    --runner-tag-stagger: 26px;
+  .screen-result {
+    --result-dog-height: 260px;
+    --result-tag-stagger: 26px;
+    --hydration-image-size: 120px;
   }
 }
 
@@ -1297,8 +1369,9 @@ html:lang(en) .eyebrow {
     padding: 20px 16px;
   }
 
-  :root {
+  .screen-result {
     --hydration-choice-gap: 8px;
+    --hydration-image-size: 84px;
   }
 
   .v2-hero {

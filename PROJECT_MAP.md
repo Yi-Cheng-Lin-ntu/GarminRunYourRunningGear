@@ -15,23 +15,25 @@
 | 檔案 | 職責 |
 |---|---|
 | `index.html` | 主網站 V2 DOM，結果頁邀請與獨立聯絡頁 |
-| `style.css` | 既有基本元件與領獎樣式，保留 V1 |
-| `v2.css` | `html[data-ui-version="2"]` 範圍的主網站視覺，固定七色、圖片、四角標籤 |
+| `style.css` | 主網站唯一樣式表；含元件、結果頁、補水邀請、領獎與響應式樣式 |
 | `js/appV2.js` | V2 狀態、問題 rendering、結果／邀請、必填聯絡、同 request 重試、回首頁 |
 | `js/contentData.js` | CSV parser／雙語資料映射；V2 強制五題三選、九推薦、獨立標籤欄 |
 | `content.csv` | V2 唯一執行期內容來源 |
+| `js/hydrationEquipment.js` | 依 `runnerType:hydrationStyle` 映射補水裝備展示圖片；不使用獎品庫存 ID |
 | `js/classificationEngine.js` | `classifyV2AnswerIds()`、Q2 平手、Q4 style；明確 version=1 時保留舊規則 |
 | `js/classificationRules.js` | V2 version=2、四個計分題與 Q2 tie break 設定 |
 | `js/prizeEligibility.js` | existing／joined／considering 資格，原邏輯未改 |
 | `js/participationValidation.js` | V2 Mock／前端 payload 檢查，Demo 測試信箱與告知確認 |
-| `js/apiClient.js` | 共用 Mock／Apps Script adapter；分配演算法不變；V2 Mock 追加追溯欄位 |
+| `js/apiClient.js` | 前端 Mock／Apps Script Demo API adapter；Apps Script 後端程式獨立於此模組 |
 | `js/sessionRecovery.js` | 原 recovery／pending keys；新流程不恢復舊領獎頁 |
 | `js/redemptionView.js` | 從舊 app 抽出的同一套領獎 rendering，兩版共用，分配由後端決定 |
 | `js/uiVariant.js` | 歷史 Cute 顯示設定與 `resolveProjectAsset()`，V2 僅使用資產解析 |
-| `js/app.js`、`legacyClassificationRules.js` | V1 參考入口，凍結 CSV／規則，非 V2 主 controller |
-| `cute/` | 原始檔案、配色與插圖參考，沒有修改 |
+| `js/app.js`、`legacyClassificationRules.js` | Cute／V1 參考 controller 與分類規則，讀取 `archive/v1/content.csv` |
+| `cute/` | 使用 `cute/base.css`、`cute/cute.css` 與 `cute/preview.js`；不載入主站 `style.css` |
 | `archive/v1/` | V1 CSV 與歷史 README／Map／Design System |
 | `assets/result/` | 使用者提供的三張 PNG；未生成、下載、替換或重新編碼 |
+| `assets/waterequip/` | 三張補水裝備 PNG；由 `js/hydrationEquipment.js` 映射至結果推薦區 |
+| `UI_TUNING_GUIDE.md` | CSS 變數、CSV 文案欄位與 DevTools 操作指引 |
 | `apps-script/*.gs` | 下述 V2 後端與既有分配／管理 |
 
 ## CSV 契約

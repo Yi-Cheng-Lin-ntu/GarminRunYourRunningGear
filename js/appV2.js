@@ -3,6 +3,7 @@ import { classifyAnswers } from "./classificationEngine.js";
 import { classificationRules } from "./classificationRules.js";
 import { derivePrizeEligibility } from "./prizeEligibility.js";
 import { isTestEmail } from "./participationValidation.js";
+import { getHydrationEquipment } from "./hydrationEquipment.js";
 import { resolveProjectAsset } from "./uiVariant.js";
 import { renderRedemptionView } from "./redemptionView.js";
 import { APPS_SCRIPT_DEMO_MODE, submitParticipation, getPublicCampaignStatus,
@@ -123,6 +124,20 @@ function renderResult() {
   const recommendation = content.recommendations[`${state.result.runnerType}:${state.result.hydrationStyle}`];
   $("[data-recommendation-heading]").textContent = text(recommendation.heading);
   $("[data-recommendation-description]").textContent = text(recommendation.description);
+  const equipment = getHydrationEquipment(state.result.runnerType, state.result.hydrationStyle);
+  const equipmentGallery = $("[data-hydration-equipment]");
+  equipmentGallery.replaceChildren();
+  equipmentGallery.hidden = equipment.length === 0;
+  equipmentGallery.setAttribute("aria-label", state.language === "zh"
+    ? "補水裝備圖片"
+    : "Hydration equipment images");
+  equipment.forEach((item) => {
+    const image = document.createElement("img");
+    image.className = "hydration-equipment-image";
+    image.src = resolveProjectAsset(item.src);
+    image.alt = text(item.alt);
+    equipmentGallery.append(image);
+  });
   $("[data-recommendation-section]").classList.toggle("is-pioneer", state.result.sustainability);
   $("[data-existing-hydration]").hidden = !state.result.sustainability;
   $("[data-hydration-options]").hidden = state.result.sustainability;

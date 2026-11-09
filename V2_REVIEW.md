@@ -1,4 +1,4 @@
-> 後續 UI 修正已恢復原品牌深色，最新排版與截圖見 [V2_LAYOUT_REVIEW.md](V2_LAYOUT_REVIEW.md)。下文及原截圖保留為初版 V2 驗收歷史。
+> 本文件保留 2026-11-09 的 V2 實作與驗收摘要。現行入口與模組以 [PROJECT_MAP.md](PROJECT_MAP.md) 為準；結果頁人工微調請參考 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
 
 # Garmin Run 2026 V2 — 實作與驗收紀錄
 
@@ -8,7 +8,7 @@
 
 - `content.csv`：五題各三選，中文逐字依需求；metadata=2；三個result、固定slogan、四組獨立tag欄；九個recommendation；完整雙語UI。所有新英文為暫譯，待核定。
 - `classificationEngine.js`／`classificationRules.js`：四題計分、Q2平手，Q4僅處理補水與原本自帶旗標。IDs保持三種runnerType。
-- `index.html`／`v2.css`／`appV2.js`：主入口V2，結果＋永續邀請→獨立必填聯絡→既有領獎；precision/rest未選不能前進，pioneer直接繼續。
+- `index.html`／`style.css`／`appV2.js`：主入口V2，結果＋永續邀請→獨立必填聯絡→既有領獎；precision/rest未選不能前進，pioneer直接繼續。
 - `participationValidation.js`／`apiClient.js`：V2 Mock重新驗證答案與資格，全員聯絡／確認／自動抽獎；Mock participant追加三個追溯欄位；分配權重、數量、防重、paused不改。
 - `redemptionView.js`：原領獎renderer抽為共用模組，保留markup行為與產品圖，主V2／舊Cute共用。
 - `app.js`／`legacyClassificationRules.js`／`archive/v1/`：V1參考入口使用凍結的CSV與規則；`cute/`所有原始檔無差異。舊JS資料加歷史標記，非V2來源。

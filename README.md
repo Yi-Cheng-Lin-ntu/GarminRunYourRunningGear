@@ -37,6 +37,7 @@ python3 -m http.server 8020 --bind 0.0.0.0
 
 - [PROJECT_MAP.md](PROJECT_MAP.md)：檔案、資料契約、V1 參考與相容性。
 - [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)：V2 版面、七色、四個固定標籤與圖片規範。
+- [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)：結果頁 CSS 微調、CSV 文案欄位與 Chrome DevTools 操作。
 - [content.csv](content.csv)：唯一 V2 執行期文案；英文全部為暫譯、待核定。
 - [V2_REVIEW.md](V2_REVIEW.md)：測試、截圖、限制與交接清單。
 - [apps-script/README.md](apps-script/README.md)：**V2 後端手動更新、Demo migration 與重新部署步驟**。
