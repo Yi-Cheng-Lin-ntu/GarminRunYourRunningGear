@@ -83,7 +83,6 @@ function start() {
 }
 function renderQuestion() {
   const question = content.quizData.questions[state.index];
-  $("[data-question-count]").textContent = `${String(state.index + 1).padStart(2, "0")} / 05`;
   $("[data-question-number]").textContent = String(state.index + 1).padStart(2, "0");
   const subtitle = $("[data-question-subtitle]");
   const subtitleText = text(question.subtitle);

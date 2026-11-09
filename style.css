@@ -251,6 +251,11 @@ label {
   line-height: 1.75;
 }
 
+.screen-start .lead {
+  font-size: clamp(1.125rem, 3.8vw, 1.375rem);
+  font-weight: 700;
+}
+
 .site-footer span {
   float: right;
   color: var(--color-text);
@@ -277,7 +282,7 @@ label {
 }
 
 .screen:not(.screen-redemption) .section-label {
-  color: var(--brand-blue);
+  color: var(--brand-green);
 }
 
 .start-visual {
@@ -534,15 +539,6 @@ label {
 
 /* Quiz */
 
-.question-count {
-  margin-top: 0;
-  font-size: var(--type-caption);
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--color-text);
-}
-
 .quiz-topline {
   display: flex;
   align-items: center;
@@ -590,7 +586,7 @@ label {
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
-  font-size: 24px;
+  font-size: var(--type-h2);
 }
 
 .question-subtitle {
@@ -808,12 +804,15 @@ label {
   min-width: 0;
   padding: var(--recommendation-padding);
   border: 1px solid var(--border-default);
+  border-left: 5px solid var(--brand-green);
   border-radius: var(--radius-card);
-  background: var(--brand-surface);
+  background: rgba(17, 23, 26, .78);
+  color: var(--brand-black);
   margin-bottom: 24px;
 }
 
 .v2-recommendation h3 {
+  color: var(--brand-white);
   font-size: var(--recommendation-heading-size);
   line-height: 1.45;
   margin-bottom: 8px;
@@ -821,6 +820,7 @@ label {
 
 .v2-recommendation [data-recommendation-description] {
   margin: 0;
+  color: var(--brand-white);
   font-size: var(--recommendation-copy-size);
   line-height: 1.7;
 }
@@ -851,6 +851,8 @@ label {
   height: var(--hydration-image-size);
   min-width: 0;
   max-width: 100%;
+  border: 1px solid rgba(0, 255, 25, .72);
+  border-radius: var(--radius-control);
   object-fit: contain;
 }
 
@@ -861,10 +863,6 @@ label {
 
 .v2-recommendation.is-pioneer .hydration-recommendation-row {
   grid-template-columns: minmax(0, 1fr);
-}
-
-.v2-recommendation.is-pioneer {
-  border-left: 5px solid var(--brand-green);
 }
 
 .hydration-choices .choice-card strong {
@@ -1065,9 +1063,13 @@ label {
   --redemption-ribbon-aspect-ratio: 20 / 1;
   --redemption-ribbon-opacity: 1;
   --redemption-ribbon-offset: 0px;
+  --redemption-top-space: 88px;
+  --redemption-bottom-space: 88px;
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  padding-top: var(--redemption-top-space);
+  padding-bottom: var(--redemption-bottom-space);
 }
 
 .screen-redemption.is-sustainable::before,
@@ -1100,11 +1102,6 @@ label {
 }
 
 .screen-redemption .eyebrow {
-  color: var(--brand-black);
-  border-color: rgba(8,11,13,.5);
-}
-
-.screen-redemption .demo-badge {
   color: var(--brand-black);
   border-color: rgba(8,11,13,.5);
 }
