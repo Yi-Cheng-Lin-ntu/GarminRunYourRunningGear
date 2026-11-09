@@ -11,7 +11,7 @@ option,q2_experience,q2,蛤? 訓練是什麼?,Huh? What is training?,,,,,experie
 option,q2_lifestyle,q2,不分賽季，平常都一直在跑啦,"I run all year, whatever the season.",,,,,lifestyle,false,false,,,,,,,,,,,,,,,,,,,,,,
 option,q2_performance,q2,每天課表吃到飽,A full serving of training every day.,,,,,performance,false,false,,,,,,,,,,,,,,,,,,,,,,
 question,q3,,賽前一晚收拾裝備,Packing my gear the night before the race,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-question_subtitle,q3_subtitle,q3,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+question_subtitle,q3_subtitle,q3,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 option,q3_experience,q3,儀式感要有，裝備排好來張大合照！,Lay out the gear for a group photo — it is part of the ritual!,,,,,experience,false,false,,,,,,,,,,,,,,,,,,,,,,
 option,q3_lifestyle,q3,該帶的塞進衣保袋、晶片綁好，睡飽比較重要啦,"Pack the bag, attach the chip, and get a good night’s sleep.",,,,,lifestyle,false,false,,,,,,,,,,,,,,,,,,,,,,
 option,q3_performance,q3,鞋子、手錶、果膠…必須萬無一失！,"Shoes, watch, gels… everything has to be ready!",,,,,performance,false,false,,,,,,,,,,,,,,,,,,,,,,
