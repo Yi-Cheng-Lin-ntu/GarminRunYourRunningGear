@@ -22,7 +22,6 @@ html[data-ui-version="2"] {
   --hydration-choice-gap: 12px;
 }
 html[data-ui-version="2"] body { background: var(--bg-primary); }
-html[data-ui-version="2"] body::before { background-color: var(--brand-blue); opacity: .07; }
 html[data-ui-version="2"] .brand,
 html[data-ui-version="2"] .language-toggle { color: var(--text-primary); }
 html[data-ui-version="2"] .brand span { color: var(--brand-green); }

@@ -82,7 +82,7 @@ body::before {
   inset: -4vh -22vw -8vh;
   z-index: 0;
   pointer-events: none;
-  background-color: #85fdd3;
+  background-color: #9effdd;
   mask-image: url("./taipei.svg");
   mask-repeat: no-repeat;
   mask-position: 58% 72%;
