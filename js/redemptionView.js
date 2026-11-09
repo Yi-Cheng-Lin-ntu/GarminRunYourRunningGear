@@ -57,8 +57,8 @@ export function renderRedemptionView(allocation, { state, elements, resultData, 
   } else {
     elements.redemptionTitle.hidden = false;
     elements.redemptionTitle.textContent = state.language === "zh"
-      ? "你的獲得獎品"
-      : "Your prize";
+      ? "請至攤位領取Garmin周邊"
+      : "Please collect your Garmin merchandise at the booth";
   }
 
   if (greenVersion) {
@@ -81,4 +81,3 @@ export function renderRedemptionView(allocation, { state, elements, resultData, 
   }
   showScreen(elements.redemption);
 }
-
