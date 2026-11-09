@@ -19,6 +19,7 @@ function doGet(e) {
       var demoMode = String(e.parameter.demoMode || "false") === "true";
       return jsonResponse({
         ok: true,
+        quizVersion: 2,
         demoMode: demoMode,
         allocationEnabled: demoMode || getSettingValue("allocationEnabled") === "true",
         raffleEnabled: demoMode || getSettingValue("raffleEnabled") === "true",
@@ -65,7 +66,7 @@ function doPost(e) {
       "INVALID_HYDRATION_COMMITMENT","INVALID_EXISTING_SELF_HYDRATION","INVALID_ANSWERS",
       "INVALID_ANSWER","ELIGIBILITY_MISMATCH","INVALID_RAFFLE_OPTION","INVALID_RAFFLE_NAME",
       "INVALID_RAFFLE_EMAIL","INVALID_PRIVACY_ACKNOWLEDGEMENT","PRIVACY_NOTICE_NOT_APPROVED",
-      "SHEET_SETUP_REQUIRED"
+      "SHEET_SETUP_REQUIRED","UNSUPPORTED_QUIZ_VERSION","TEST_DATA_REQUIRED","V2_MIGRATION_REQUIRED"
     ];
     return jsonResponse({
       ok: false,

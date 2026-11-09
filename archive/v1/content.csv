@@ -1,0 +1,84 @@
+type,id,parent_id,zh,en,description_zh,description_en,detail_zh,detail_en,traits,sustainability,is_meme,hydration_title_zh,hydration_title_en,hydration_description_zh,hydration_description_en,gear_zh,gear_en,cta_zh,cta_en,image_src,image_alt_zh,image_alt_en
+question,q1,,為什麼參加 Garmin Run？,Why did you sign up for Garmin Run?,,,,,,,,,,,,,,,,,,
+option,q1_experience,q1,這麼多跑者一起參加的盛會，當然要來感受一下啦！,"Garmin Run is one of the biggest moments for runners, so of course I am joining.",,,,,experience,false,false,,,,,,,,,,,
+option,q1_lifestyle,q1,Garmin Run 幾乎就是我每年的固定行程！,Garmin Run is a race I make sure to join every year.,,,,,lifestyle,false,false,,,,,,,,,,,
+option,q1_performance,q1,目標賽事之一，11月底是突破 PB 的好時機,"It is one of my target races, and late November is a great time to break my PB.",,,,,performance,false,false,,,,,,,,,,,
+question,q2,,賽前一晚收拾裝備，盤點補給策略的你……,"The night before the race, while packing your gear...",,,,,,,,,,,,,,,,,,
+option,q2_experience,q2,多帶個輕巧的軟水杯好像不錯,"The chip is so hard to attach, and I can't forget my bib.",,,,,experience,false,false,,,,,,,,,,,
+option,q2_lifestyle,q2,我喜歡自己帶水，想喝的時候就能喝,Pack as I usually do for a run. Familiar gear feels the most natural.,,,,,lifestyle,false,false,,,,,,,,,,,
+option,q2_performance,q2,輕便上場，喝水交給沿途補給站,"Plan my pace, fueling, and hydration schedule in advance.",,,,,performance,false,false,,,,,,,,,,,
+option,q2_sustainability,q2,軟水杯、軟水壺、水袋背心，補水裝備是我的比賽標準配備,Bring my own hydration gear to make tomorrow's course more sustainable.,,,,,,true,false,,,,,,,,,,,
+question,q3,,站在起跑線前你會……,"At the starting line, you...",,,,,,,,,,,,,,,,,,
+option,q3_experience,q3,檢查儀容表情管理不能忘,Say hello to the runners around me and get ready to enjoy the event together.,,,,,experience,false,false,,,,,,,,,,,
+option,q3_lifestyle,q3,等等就照自己的節奏跑，舒服完賽最重要,Warm up at my own pace and run as I normally do.,,,,,lifestyle,false,false,,,,,,,,,,,
+option,q3_performance,q3,檢查手錶、鞋帶、確認配速策略,"Check my watch, laces, and pacing strategy before giving it my all.",,,,,performance,false,false,,,,,,,,,,,
+option,q3_meme,q3,好緊張喔，腦袋一片空白,I am so hungry! A marathon is just an all-you-can-eat buffet with long distances between tables.,,,,,,false,true,,,,,,,,,,,
+question,q4,,跑到 7.5K，前方終於出現補給站,"At 7.5K, you finally see a hydration station ahead. You...",,,,,,,,,,,,,,,,,,
+option,q4_experience,q4,終於可以停下來休息喝水了,Join everyone at the station and enjoy this part of the course experience.,,,,,experience,false,false,,,,,,,,,,,
+option,q4_lifestyle,q4,真希望可以隨時喝水，不想被補給站限制,"Hydrate when it feels right, take a comfortable break, and keep going.",,,,,lifestyle,false,false,,,,,,,,,,,
+option,q4_performance,q4,看準空檔，精準進站！,"Make a precise, quick hydration stop without disrupting my rhythm.",,,,,performance,false,false,,,,,,,,,,,
+option,q4_sustainability,q4,優雅地拿出自己的軟水杯／軟水壺裝水。,Gracefully stop and fill my own soft cup or soft flask.,,,,,,true,false,,,,,,,,,,,
+question,q5,,剩下最後 2K 啦！你心想……,Only 2K to go! You think...,,,,,,,,,,,,,,,,,,
+option,q5_experience,q5,終於快到終點啦！拱門、獎牌、完賽禮品我來啦~,Enjoy this final stretch too. The atmosphere of this race is amazing.,,,,,experience,false,false,,,,,,,,,,,
+option,q5_lifestyle,q5,嗚嗚要結束了，美好的賽事總是過得特別快,Finish at my own pace and complete a comfortable run today.,,,,,lifestyle,false,false,,,,,,,,,,,
+option,q5_performance,q5,維持配速就能破PB啦，加油撐住！,Hold this pace and I can break my PB. Keep going!,,,,,performance,false,false,,,,,,,,,,,
+option,q5_meme,q5,好累啊！下次不跑了嗚嗚，誰愛跑誰跑。,I am so tired! I am never running again. Whoever likes running can do it.,,,,,,false,true,,,,,,,,,,,
+result,experience,,賽道體驗派,The Course Experience Runner,氣氛、特色、儀式感，賽事本身就是一場值得好好體驗的活動。,"You value joining the event with fellow runners, feeling the course, and enjoying the moment.","對你來說，參加一場賽事不只是從起點跑到終點。
+
+賽道上的氣氛、沿途的補給、和跑友一起參賽的感覺，甚至完賽後的獎牌與回憶，都是一場比賽好玩的地方。跑得怎麼樣很重要，但怎麼體驗這場賽事也很重要。",,,,,下一場，可以試試不一樣的補水體驗,"Simple, light, and in your control","如果你喜歡體驗賽事裡的新鮮事物，下一場不趕時間的比賽，也可以試試帶上自己的軟水杯。
+
+到了補給站停一下、自己裝水再繼續上路，或許也會成為另一種有趣的賽道體驗。","Running does not need to be complicated. Find a comfortable hydration approach that suits you, such as a lightweight soft cup.",軟水杯,,輕便、簡單嘗試,Enjoy a better course experience together,,賽道體驗派圖片預留位置,Course experience runner image placeholder
+result_sustainability,experience,,"自己的水自己背、Ready, Set, Change","Bring your own water — Ready, Set, Change","看來自帶補水裝備早就在你的跑步清單裡了。
+
+下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,
+result,lifestyle,,自在生活派,The Easy Lifestyle Runner,熟悉、從容、自己的節奏，跑步早已是生活的一部分。,Running naturally fits into your life. You run at your own pace and hydrate your own way.,"跑步對你來說，早就不是一件需要特別安排的大事。
+
+你有自己熟悉的節奏，也知道什麼樣的跑法最舒服。平常出去跑跑，偶爾站上賽道和大家一起跑；不用每一次都追著別人的目標，照自己的方式享受跑步就很好。",,,,,補水也可以有自己的節奏！,"Independent, flexible, and free from station limits","跑步已經融入你的日常，也可以試著把自己的補水方式帶進去。
+
+帶上一個軟水壺，日常跑步時想喝就喝；參加比較輕鬆的賽事時，也可以按照自己的節奏補水。不用一次改變所有習慣，從一次平常的跑步開始就好。",Run your way and hydrate at your own pace. A soft flask or hydration vest can give you more freedom.,軟水壺,,自主、自由、隨時補水,Keep moving at your own pace,,自在生活派圖片預留位置,Easy lifestyle runner image placeholder
+result_sustainability,lifestyle,,"自己的水自己背、Ready, Set, Change","Bring your own water — Ready, Set, Change","看來自帶補水裝備早就在你的跑步清單裡了。
+
+下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,
+result,performance,,精準急速派,The Precision Speed Runner,目標、策略、執行，站上賽道就是要把今天的目標跑出來。,"You value training, goals, and efficiency. You like to control your pace and keep improving.","你喜歡知道自己為什麼而跑，也願意為目標好好準備。
+
+配速、訓練內容、裝備、補給與比賽策略都有它的位置。一次次訓練累積成賽道上的表現，設定目標、執行計畫，再看看自己究竟還能跑多快，正是跑步吸引你的地方。",,,,,不是每一場比賽，都需要追 PB,Efficient hydration for each situation,"追求精準配速的你，連進站抓水杯都會嚴格練習，目標賽當然不可能停下來慢慢裝水。
+
+但下一場不是目標賽的時候，也可以帶上軟水杯或軟水壺，停下來好好補水、看看沿途的賽道，試試和平常追求成績時不一樣的跑法。",Choose the hydration approach that least interrupts your rhythm for each training or race goal. No single product has to define you.,軟水杯／軟水壺,,效率、速度、控制,Make every step more precise,,精準急速派圖片預留位置,Precision speed runner image placeholder
+result_sustainability,performance,,"自己的水自己背、Ready, Set, Change","Bring your own water — Ready, Set, Change","看來自帶補水裝備早就在你的跑步清單裡了。
+
+下一次，也邀請身邊的跑友一起試試不同的補水方式。","Bringing your own hydration gear is already part of your running routine. Next time, invite a running friend to try a different hydration approach too.",,,,,,,,,,,,,,,,
+ui,result.eyebrow,,YOUR RUNNER STYLE,YOUR RUNNER STYLE,,,,,,,,,,,,,,,,,,
+ui,result.label,,跑者身分,Runner identity,,,,,,,,,,,,,,,,,,
+ui,result.hydrationLabel,,下一次可以試試,Try this next time,,,,,,,,,,,,,,,,,,
+ui,result.note,,補水裝備推薦,Hydration gear recommendation,,,,,,,,,,,,,,,,,,
+ui,result.retry,,重新測驗,Try again,,,,,,,,,,,,,,,,,,
+ui,navigation.back,,返回,Back,,,,,,,,,,,,,,,,,,
+ui,navigation.next,,下一題,Next,,,,,,,,,,,,,,,,,,
+ui,quiz.seeResult,,看結果,See result,,,,,,,,,,,,,,,,,,
+ui,result.continue,,下一步｜領取活動獎品,Continue to your gift,,,,,,,,,,,,,,,,,,
+ui,participation.eyebrow,,現場領獎程序,ON-SITE REDEMPTION,,,,,,,,,,,,,,,,,,
+ui,participation.demoBadge,,DEMO MODE｜測試資料，不會正式登記抽獎,DEMO MODE | Test data; not an official raffle entry,,,,,,,,,,,,,,,,,,
+ui,participation.title,,完成測驗，還有機會抽 Forerunner 170！,Finish the quiz for a chance to win a Forerunner 170!,,,,,,,,,,,,,,,,,,
+ui,participation.raffleTitle,,賽後抽獎登記,Post-race raffle entry,,,,,,,,,,,,,,,,,,
+ui,participation.raffleDescription,,想參加賽後抽獎嗎？留下姓名與電子郵件即可登記。不參加也能繼續領取現場獎品。,Want to enter the post-race raffle? Leave your name and email. You can still collect an on-site prize without entering.,,,,,,,,,,,,,,,,,,
+ui,participation.raffleToggle,,我要參加賽後抽獎,I want to enter the post-race raffle,,,,,,,,,,,,,,,,,,
+ui,participation.name,,姓名,Name,,,,,,,,,,,,,,,,,,
+ui,participation.privacyPlaceholder,,［待核准個資告知文字］僅供正式法務核准前的介面占位，不代表 Garmin 已核准蒐集或使用方式。,[Privacy notice pending approval] This is an interface placeholder only and is not an approved Garmin collection notice.,,,,,,,,,,,,,,,,,,
+ui,participation.privacyConfirm,,我已閱讀並確認上述個資告知,I have read and acknowledged the privacy notice above,,,,,,,,,,,,,,,,,,
+ui,participation.existingLabel,,永續行動,Sustainability action,,,,,,,,,,,,,,,,,,
+ui,participation.existingTitle,,謝謝你已經開始自帶補水！,Thank you for already bringing your own hydration!,,,,,,,,,,,,,,,,,,
+ui,participation.existingDescription,,自帶補水已經是你的跑步選擇。邀請你繼續保持，也和身邊的跑友分享這種補水方式。,Bringing your own hydration is already part of your running routine. Keep it going and share the choice with your running friends.,,,,,,,,,,,,,,,,,,
+ui,participation.inviteLabel,,下一場跑步,For your next run,,,,,,,,,,,,,,,,,,
+ui,participation.inviteTitle,,下一場跑步，你願意試試自帶補水裝備嗎？,"For your next run, would you try bringing your own hydration gear?",,,,,,,,,,,,,,,,,,
+ui,participation.inviteDescription,,從軟水杯、軟水壺或其他適合自己的裝備開始，讓補水方式多一個選擇。,"Start with a soft cup, soft flask, or another option that suits you and keep hydration flexible.",,,,,,,,,,,,,,,,,,
+ui,participation.joined,,我願意加入永續先鋒行動,I want to join the hydration action,,,,,,,,,,,,,,,,,,
+ui,participation.joinedDescription,,下一次跑步，我願意嘗試自帶補水裝備。,"Next time I run, I will try bringing my own hydration gear.",,,,,,,,,,,,,,,,,,
+ui,participation.considering,,我會好好考慮的,I will consider it,,,,,,,,,,,,,,,,,,
+ui,participation.consideringDescription,,先認識不同的補水方式，再找適合自己的選擇。,Learn about different hydration options before choosing what fits me.,,,,,,,,,,,,,,,,,,
+ui,participation.submit,,確認並領取現場獎品,Confirm and collect your gift,,,,,,,,,,,,,,,,,,
+ui,redemption.eyebrow,,現場兌換,ON-SITE REDEMPTION,,,,,,,,,,,,,,,,,,
+ui,redemption.demoBadge,,DEMO MODE｜此頁僅為功能測試，不代表正式獎品憑證,DEMO MODE | This page is a feature test and is not an official prize credential,,,,,,,,,,,,,,,,,,
+ui,redemption.placeholder,,獎品圖片尚未提供,Prize image not yet available,,,,,,,,,,,,,,,,,,
+ui,redemption.instruction,,請至攤位找工作人員領取 Garmin 周邊,Please visit the booth to collect Garmin merchandise from a staff member,,,,,,,,,,,,,,,,,,
+ui,redemption.codeLabel,,兌換編號,Redemption code,,,,,,,,,,,,,,,,,,
+ui,redemption.restart,,再測一次,Retake quiz,,,,,,,,,,,,,,,,,,

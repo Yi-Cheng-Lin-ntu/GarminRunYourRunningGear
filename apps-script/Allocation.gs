@@ -48,6 +48,8 @@ function submitParticipation(payload) {
     throw new Error("SHEET_SETUP_REQUIRED");
   }
 
+  requireV2ParticipantColumns(participantSheet);
+
   var existing = findRequest(payload.requestId, payload.demoMode);
   if (existing) {
     if (existing.values[3] === "allocated" && existing.values[4]) {
@@ -129,7 +131,7 @@ function submitParticipation(payload) {
     participantId, payload.requestId, now, payload.runnerType, payload.existingSelfHydration,
     payload.hydrationCommitment, payload.sustainabilityRewardEligible, payload.premiumPrizeEligible,
     payload.raffleOptIn, payload.name, payload.email, payload.privacyNoticeVersion,
-    payload.privacyAcknowledgedAt, prizeId, "allocated", now, redemptionCode, "unverified"
+    payload.privacyAcknowledgedAt, prizeId, "allocated", now, redemptionCode, "unverified", payload.quizVersion, payload.hydrationStyle, payload.q4Answer
   ]);
   allocationSheet.appendRow([
     allocationId, participantId, payload.requestId, prizeId, now, allocationMethod, "allocated"
@@ -180,7 +182,7 @@ function allocationPausedResult(payload, names, requestSheet, now, code) {
     participantId, payload.requestId, now, payload.runnerType, payload.existingSelfHydration,
     payload.hydrationCommitment, payload.sustainabilityRewardEligible, payload.premiumPrizeEligible,
     payload.raffleOptIn, payload.name, payload.email, payload.privacyNoticeVersion,
-    payload.privacyAcknowledgedAt, "", "paused", now, "", "not_applicable"
+    payload.privacyAcknowledgedAt, "", "paused", now, "", "not_applicable", payload.quizVersion, payload.hydrationStyle, payload.q4Answer
   ]);
   requestSheet.appendRow([
     payload.requestId, payload.sessionId, participantId, "paused", JSON.stringify(result), now, now

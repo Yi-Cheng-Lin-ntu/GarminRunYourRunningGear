@@ -1,3 +1,4 @@
+import { validateV2Payload } from "./participationValidation.js";
 import {
   readAllocationRecovery,
   readPendingRequest,
@@ -165,6 +166,10 @@ export function getMockSnapshot() {
 }
 
 export async function submitParticipation(payload) {
+  if (payload?.quizVersion === 2) {
+    try { payload = validateV2Payload(payload, { mode: APPS_SCRIPT_DEMO_MODE ? "demo" : "mock" }); }
+    catch (error) { return { ok: false, retryable: false, code: error.message, demoMode: true }; }
+  }
   if (APPS_SCRIPT_DEMO_MODE) {
     const controller = new AbortController();
     const timeoutId = globalThis.setTimeout(() => controller.abort(), 30000);
@@ -248,6 +253,9 @@ export async function submitParticipation(payload) {
         requestId: payload.requestId,
         createdAt: new Date().toISOString(),
         runnerType: payload.runnerType,
+        quizVersion: payload.quizVersion || 1,
+        hydrationStyle: payload.hydrationStyle || "",
+        q4Answer: payload.q4Answer || "",
         existingSelfHydration: payload.existingSelfHydration,
         hydrationCommitment: payload.hydrationCommitment,
         sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
@@ -292,6 +300,9 @@ export async function submitParticipation(payload) {
         requestId: payload.requestId,
         createdAt: new Date().toISOString(),
         runnerType: payload.runnerType,
+        quizVersion: payload.quizVersion || 1,
+        hydrationStyle: payload.hydrationStyle || "",
+        q4Answer: payload.q4Answer || "",
         existingSelfHydration: payload.existingSelfHydration,
         hydrationCommitment: payload.hydrationCommitment,
         sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
@@ -380,5 +391,5 @@ export async function getPublicCampaignStatus() {
     return response.json();
   }
   await delay(100);
-  return { ok: true, allocationEnabled: true, raffleEnabled: true, demoMode: true };
+  return { ok: true, quizVersion: 2, allocationEnabled: true, raffleEnabled: true, demoMode: true };
 }

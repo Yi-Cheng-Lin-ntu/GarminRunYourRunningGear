@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-ui-version="2">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Garmin Run 跑者風格與補水方式互動測驗" />
     <title>Garmin Run | 跑者風格測驗</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="v2.css" />
   </head>
   <body>
     <header class="site-header">
@@ -51,16 +52,15 @@
     <main class="app-shell">
       <section class="screen screen-start is-active" id="start" aria-labelledby="start-title">
         <div class="eyebrow" data-i18n="start.eyebrow">GARMIN RUN 2026</div>
-        <div class="start-visual" aria-hidden="true">
-          <div class="visual-ring visual-ring-back"></div>
-          <div class="visual-ring visual-ring-front"></div>
-          <span class="visual-mark">RUN</span>
-          <span class="visual-kicker">YOUR<br />PACE</span>
+        <div class="v2-hero" aria-hidden="true">
+          <img src="./assets/result/志在參加臘腸.png" width="334" height="163" alt="" />
+          <img src="./assets/result/我就是來看看柴犬.png" width="156" height="342" alt="" />
+          <img src="./assets/result/突破PB飆速杜賓.png" width="156" height="297" alt="" />
         </div>
-        <p class="section-label" data-i18n="start.label">跑者風格測驗</p>
-        <h1 id="start-title" data-i18n="start.title">找到你的跑者節奏</h1>
-        <p class="lead" data-i18n="start.description">五個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。</p>
-        <button class="button button-primary button-wide" type="button" data-action="start" data-i18n="start.button" disabled>開始測驗</button>
+        <p class="section-label" data-i18n="v2.startLabel">跑者風格測驗</p>
+        <h1 id="start-title" data-i18n="v2.startTitle">找到你的跑者節奏</h1>
+        <p class="lead" data-i18n="v2.startDescription">五個跑步情境，測出最像你的跑者風格，看看哪種補水方式適合你。</p>
+        <button class="button button-primary button-wide" type="button" data-action="start" data-i18n="v2.startButton" disabled>開始測驗</button>
         <p class="microcopy" data-i18n="start.note">約 1 分鐘完成・無需登入</p>
       </section>
 
@@ -85,99 +85,57 @@
       </section>
 
       <section class="screen screen-result" id="result" aria-labelledby="result-title" hidden>
-        <div class="result-header">
-          <p class="eyebrow" data-i18n="result.eyebrow">YOUR RUNNER STYLE</p>
-          <div class="result-visual" data-result-visual aria-hidden="true"></div>
-          <p class="section-label" data-i18n="result.label">跑者身分</p>
+        <header class="v2-result-heading">
+          <p class="eyebrow" data-i18n="v2.youAre">你是！</p>
           <h2 id="result-title" data-result-title></h2>
-          <p class="result-description" data-result-description></p>
+          <p class="v2-slogan" data-result-slogan></p>
+        </header>
+        <div class="runner-scene" data-runner-card>
+          <div class="runner-tag tag-1" data-result-tag="0"></div>
+          <div class="runner-tag tag-2" data-result-tag="1"></div>
+          <div class="runner-image"><img data-dog-image src="./assets/result/志在參加臘腸.png" alt="" /></div>
+          <div class="runner-tag tag-3" data-result-tag="2"></div>
+          <div class="runner-tag tag-4" data-result-tag="3"></div>
         </div>
-
-        <div class="result-detail-block">
-          <p data-result-detail></p>
-        </div>
-
-        <div class="result-content">
-          <section class="result-section recommendation-section" data-recommendation-section>
-            <p class="section-label" data-i18n="result.hydrationLabel">下一次可以試試</p>
-            <p class="recommendation-kicker" data-result-hydration-title></p>
-            <h3 class="recommendation-slogan" data-result-cta></h3>
-            <p class="recommendation-description" data-result-hydration-description></p>
-          </section>
-
-          <section class="gear-panel" data-gear-panel>
-            <p class="section-label" data-i18n="result.note">補水裝備推薦</p>
-            <p class="gear-value" data-result-gear></p>
-          </section>
-
-          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="result.continue">下一步｜領取活動獎品</button>
-          <button class="button button-secondary button-wide" type="button" data-action="retry" data-i18n="result.retry">重新測驗</button>
-        </div>
+        <section class="v2-recommendation" aria-labelledby="recommendation-title" data-recommendation-section>
+          <p id="recommendation-title" class="section-label" data-i18n="v2.recommendation">下一場，可以試試……</p>
+          <h3 data-recommendation-heading></h3>
+          <p data-recommendation-description></p>
+        </section>
+        <section class="v2-invitation" aria-labelledby="invitation-title">
+          <div data-existing-hydration hidden>
+            <h3 data-i18n="v2.pioneerThanks">謝謝你已經開始自帶補水！</h3>
+          </div>
+          <fieldset data-hydration-options>
+            <legend id="invitation-title" data-i18n="v2.invitation">邀請你一起與我們自帶補水裝備</legend>
+            <p data-i18n="v2.invitationNote">承諾下一場嘗試自帶補水裝備，並非正式跑團會員登記。</p>
+            <div class="hydration-choices">
+              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice /><span><strong data-i18n="v2.joined">加入永續先鋒隊</strong></span></label>
+              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice /><span><strong data-i18n="v2.considering">我會好好考慮的！</strong></span></label>
+            </div>
+          </fieldset>
+          <p class="form-error" data-result-error role="alert" hidden></p>
+          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue">繼續領獎</button>
+        </section>
+        <button class="button button-secondary button-wide v2-retry" type="button" data-action="retry" data-i18n="v2.retry">重新測驗</button>
       </section>
 
-      <section class="screen screen-participation" id="participation" aria-labelledby="participation-title" hidden>
-        <div class="participation-header">
-          <p class="eyebrow" data-i18n="participation.eyebrow">現場領獎程序</p>
-          <p class="demo-badge" data-i18n="participation.demoBadge">DEMO MODE｜測試資料，不會正式登記抽獎</p>
-          <h2 id="participation-title" data-i18n="participation.title">完成測驗，還有機會抽 Forerunner 170！</h2>
-        </div>
-
+      <section class="screen screen-participation" id="participation" aria-labelledby="contact-title" hidden>
+        <header class="participation-header">
+          <p class="demo-badge" data-mode-notice data-i18n="v2.mode">MOCK MODE｜請勿填寫真實個資</p>
+          <h2 id="contact-title" data-i18n="v2.contactTitle">填寫聯絡資訊，繼續領獎</h2>
+          <p data-i18n="v2.contactIntro"></p>
+        </header>
         <form class="participation-form" data-participation-form novalidate>
-          <section class="form-section raffle-section">
-            <h3 data-i18n="participation.raffleTitle">賽後抽獎登記</h3>
-            <p data-i18n="participation.raffleDescription">想參加賽後抽獎嗎？留下姓名與電子郵件即可登記。不參加也能繼續領取現場獎品。</p>
-            <label class="toggle-row">
-              <input type="checkbox" data-raffle-toggle />
-              <span data-i18n="participation.raffleToggle">我要參加賽後抽獎</span>
-            </label>
-            <div class="raffle-fields" data-raffle-fields hidden>
-              <label>
-                <span data-i18n="participation.name">姓名</span>
-                <input type="text" maxlength="80" autocomplete="name" data-name />
-              </label>
-              <label>
-                <span>Email</span>
-                <input type="email" maxlength="254" autocomplete="email" data-email />
-              </label>
-              <div class="privacy-copy" data-i18n="participation.privacyPlaceholder">［待核准個資告知文字］僅供正式法務核准前的介面占位，不代表 Garmin 已核准蒐集或使用方式。</div>
-              <label class="toggle-row privacy-row">
-                <input type="checkbox" data-privacy-check />
-                <span data-i18n="participation.privacyConfirm">我已閱讀並確認上述個資告知</span>
-              </label>
-            </div>
-          </section>
-
-          <section class="form-section hydration-section" data-hydration-section>
-            <div data-existing-hydration hidden>
-              <p class="section-label" data-i18n="participation.existingLabel">永續行動</p>
-              <h3 data-i18n="participation.existingTitle">謝謝你已經開始自帶補水！</h3>
-              <p data-i18n="participation.existingDescription">自帶補水已經是你的跑步選擇。邀請你繼續保持，也和身邊的跑友分享這種補水方式。</p>
-            </div>
-            <fieldset data-hydration-options>
-              <legend>
-                <span class="section-label" data-i18n="participation.inviteLabel">下一場跑步</span>
-                <span class="hydration-title" data-i18n="participation.inviteTitle">下一場跑步，你願意試試自帶補水裝備嗎？</span>
-              </legend>
-              <p data-i18n="participation.inviteDescription">從軟水杯、軟水壺或其他適合自己的裝備開始，讓補水方式多一個選擇。</p>
-              <label class="choice-card">
-                <input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice />
-                <span>
-                  <strong data-i18n="participation.joined">我願意加入永續先鋒行動</strong>
-                  <small data-i18n="participation.joinedDescription">下一次跑步，我願意嘗試自帶補水裝備。</small>
-                </span>
-              </label>
-              <label class="choice-card">
-                <input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice />
-                <span>
-                  <strong data-i18n="participation.considering">我會好好考慮的</strong>
-                  <small data-i18n="participation.consideringDescription">先認識不同的補水方式，再找適合自己的選擇。</small>
-                </span>
-              </label>
-            </fieldset>
-          </section>
-
-          <p class="form-error" data-form-error role="alert" aria-live="polite" hidden></p>
-          <button class="button button-primary button-wide submit-button" type="submit" data-submit data-i18n="participation.submit">確認並領取現場獎品</button>
+          <div class="v2-contact-fields">
+            <label><span data-i18n="v2.name">姓名（必填）</span><input type="text" maxlength="80" autocomplete="off" name="name" data-name required /></label>
+            <label><span data-i18n="v2.email">Email（必填）</span><input type="email" maxlength="254" autocomplete="off" name="email" data-email required /></label>
+          </div>
+          <div class="privacy-copy" id="privacy-copy" data-i18n="v2.privacy"></div>
+          <label class="toggle-row"><input type="checkbox" data-privacy-check aria-describedby="privacy-copy" required /><span data-i18n="v2.privacyConfirm"></span></label>
+          <p class="form-error" data-form-error role="alert" hidden></p>
+          <button class="button button-primary button-wide" type="submit" data-submit data-i18n="participation.submit">確認並領取現場獎品</button>
+          <button class="text-button" type="button" data-action="back-result" data-i18n="v2.backResult">返回結果</button>
         </form>
       </section>
 
@@ -201,6 +159,6 @@
     </main>
 
     <footer class="site-footer">GARMIN RUN <span>MOVE WITH PURPOSE</span></footer>
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/appV2.js"></script>
   </body>
 </html>

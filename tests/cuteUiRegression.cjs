@@ -1,3 +1,4 @@
+// HISTORICAL V1 browser scenario. Main-site V2 uses tests/v2UiRegression.cjs.
 // Browser integration for both presentations. See CUTE_DESIGN_SYSTEM.md.
 // All non-local traffic is blocked; Apps Script responses are fixtures, never live.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");

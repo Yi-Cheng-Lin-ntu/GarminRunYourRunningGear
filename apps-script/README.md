@@ -1,96 +1,85 @@
-# Garmin Run Apps Script Phase 3 操作指南
+# Apps Script V2 — 更新與部署交接
 
-本目錄是正式 Google Sheets 後端骨架；尚未部署前不會連接正式活動資料。
+本目錄為待人工更新的 V2 原始碼。**本機修改或 GitHub push 不會更新已部署的 `/exec`。本輪沒有操作遠端 Sheets、Demo／正式庫存或部署。**
 
-## 您需要提供
+## 必須更新的檔案
 
-1. 可建立試用 Spreadsheet 的 Google 帳號。
-2. 建立或指示建立試用 Spreadsheet 後的網址。
-3. Garmin 核准後的正式個資告知版本字串。
-4. 正式 Apps Script Web App 部署 URL。
-5. 正式獎品圖片與權限確認。
+- `Validation.gs`：四題計分、Q2平手、Q4獨立；全員聯絡與自動抽獎、嚴格確認及告知版本、Demo測試資料檢查。
+- `Code.gs`：公開狀態回報 `quizVersion:2`；版本／migration等錯誤碼。
+- `Setup.gs`：新增 append-only migration／schema guard；既有初始化及管理選單保留。
+- `Allocation.gs`：分配演算法、LockService與requestId重播保留；只在Participants列尾寫三個追溯欄位，寫入前檢查migration。
+- `Inventory.gs`：本次無修改，不必更新；既有管理功能仍只由管理員操作。
 
-正式個資告知未核准前，`privacyNoticeVersion` 仍為 `DRAFT_NOT_APPROVED`；公開正式提交會拒絕。
+若在 Apps Script 編輯器拆成同名 `.gs`，請更新全部上述四檔，避免只改驗證卻沒有helper。不要將私密權限或token放入前端。
 
-## 安裝
+## 現有 Demo 的安全更新順序（由維護者手動執行）
 
-1. 建立或開啟 Google Spreadsheet。
-2. 選擇「擴充功能 → Apps Script」。
-3. 建立 `Code.gs`、`Validation.gs`、`Allocation.gs`、`Inventory.gs`、`Setup.gs`，並貼上此目錄對應程式。
-4. 執行一次 `setupActivitySheets`，或重新載入 Sheet 並使用「Garmin Run 管理」選單。
-5. 先部署試用 Demo Web App。
-6. 正式核准與設定完成後，再部署正式 Web App。
+1. 確認是測試專用 Spreadsheet／帳號與正確 Apps Script 專案；保留舊部署及資料備份。
+2. 更新上述四個 `.gs` 原始碼，先不要切換公開Web App版本。
+3. 手動執行 **`migrateDemoV2()`**。只讀DemoParticipants既有表頭，於第19–21欄追加 `quizVersion`、`hydrationStyle`、`q4Answer`。重跑安全；不刪列、不回填、不修改Prizes／DemoPrizes或正式Participants。
+4. 確認原18欄、舊列、兩組庫存均未變；舊列的三欄留白。
+5. Settings 的 `demoPrivacyNoticeVersion` 應為 `DEMO_ONLY`；正式 `privacyNoticeVersion` 繼續 `DRAFT_NOT_APPROVED`。此為測試標記，非Garmin核准版本。
+6. 建立並更新 **Demo Web App的新版本**。使用既有 `/exec` 部署ID可保留URL；若使用新部署URL，需由維護者修改前端常數並重新驗收。
+7. 唯讀GET `?action=getPublicCampaignStatus&demoMode=true`，應回報 `quizVersion:2`。
+8. 僅在之後獲授權的Demo驗收中，以虛構姓名／保留測試信箱驗證提交與表內追溯。本輪未執行這項遠端寫入。
 
-## Web App 部署
+**現有資料庫不要為了這次升級執行 `setupActivitySheets()` 或任何庫存初始化。** 該函式保留供全新空白活動試算表安裝，會涉及正式／Demo表與初始獎品；它不是現有Demo的migration工具。
 
-1. Apps Script 選擇「部署 → 新增部署作業」。
-2. 類型選「Web 應用程式」。
-3. Execute as 選「自己」。
-4. Who has access 先選「任何人」，GitHub Pages 參與者需要無登入提交。
-5. 部署後取得 `/exec` URL。
+`migrateProductionV2()` 僅供未來正式核准後手動追加正式Participants欄位，本輪不要執行。它本身不調整庫存，但不代表已授權操作正式資料。
 
-不要使用 JSONP、`mode: no-cors` 或私密 API 金鑰。前端需能讀取 Apps Script JSON 回應。
+## V2 Payload
 
-## API
-
-POST submitParticipation 使用 JSON：
+以下僅為虛構測試資料，不是正式登記：
 
 ```json
 {
-  "requestId": "uuid",
-  "sessionId": "uuid",
+  "quizVersion": 2,
+  "requestId": "test-request-uuid",
+  "sessionId": "test-session-uuid",
+  "demoMode": true,
+  "answers": {
+    "q1": "q1_experience",
+    "q2": "q2_experience",
+    "q3": "q3_experience",
+    "q4": "q4_rest",
+    "q5": "q5_experience"
+  },
   "runnerType": "experience",
+  "hydrationStyle": "rest",
+  "q4Answer": "q4_rest",
   "existingSelfHydration": false,
   "hydrationCommitment": "joined",
   "sustainabilityRewardEligible": true,
   "premiumPrizeEligible": false,
-  "raffleOptIn": false,
-  "name": "",
-  "email": "",
-  "privacyNoticeVersion": "DRAFT_NOT_APPROVED",
-  "privacyAcknowledgedAt": "",
-  "demoMode": true,
-  "answers": {
-    "q1": "q1_experience",
-    "q2": "q2_sustainability",
-    "q3": "q3_experience",
-    "q4": "q4_lifestyle",
-    "q5": "q5_performance"
-  }
+  "raffleOptIn": true,
+  "name": "Demo Runner",
+  "email": "runner@example.com",
+  "privacyConfirmed": true,
+  "testDataConfirmed": true,
+  "privacyNoticeVersion": "DEMO_ONLY",
+  "privacyAcknowledgedAt": "2026-11-09T00:00:00Z"
 }
 ```
 
-伺服器依 `answers` 重算跑者類型、sustainability 與獎品資格，不信任前端資格欄位。
+伺服器重算四題分數、Q2 tie-break與Q4，核對原始ID、hydrationStyle、existing及兩種資格，不信任前端資格。raffleOptIn必須true；姓名、Email、確認boolean、可解析確認時間及matching版本均必填。Demo另要求testDataConfirmed與保留測試Email網域example.com／example.org／example.net／.test／.invalid（含子網域）。這是測試防誤用限制，不是官方個資政策。
 
-Recovery：
+未核准Production版本仍拒絕所有V2提交；不再能以raffleOptIn=false跳過告知檢查。前端未新增Production URL或正式模式。
 
-`...?action=getExistingAllocation&requestId=...&sessionId=...&demoMode=true`
+## Schema 與相容性
 
-Public status：
+Participants及DemoParticipants原18欄不動；metadata追加第19–21欄。其他工作表schema不變。`requireV2ParticipantColumns()` 在建立Requests、扣庫存或新增Participant前拒絕未migration的環境。
 
-`...?action=getPublicCampaignStatus&demoMode=false`
+舊列新欄不回填：舊sustainability可能源自Q2／Q4，不能猜成V2的hydrationStyle。分析資料時以quizVersion=2篩選；空白視為legacy，不可當作V2。
 
-## CORS / HTTPS
+- **新前端 → 舊 `/exec`**：GET status沒有quizVersion=2，新UI會提示後端未更新且不送POST。即使繞過前端，舊後端也不認得q4_precision/rest/pioneer等新答案，不應用於V2測試。
+- **舊／Cute前端 → 新 `/exec`**：新後端拒絕未帶quizVersion=2的payload。Cute是歷史參考，保留本機Mock可用，不保證V2部署後的V1 Demo相容。
+- **歷史requestId**：重播機制仍保留；新測驗建立新UUID。不要重用舊測驗ID作V2提交。
+- **同源Mock**：舊紀錄保留、庫存共用，V2只追加metadata，不自動清除或重置歷史。
 
-Apps Script Web App 使用 HTTPS，可被 GitHub Pages 使用 fetch 讀取 JSON。但部署權限、組織政策或瀏覽器 CORS 預檢仍可能阻擋；不得改用 `mode: no-cors` 假裝成功。若無法可靠讀取回應，需改用 Apps Script HTML Service 或經授權的中介後端。
+Recovery API及公開status不回傳姓名或Email；一般console不輸出payload。
 
-## 管理員操作
+## 本輪驗證與未執行事項
 
-Spreadsheet 的「Garmin Run 管理」選單可：
+Node VM中的Spreadsheet mock驗證：append-only／可重跑／衝突拒絕、舊資料與正式／Demo庫存不變、缺migration提前拒絕、A級優先／fallback、joined一般池、同request防重、paused與全員登記、Production草稿拒絕。
 
-- 初始化工作表
-- 檢查庫存一致性
-- 調整獨立獎品庫存
-- 暫停或恢復分配
-- 匯出抽獎名單
-
-庫存調整會寫入 InventoryLog 與 AdminAudit。正式上線前請確認管理員帳號與操作範圍。
-
-## 正式部署前人工確認
-
-- 正式 Sheets 無測試參與者資料。
-- Demo 與正式工作表及庫存分離。
-- 個資告知版本已由 Garmin 核准。
-- Google 帳號管理權限已限制。
-- Web App 已部署版本固定。
-- 重複 requestId、網路重試、一般池耗盡、購物袋耗盡、A 級優先及抽獎匯出均已試跑。
+未執行：真實Google帳號授權、遠端migration、真實 `/exec` 寫入或CORS驗收、正式告知核准、正式部署；高並發、故障注入與processing部分寫入恢復依原決議延後。

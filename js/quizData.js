@@ -1,3 +1,4 @@
+// Historical V1 data only. The V2 main site loads content.csv.
 export const runnerTypes = [
   "experience",
   "lifestyle",

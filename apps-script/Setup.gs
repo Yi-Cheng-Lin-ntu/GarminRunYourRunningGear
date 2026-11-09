@@ -76,6 +76,8 @@ function setupActivitySheets() {
   initializePrizesIfEmpty(ss, SHEET_NAMES.DemoPrizes);
   ensurePrizeImagePaths(ss, SHEET_NAMES.Prizes);
   ensurePrizeImagePaths(ss, SHEET_NAMES.DemoPrizes);
+  migrateV2ParticipantColumns(ss, false);
+  migrateV2ParticipantColumns(ss, true);
   return { ok: true };
 }
 
@@ -121,4 +123,37 @@ function onOpen() {
     .addItem("恢復獎品分配", "resumeAllocationAdmin")
     .addItem("匯出抽獎名單 CSV", "exportRaffleListCsv")
     .addToUi();
+}
+
+// Append-only V2 participant metadata. Never initializes or updates any prize stock.
+var V2_PARTICIPANT_COLUMNS = ["quizVersion", "hydrationStyle", "q4Answer"];
+function requireV2ParticipantColumns(sheet) {
+  if (!sheet || sheet.getLastColumn() < 21 ||
+      sheet.getRange(1, 19, 1, 3).getValues()[0].join(",") !== V2_PARTICIPANT_COLUMNS.join(",")) {
+    throw new Error("V2_MIGRATION_REQUIRED");
+  }
+}
+function migrateV2ParticipantColumns(ss, demoMode) {
+  var sheet = ss.getSheetByName(demoMode ? SHEET_NAMES.DemoParticipants : SHEET_NAMES.Participants);
+  if (!sheet) throw new Error("SHEET_SETUP_REQUIRED");
+  if (sheet.getMaxColumns && sheet.getMaxColumns() < 21) sheet.insertColumnsAfter(sheet.getMaxColumns(), 21 - sheet.getMaxColumns());
+  var headers = sheet.getRange(1, 1, 1, Math.max(21, sheet.getLastColumn())).getValues()[0];
+  if (headers[0] !== "participantId" || headers[17] !== "redemptionStatus") throw new Error("V2_MIGRATION_REQUIRED");
+  for (var i = 0; i < 3; i++) {
+    if (headers[18 + i] && headers[18 + i] !== V2_PARTICIPANT_COLUMNS[i]) throw new Error("V2_MIGRATION_REQUIRED");
+  }
+  sheet.getRange(1, 19, 1, 3).setValues([V2_PARTICIPANT_COLUMNS]);
+}
+function migrateDemoV2() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try { migrateV2ParticipantColumns(SpreadsheetApp.getActive(), true); }
+  finally { lock.releaseLock(); }
+}
+// Do not run until formal approval; this only appends metadata headers, never stock.
+function migrateProductionV2() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try { migrateV2ParticipantColumns(SpreadsheetApp.getActive(), false); }
+  finally { lock.releaseLock(); }
 }

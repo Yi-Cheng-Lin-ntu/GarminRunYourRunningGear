@@ -1,93 +1,65 @@
-# Garmin Run 2026 — Visual Identity & UI Design System v1.0
+# Garmin Run 2026 — Main V2 Design System
 
-## 定位與核心原則
+以提供的文字規格製作；未取得 PDF，沒有依據不存在的附件推測版面。歷史 Urban 規格保留在 `archive/v1/DESIGN_SYSTEM.md`；`cute/` 是未修改的 V1 參考。
 
-Urban Athletic Minimalism：現代、運動、極簡、精準、親切與永續。使用深色介面、穩定直立字體與克制的都市道路圖形。每個畫面以一個任務為焦點；裝飾退後，內容、選項及 CTA 優先。手機單欄，內容最大 620px。
+## 定位與七色
 
-本文件規範視覺，不變更五題、答案、分類、永續資格、抽獎、分配、重測及 API。一般／永續領獎主題代表行動響應，絕不代表獎品等級或 A 級資格。
+主網站維持深黑、冰藍、螢光綠的 Garmin Run 品牌語言，以使用者提供的狗狗 PNG 為中心。結果圖直接融入深色頁面，不使用白色外框卡片；保留低對比道路紋理，裝飾不與圖片及文字競爭。系統 Sans-serif、直立字體，不額外下載字型。
 
-## 品牌與語意 Token
+V2 只載入 `style.css` 與 `v2.css`；所有新樣式限定 `html[data-ui-version="2"]`，避免影響 Cute。原有 base CSS 的歷史色值保留，但 V2 scope 明確使用：
 
-`style.css` 的 `:root` 為唯一 Token 來源。保留 `--color-*` alias 相容既有樣式；新元件優先使用 semantic tokens。
-
-| Primitive | 色彩 | 語意角色 |
+| Token | HEX | 用途 |
 |---|---|---|
-| `--brand-black` | #080B0D | `--bg-primary`、主要 CTA 深色文字 |
-| `--brand-surface` | #11171A | `--bg-surface`、卡片 |
-| `--brand-white` | #F7FAF8 | `--text-primary` |
-| `--brand-muted` | #8E9BA0 | `--text-secondary` |
-| `--brand-blue` | #D6F2FF | `--text-highlight`、`--action-secondary`、`--theme-general` |
-| `--brand-blue-mid` | #A9DEF2 | 圖形輔助 |
-| `--brand-green` | #00FF19 | `--action-primary`、`--state-selected`、`--state-complete`、`--theme-sustainability` |
+| --brand-black | #080B0D | 主背景、綠色CTA及亮色領獎頁的文字 |
+| --brand-surface | #11171A | 選項、推薦、輸入框背景 |
+| --brand-white | #F7FAF8 | 深色畫面主要文字 |
+| --brand-muted | #8E9BA0 | 次要文字與測試標記 |
+| --brand-blue | #D6F2FF | 資訊、次要互動、道路、一般領獎背景 |
+| --brand-blue-mid | #A9DEF2 | 標籤層次 |
+| --brand-green | #00FF19 | CTA、選取、完成進度、永續領獎 |
 
-一般畫面深黑／Surface 占大部分，藍色負責資訊，綠色集中 CTA、完成與選取。勿以綠色作一般裝飾或錯誤提示。
+主要 CTA 綠底黑字，次要按鈕冰藍邊框／文字。錯誤沿用原本粉紅文字與提示邊界，不用綠色表示錯誤。領獎頁維持原本亮色主題與深色文字。
 
-邊界：`--border-default` 為 22% 白，作非必要分隔；`--border-strong` 為 50% 白，作可操作卡片及輸入框邊界。錯誤使用 `--error-border` #FFB3B3、`--error-text` #FFDEDE、`--error-bg` 淡紅底。
+## 字體、間距與元件
 
-## 字體與 Typography
+沿用系統字型 fallback：Helvetica Neue／Arial、Noto Sans TC、PingFang TC、Microsoft JhengHei。主要結果名稱26–36px、固定 slogan16px、推薦標題20px、標籤13px、正文16px。行高1.4–1.7，中文不使用強負字距。
 
-`--font-sans`：系統字體 → Helvetica Neue / Arial → Noto Sans TC / PingFang TC / Microsoft JhengHei → sans-serif。不下載外部字型。
+620px單欄；基礎spacing4/8/16/24/32/48px；頁面透明無外框、推薦與選項6px、主要CTA4px，沿用原本方正俐落的元件比例。輸入框52px高；按鈕至少52px；隱藏radio仍有卡片focus與實體選取記號。
 
-| Role | Token / 字級 | 字重 / 行高 |
-|---|---|---|
-| Hero | `--type-display`，44–72px | 700–800 / 1.12 |
-| Result H1 | `--type-h1`，32–48px | 700 / 1.25 |
-| H2 / 題目 | `--type-h2`，26–36px | 700–800 / 1.25–1.3 |
-| H3 / 獎品 | `--type-h3`，20–24px | 700 / 1.3 |
-| Body | `--type-body`，16px | 400–500 / 1.65–1.75 |
-| Label | `--type-label`，14px | 600–700 / 1.4 |
-| Caption | `--type-caption`，13px | 500–700 / 1.45 |
+## 結果卡順序
 
-標題、題號、選項、結果與按鈕使用 normal，不使用 italic、skew 或 scaleX 製造運動感。中文標題無負字距；英文短標籤可用 .06–.1em。裝飾 RUN 字只用少量 -.02em。長英文可換行，不裁切功能文字。
+1. 「你是！」→狗狗名稱→固定 slogan。
+2. 四格標籤與中央完整 PNG。
+3. 「下一場，可以試試……」→依 `runnerType:hydrationStyle` 的裝備／肯定標題與推薦文案。
+4. 永續邀請：precision／rest二選一，pioneer只感謝；「繼續領獎」。
+5. 次要「重新測驗」。
 
-## 空間與外框
+推薦 slogan 與固定跑者 slogan 是不同資料，不可互相覆蓋。pioneer gear=null，不顯示虛構裝備。
 
-Spacing：xs 4、sm 8、md 16、lg 24、xl 32、2xl 48、3xl 64px。少量 12／20px 作中間值。手機 gutter 16px，一般 20px。所有頁面維持同一內容對齊線。
+## 四個固定標籤與圖片
 
-卡片 `--radius-card` 6px；按鈕／輸入框 `--radius-control` 4px。圓環及 radio 例外。以背景、細邊框與留白分層，不新增發光效果。一般元件不斜切。
+`runner-scene` 使用兩欄三列 Grid 保留圖片完整通道，四個tag分散在上下四角：左右垂直錯位、依內容決定寬度，僅有少量角度變化，避免形成按鈕列。tag不跨入圖片row；空字串保留較短的裝飾色塊並設aria-hidden=true，無button角色。
 
-## 元件
+三張 PNG 使用原檔名、透明度與比例：
 
-### Buttons
+- `assets/result/志在參加臘腸.png`：334×163、RGBA，43,080 bytes。
+- `assets/result/我就是來看看柴犬.png`：156×342、RGBA，64,579 bytes。
+- `assets/result/突破PB飆速杜賓.png`：156×297、RGBA，30,869 bytes。
 
-主要按鈕綠底深字、最小 52px 高、700 字重；hover 保留綠色並輕微降低亮度。次要按鈕透明底冰藍框／字。hover 位移最多 1px；focus 使用外側 2px outline。測試工具的主要操作改用冰藍，避免搶跑者 CTA。
+中央row手機220px、桌機260px，圖片width/height100%、object-fit:contain；臘腸橫幅與直立犬共用相同slot，不以逐圖座標調整。長英文標籤自然換行，拉高自己的row，不侵入中央圖片。`--runner-tag-gap` 保留旋轉後的安全距離；`--runner-tag-stagger` 控制四角錯位，空標籤寬度由 `--runner-blank-tag-width` 決定。使用module相對root解析支援GitHub Pages子路徑。
 
-### Forms
+## 聯絡與領獎
 
-抽獎與行動邀請各自為 Surface 卡片。姓名／Email 48px 高、16px 字、深黑底、強邊界；checkbox 維持原生 20px 控制，不套文字欄位寬高。錯誤區使用粉紅邊與文字，保留 alert。抽獎仍選填，未加入抽獎者不必填聯絡資訊。
+先鋒隊選項放在 `.hydration-choices`，手機／桌機皆為等寬雙欄，圖形標記位於上方；選取維持綠框、綠色側線及radio提示。間距由 `--hydration-choice-gap` 控制。
 
-### Selection Cards
+聯絡頁獨立：姓名、Email、未核准測試告知及確認checkbox，沒有raffle toggle；所有合法提交自動登記測試抽獎。畫面明示虛構資料，Demo提示保留網域限制，不捏造官方政策或期限。
 
-測驗與行動卡片共用方正低圓角、Surface／深色底、強邊界。選取以綠框、淡綠底與實體記號表達：測驗有勾號，行動邀請有實心 radio。鍵盤 focus 以卡片外框標示，使用 native checked state，避免語言重繪後視覺遺失。觸控區至少 44px。
+領獎保留原版markup與共用rendering、商品圖片contain、paused畫面及再測一次。existing／joined綠底，considering冰藍。顏色代表行動資格，不是狗狗分類或獎品等級。
 
-### Result Cards
+## Accessibility 與驗收
 
-跑者名稱為主焦點；預留結果圖縮為 180px，不以巨字壓過名稱。推薦與裝備分層為深色卡片，冰藍標籤；永續推薦以綠色側線提示。圖片來源仍沿用 CSV，不新增或捏造跑者圖片。
+深色畫面使用White／Muted，focus為冰藍；亮色領獎頁使用Black文字及focus。Black on Green約14.4:1、Black on Ice Blue約16.9:1。重要邊界使用深色；選取狀態除顏色外有側線／勾號或radio。空標籤不朗讀，PNG有雙語alt；錯誤保留alert，尊重reduced-motion。
 
-### Product Cards
+至少驗收375／390／430／768／1280px、中文／英文、四格位置、長標籤、完整PNG、邀請gating、必填聯絡與Mock領獎。證據與限制見 `V2_REVIEW.md`。英文為暫譯待核定；實機Safari／Android與螢幕閱讀器仍需人工驗收。
 
-領獎以產品為中心：一致的淺色圖框、24px 留白、`object-fit: contain`，不裁切、不加產品濾鏡。名稱深色字。送完獎品仍保留既有 paused 畫面，隱藏圖片，不生成虛構產品。
-
-## 各畫面主題
-
-- Landing：主標與開始按鈕；縮小 RUN 裝飾與圓環，保留道路辨識。
-- Quiz：進度 → 小型直立題號 → 題目 → 選項 → 下一題；題號不與題目競爭。
-- Result：跑者名稱與圖、說明、推薦、領獎 CTA。
-- Participation：完成確認、選填抽獎、行動邀請、最終提交；兩種選擇有各自卡片與留白。
-- General redemption：冰藍背景、深色文字與邊界。
-- Sustainability redemption：螢光綠背景、深色文字；existing 與 joined 共用，保留貼紙／飄帶提示。
-- Mock：深灰工具、次要文字；所有寬度保留清楚模式標記。現有 Apps Script Demo 隱藏測試工具；未來 Production 也不得顯示。
-
-## Graphic Motifs 與 Motion
-
-保留原台北 SVG、道路粗細與各 breakpoint 的構圖／縮放。原圖部分道路偏灰，以原 SVG 的 alpha 作 CSS mask，統一使用 Ice Blue；移除 invert / brightness 濾鏡，低 opacity .07，不改 SVG 資產。僅作背景，不承載操作資訊。
-
-保留少量圓環、細斜線；降低透明度，不對文字做變形。避免滿版裝飾突破桌機內容邊界。動畫以 160ms 狀態變化、260ms 畫面淡入為上限，尊重 `prefers-reduced-motion`。
-
-## Accessibility 與後續頁面規範
-
-一般文字目標 4.5:1、大字 3:1、必要邊界 3:1。Muted 只在深色背景上使用；亮色領獎頁使用 Midnight Black。分隔線不作為唯一操作邊界。選取狀態除顏色外必須有勾號或 radio。
-
-輸入框、連結、按鈕與隱藏 radio 均須有 focus-visible。保持原生表單語意，不以 div 取代控制項。測試 375、390、430、768、1280px、中英文、放大文字、減少動畫及完整 Mock 流程。測試不可發送真實個資或操作遠端庫存。
-
-新增頁面必須沿用 Token、字階、卡片、主／次 CTA 與單欄寬度；不得為單頁另創品牌色、全頁斜體或第四種資格主題。視覺修改不得順帶修改業務規則。驗收證據與前後差異見 `UI_REVIEW.md`。
+最新 UI 排版修正與截圖見 `V2_LAYOUT_REVIEW.md`；先前 `docs/v2-review/` 為上一輪淺色提案的歷史證據。

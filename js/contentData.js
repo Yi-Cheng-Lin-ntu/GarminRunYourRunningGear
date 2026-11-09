@@ -86,6 +86,7 @@ function readBoolean(value, column, id) {
 }
 
 function buildContent(rows) {
+  const version = Number(rows.find((row) => row.type === "metadata" && row.id === "quizVersion")?.zh || 1);
   const questionRows = rows.filter((row) => row.type === "question");
   const questions = questionRows.map((row) => ({
     id: row.id,
@@ -104,7 +105,8 @@ function buildContent(rows) {
       text: localized(row.zh, row.en),
       traits: row.traits ? row.traits.split("|").filter(Boolean) : [],
       sustainability: readBoolean(row.sustainability, "sustainability", row.id),
-      isMeme: readBoolean(row.is_meme, "is_meme", row.id)
+      isMeme: readBoolean(row.is_meme, "is_meme", row.id),
+      hydrationStyle: row.hydration_style || null
     });
   });
 
@@ -115,6 +117,8 @@ function buildContent(rows) {
   const resultRows = rows.filter((row) => row.type === "result");
   const resultData = Object.fromEntries(resultRows.map((row) => [row.id, {
     title: localized(row.zh, row.en),
+    slogan: localized(row.slogan_zh, row.slogan_en),
+    tags: [1, 2, 3, 4].map((position) => localized(row[`tag${position}_zh`], row[`tag${position}_en`])),
     description: localized(row.description_zh, row.description_en),
     detail: localized(row.detail_zh, row.detail_en),
     hydration: {
@@ -145,7 +149,7 @@ function buildContent(rows) {
     .filter((row) => row.type === "ui")
     .map((row) => [row.id, localized(row.zh, row.en)]));
 
-  if (resultRows.length === 0 || resultRows.some((row) => !resultData[row.id].sustainability.title.zh)) {
+  if (version === 1 && (resultRows.length === 0 || resultRows.some((row) => !resultData[row.id].sustainability.title.zh))) {
     throw new Error("Each result must include a sustainability result row.");
   }
 
@@ -153,7 +157,32 @@ function buildContent(rows) {
     throw new Error("content.csv must include UI copy rows.");
   }
 
+  const recommendations = {};
+  rows.filter((row) => row.type === "recommendation").forEach((row) => {
+    const key = `${row.parent_id}:${row.hydration_style}`;
+    if (recommendations[key]) throw new Error("Duplicate recommendation: " + key);
+    recommendations[key] = {
+      heading: localized(row.zh, row.en), description: localized(row.description_zh, row.description_en),
+      gear: row.hydration_style === "pioneer" ? null : localized(row.zh, row.en)
+    };
+  });
+  if (version === 2) {
+    if (questions.map((q) => q.id).join(",") !== "q1,q2,q3,q4,q5") throw new Error("V2 requires q1–q5 in order");
+    for (const q of questions) {
+      const keys = q.id === "q4" ? ["precision", "rest", "pioneer"] : ["experience", "lifestyle", "performance"];
+      if (q.options.length !== 3 || new Set(q.options.map((o) => o.id)).size !== 3) throw new Error("V2 requires three unique options");
+      for (const key of keys) {
+        const option = q.options.find((o) => o.id === `${q.id}_${key}`);
+        if (!option || (q.id === "q4" ? option.traits.length !== 0 || option.hydrationStyle !== key : option.traits.join() !== key || option.hydrationStyle !== null)
+          || option.sustainability !== (q.id === "q4" && key === "pioneer")) throw new Error("Invalid V2 option: " + q.id);
+      }
+    }
+    const types = ["experience", "lifestyle", "performance"];
+    if (resultRows.length !== 3 || types.some((type) => !resultData[type]?.slogan.zh || !resultData[type]?.image.src)) throw new Error("V2 results incomplete");
+    if (Object.keys(recommendations).length !== 9 || types.some((type) => ["precision", "rest", "pioneer"].some((style) => !recommendations[`${type}:${style}`]?.heading.zh))) throw new Error("V2 requires all nine recommendations");
+  }
   return {
+    version, recommendations,
     quizData: { questions },
     runnerTypes: resultRows.map((row) => row.id),
     resultData,
@@ -161,13 +190,17 @@ function buildContent(rows) {
   };
 }
 
-export async function loadContent() {
-  const response = await fetch(CSV_URL);
+export async function loadContent(url = CSV_URL) {
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Unable to load content.csv (${response.status}).`);
   }
 
-  const [header, ...dataRows] = parseCsv((await response.text()).replace(/^\uFEFF/, ""));
+  return parseContent(await response.text());
+}
+
+export function parseContent(source) {
+  const [header, ...dataRows] = parseCsv(source.replace(/^\uFEFF/, ""));
   if (!header || REQUIRED_COLUMNS.some((column) => !header.includes(column))) {
     throw new Error("content.csv is missing one or more required columns.");
   }
@@ -179,5 +212,9 @@ export async function loadContent() {
     return Object.fromEntries(header.map((column, columnIndex) => [column, cells[columnIndex]]));
   });
 
+  if (records.some((row) => row.type === "metadata" && row.id === "quizVersion" && row.zh === "2")) {
+    const v2Columns = ["hydration_style", "slogan_zh", "slogan_en", ...[1, 2, 3, 4].flatMap((i) => [`tag${i}_zh`, `tag${i}_en`])];
+    if (v2Columns.some((column) => !header.includes(column)) || new Set(header).size !== header.length) throw new Error("V2 content columns incomplete");
+  }
   return buildContent(records);
 }

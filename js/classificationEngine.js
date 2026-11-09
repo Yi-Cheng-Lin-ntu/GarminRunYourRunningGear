@@ -7,14 +7,10 @@ function getTraits(option) {
   return Array.isArray(option?.traits) ? option.traits : [];
 }
 
-function isRunnerTypeQuestion(question) {
-  return question.id !== "q6";
-}
-
-export function countRunnerTraits(questions, answers, runnerTypes) {
+export function countRunnerTraits(questions, answers, runnerTypes, questionIds = ["q1", "q2", "q3", "q5"]) {
   const scores = Object.fromEntries(runnerTypes.map((type) => [type, 0]));
 
-  questions.forEach((question) => {
+  questions.filter((question) => !questionIds || questionIds.includes(question.id)).forEach((question) => {
     const option = getOptionForAnswer(question, answers);
     getTraits(option).forEach((trait) => {
       if (trait in scores) {
@@ -37,7 +33,8 @@ function selectByTieBreak(candidates, tieBreakOrder, fallbackType) {
 }
 
 export function classifyAnswers({ questions, answers, runnerTypes, rules }) {
-  const scores = countRunnerTraits(questions, answers, runnerTypes);
+  if (rules?.version !== 1) return classifyV2AnswerIds(answers);
+  const scores = countRunnerTraits(questions, answers, runnerTypes, null);
   const candidates = getHighestScoringTypes(scores, runnerTypes);
   const tieBreakOrder = rules?.tieBreak?.order || runnerTypes;
   const runnerType = candidates.length === 1
@@ -53,4 +50,23 @@ export function classifyAnswers({ questions, answers, runnerTypes, rules }) {
     sustainability,
     scores
   };
+}
+
+// V2 IDs are stable regardless of visual option order. Shared by Mock validation.
+export function classifyV2AnswerIds(answers) {
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) throw new Error("INVALID_ANSWERS");
+  const types = ["experience", "lifestyle", "performance"];
+  const scores = Object.fromEntries(types.map((type) => [type, 0]));
+  for (const id of ["q1", "q2", "q3", "q5"]) {
+    const type = types.find((candidate) => answers[id] === `${id}_${candidate}`);
+    if (!type) throw new Error("INVALID_ANSWER");
+    scores[type]++;
+  }
+  const hydrationStyle = ["precision", "rest", "pioneer"].find((style) => answers.q4 === `q4_${style}`);
+  if (!hydrationStyle) throw new Error("INVALID_ANSWER");
+  const highest = Math.max(...Object.values(scores));
+  const candidates = types.filter((type) => scores[type] === highest);
+  const runnerType = candidates.length === 1 ? candidates[0] : answers.q2.slice(3);
+  return { runnerType, scores, hydrationStyle, q4Answer: answers.q4,
+    sustainability: hydrationStyle === "pioneer", existingSelfHydration: hydrationStyle === "pioneer" };
 }

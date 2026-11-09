@@ -1,0 +1,41 @@
+[
+  {
+    "width": 375,
+    "passed": true,
+    "errors": 0
+  },
+  {
+    "width": 390,
+    "passed": true,
+    "errors": 0
+  },
+  {
+    "width": 430,
+    "passed": true,
+    "errors": 0
+  },
+  {
+    "width": 768,
+    "passed": true,
+    "errors": 0
+  },
+  {
+    "width": 1280,
+    "passed": true,
+    "errors": 0
+  },
+  {
+    "demoFixtureVersion": 1,
+    "projectPath": true,
+    "passed": true
+  },
+  {
+    "demoFixtureVersion": 2,
+    "projectPath": true,
+    "passed": true
+  },
+  {
+    "archiveCute": true,
+    "passed": true
+  }
+]

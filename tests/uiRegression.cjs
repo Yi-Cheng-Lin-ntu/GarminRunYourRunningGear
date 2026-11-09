@@ -1,3 +1,4 @@
+// HISTORICAL V1 browser scenario. Main-site V2 uses tests/v2UiRegression.cjs.
 // Optional browser regression. Setup: UI_REVIEW.md. External requests are blocked.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs");
