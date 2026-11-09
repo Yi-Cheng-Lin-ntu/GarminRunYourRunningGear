@@ -80,6 +80,10 @@ function renderQuestion() {
   const question = content.quizData.questions[state.index];
   $("[data-question-count]").textContent = `${String(state.index + 1).padStart(2, "0")} / 05`;
   $("[data-question-number]").textContent = String(state.index + 1).padStart(2, "0");
+  const subtitle = $("[data-question-subtitle]");
+  const subtitleText = text(question.subtitle);
+  subtitle.textContent = subtitleText;
+  subtitle.hidden = !subtitleText;
   $("[data-question-prompt]").textContent = text(question.prompt);
   $("[data-progress-track]").querySelectorAll("span").forEach((span, i) => {
     span.classList.toggle("is-complete", i < state.index);

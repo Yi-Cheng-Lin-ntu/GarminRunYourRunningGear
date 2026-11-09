@@ -520,6 +520,18 @@ label {
   font-size: 24px;
 }
 
+.question-subtitle {
+  margin: 0 0 8px;
+  color: var(--brand-blue);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.question-subtitle[hidden] {
+  display: none;
+}
+
 .question-total {
   margin-left: 10px;
   color: var(--text-secondary);

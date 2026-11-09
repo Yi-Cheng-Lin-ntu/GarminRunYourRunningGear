@@ -41,7 +41,7 @@
 保留原欄位及順序，尾端追加 `hydration_style`、`slogan_zh/en`、`tag1_zh/en` … `tag4_zh/en`。
 
 - `metadata` / `quizVersion`：中文值 2，辨識 V2 schema。
-- `question`：Q1–Q5，固定順序。
+- `question`：Q1–Q5，固定順序；配對 `question_subtitle` row 以 `parent_id=q1...q5` 提供雙語副標。
 - `option`：每題三個唯一 ID；四個計分題為 `qN_experience/lifestyle/performance`。
 - Q4 只允許 `q4_precision/rest/pioneer`，traits 空白、hydration_style 對應；只有 pioneer 的 sustainability=true。
 - `result`：三個原 ID、狗狗名稱、固定 slogan、四個獨立 tag 欄、PNG／alt；標籤空字串保留位置。

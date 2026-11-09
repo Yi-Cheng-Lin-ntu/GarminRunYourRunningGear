@@ -91,9 +91,23 @@ function buildContent(rows) {
   const questions = questionRows.map((row) => ({
     id: row.id,
     prompt: localized(row.zh, row.en),
+    subtitle: localized("", ""),
     options: []
   }));
   const questionsById = new Map(questions.map((question) => [question.id, question]));
+
+  const subtitleQuestionIds = new Set();
+  rows.filter((row) => row.type === "question_subtitle").forEach((row) => {
+    const question = questionsById.get(row.parent_id);
+    if (!question) {
+      throw new Error(`Question subtitle ${row.id} references unknown question ${row.parent_id}.`);
+    }
+    if (subtitleQuestionIds.has(row.parent_id)) {
+      throw new Error(`Duplicate subtitle for question ${row.parent_id}.`);
+    }
+    subtitleQuestionIds.add(row.parent_id);
+    question.subtitle = localized(row.zh, row.en);
+  });
 
   rows.filter((row) => row.type === "option").forEach((row) => {
     const question = questionsById.get(row.parent_id);

@@ -36,7 +36,8 @@
 | 內容 | CSV 欄位與定位方式 |
 |---|---|
 | 首頁標題／說明／按鈕 | `type=ui`，`id=v2.startTitle`、`v2.startDescription`、`v2.startButton` |
-| Q1～Q5 題目 | `type=question`，`id=q1`～`q5`；文字在 `zh`、`en` |
+| Q1～Q5 副標 | `type=question_subtitle`，`parent_id=q1`～`q5`；文字在 `zh`、`en`。中英文都留空時不顯示副標 |
+| Q1～Q5 主題目 | `type=question`，`id=q1`～`q5`；文字在 `zh`、`en` |
 | 每題三個選項 | `type=option`，`parent_id=q1`～`q5`；文字在 `zh`、`en`。例如 `id=q1_experience` |
 | 三種狗狗名稱 | `type=result`，`id=experience`、`lifestyle`、`performance`；名稱在 `zh`、`en` |
 | 三種 Slogan | 同一個 `result` row 的 `slogan_zh`、`slogan_en` |
