@@ -34,15 +34,21 @@ async function main() {
           return {
             background: getComputedStyle(document.body).backgroundColor,
             screenBackground: getComputedStyle(document.querySelector("#result")).backgroundColor,
-            imageFit: getComputedStyle(document.querySelector("[data-dog-image]")).objectFit,
-            first: rect(".tag-1"), second: rect(".tag-2"), third: rect(".tag-3"), fourth: rect(".tag-4")
+            visual: rect("[data-runner-visual]"),
+            tags: rect("[data-runner-tags]"),
+            equipment: rect("[data-hydration-equipment]"),
+            copy: rect(".hydration-copy")
           };
         });
         assert.equal(layout.background, "rgb(8, 11, 13)");
         assert.equal(layout.screenBackground, "rgba(0, 0, 0, 0)");
-        assert.equal(layout.imageFit, "contain");
-        assert.ok(Math.abs(layout.first.top - layout.second.top) > 8, "upper tags should be staggered");
-        assert.ok(Math.abs(layout.third.top - layout.fourth.top) > 8, "lower tags should be staggered");
+        assert.ok(layout.visual.height > 0, "replaceable runner visual area should remain available");
+        assert.ok(layout.tags.top >= layout.visual.top + layout.visual.height, "tags should be below the runner visual");
+        assert.ok(layout.copy.width > 0, "recommendation text should remain visible");
+        assert.equal(await page.locator("[data-dog-image]").count(), 0);
+        if (await page.locator("[data-hydration-equipment]").isVisible()) {
+          assert.ok(layout.equipment.left < layout.copy.left, "hydration images should be left of recommendation text");
+        }
         if (await page.locator("[data-hydration-options]").isVisible()) {
           const cards = await page.locator(".hydration-choices .choice-card").evaluateAll((elements) => elements.map((e) => {
             const r = e.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, width: r.width, height: r.height };
@@ -65,17 +71,9 @@ async function main() {
         }
         assert.equal(await page.locator("[data-result-title]").innerText(), titles[type]);
         assert.equal(await page.locator("[data-result-tag]").count(), 4);
-        const overlap = await page.evaluate(() => {
-          const img = document.querySelector("[data-dog-image]").getBoundingClientRect();
-          return [...document.querySelectorAll("[data-result-tag]")].some((tag) => {
-            const r = tag.getBoundingClientRect();
-            return r.width <= 0 || r.height <= 0 || (r.left < img.right && r.right > img.left && r.top < img.bottom && r.bottom > img.top);
-          });
-        });
-        assert.equal(overlap, false);
-        await page.locator("[data-dog-image]").evaluate((image) => image.decode());
-        const expectedEmpty = type === "experience" ? 1 : type === "lifestyle" ? 2 : 0;
-        assert.equal(await page.locator('[data-result-tag][aria-hidden="true"]').count(), expectedEmpty);
+        assert.equal(await page.locator("[data-result-tag][hidden]").count(),
+          await page.locator('[data-result-tag][aria-hidden="true"]').count());
+        assert.ok(await page.locator("[data-result-tag]:not([hidden])").count() > 0);
         await assertPresentation();
         await check(`result-${type}-${style}`);
       };
@@ -179,8 +177,8 @@ async function main() {
         await page.locator(`label[for=q${i}_${i === 4 ? "pioneer" : "performance"}]`).click();
         await page.locator("[data-action=next]").click();
       }
-      assert.match(await page.locator("[data-dog-image]").getAttribute("src"), /GarminRunYourRunningGear\/assets\/result\//);
-      await page.locator("[data-dog-image]").evaluate((image) => image.decode());
+      assert.equal(await page.locator("[data-dog-image]").count(), 0);
+      assert.ok(await page.locator("[data-runner-visual]").isVisible());
       await page.locator("[data-action=continue]").click();
       await page.locator("[data-name]").fill("Demo Runner"); await page.locator("[data-email]").fill("test@example.com"); await page.check("[data-privacy-check]");
       await page.locator("[data-submit]").click();

@@ -116,12 +116,10 @@ function renderResult() {
   const result = content.resultData[state.result.runnerType];
   $("[data-result-title]").textContent = text(result.title);
   $("[data-result-slogan]").textContent = text(result.slogan);
-  const image = $("[data-dog-image]");
-  image.src = resolveProjectAsset(result.image.src);
-  image.alt = text(result.image.alt);
   document.querySelectorAll("[data-result-tag]").forEach((tag, index) => {
     const value = result.tags[index]?.[state.language] || "";
     tag.textContent = value;
+    tag.hidden = !value;
     if (value) tag.removeAttribute("aria-hidden");
     else tag.setAttribute("aria-hidden", "true");
   });
