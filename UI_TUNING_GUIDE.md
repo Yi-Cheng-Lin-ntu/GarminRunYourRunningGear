@@ -2,26 +2,43 @@
 
 主網站入口是 `index.html`，互動由 `js/appV2.js` 控制，樣式集中在 `style.css`。主站供跑者閱讀的中英文文案集中在 `content.csv`；依畫面 key 編輯 `type=ui` 的 `id` 與 `zh`／`en` 欄位。Cute 原型已封存於 `_archive/cute-prototype/`，不會由主網站載入。
 
+## Typography Design System
+
+全站字體變數集中在 `style.css` 的 `:root` 區塊 `TYPOGRAPHY SYSTEM — QUICK TUNING`。以下是初始設計值；手機以 390px 為主要參考，桌面值從既有的 `@media (min-width: 720px)` 套用。
+
+| Typography Level | CSS variable | Mobile 字級 | Desktop 字級 | 字重 | 使用的頁面與元素 | 主要 selector |
+|---|---|---:|---:|---:|---|---|
+| Display | `--font-display` | 32px | 40px | 900 | 首頁品牌、We Change、跑者名稱 | `.start-brand`、`.start-manifesto span:last-child`、`.v2-result-heading h2` |
+| H1 | `--font-h1` | 28px | 32px | 800 | 首頁標題、個資頁與兌獎頁主標題 | `#start-title`、`.participation-header h2`、`.redemption-banner h2`、`.redemption-prize-title` |
+| H2 | `--font-h2` | 22px | 24px | 800 | 測驗題目／題號、區塊標題、獎品名稱、永續標題 | `.question-intro h2`、`.question-number`、結果推薦標籤、`.prize-name` |
+| H3 | `--font-h3` | 18px | 20px | 700 | 跑者 slogan、推薦標題、永續邀請、互動卡片標題 | `.v2-slogan`、`.v2-recommendation h3`、`.v2-invitation legend` |
+| Body | `--font-body` | 16px | 16px | 400（按鈕／強調文字 700） | 一般說明、推薦內文、欄位與按鈕 | `body`、推薦說明、`.v2-contact-fields label`、`.button` |
+| Small | `--font-small` | 13px | 13px | 400（強調標籤 700） | 題目副標、標籤、輔助／次要說明與工具狀態 | `.question-subtitle`、`.runner-tag`、`.privacy-copy`、`.mock-mode-badge` |
+
+字重、行高與字距也有共用變數：`--weight-body`、`--weight-emphasis`、`--weight-heading`、`--weight-display`、`--line-height-heading`、`--line-height-body`、`--line-height-small`、`--letter-spacing-brand` 與 `--letter-spacing-ui`。選取頁面元素後，可在 DevTools 的 `:root` 規則調整字級 token，立即檢視全站對應層級；若只在某頁測試，可在該頁容器暫時覆寫同名變數。
+
+Canvas 下載圖不繼承 CSS，字級集中在 `js/shareCard.js` 的 `SHARE_CARD_TYPE` 與 `SHARE_CARD_LINE_HEIGHT`；數值以 1080×1920 PNG 輸出尺寸為準，位置與下載內容保持獨立。
+
 ## A. CSS 微調
 
 結果頁的集中參數區在 [style.css](./style.css) 的 `RESULT PAGE — QUICK TUNING`。手機預設值寫在 `#result`，桌機覆寫在 `@media (min-width: 720px)`，極窄手機覆寫在 `@media (max-width: 430px)`。
 
 | 想調整的元素 | Selector | CSS variable | 改大／改小的效果與裝置 |
 |---|---|---|---|
-| 跑者名稱字級 | `.v2-result-heading h2` | `--result-title-size` | 改大／改小名稱；手機預設、桌機可另外設定 |
-| Slogan 字級 | `.v2-slogan` | `--result-slogan-size` | 改大／改小 Slogan |
+| 跑者名稱字級 | `.v2-result-heading h2` | `--font-display` | 改大／改小名稱；手機與桌面共用 Typography token |
+| Slogan 字級 | `.v2-slogan` | `--font-h3` | 改大／改小 Slogan |
 | 結果圖片顯示區比例 | `.runner-visual` | `--result-visual-ratio` | 調整圖片容器的寬高比例；實際寬度受結果頁內容寬度限制 |
 | 結果頁主要區塊間距 | `.result-layout` | `--result-section-gap` | 調整主視覺區與推薦區的垂直距離 |
 | 四個標籤間距 | `.runner-tags` | `--result-tags-gap` | 調整 flex 群組中標籤彼此的間距；目前沒有單顆標籤的 X／Y offset 變數 |
 | 標籤旋轉角度 | `.tag-1` 至 `.tag-4` | `--tag-1-rotation` 至 `--tag-4-rotation` | 調整各標籤角度；不影響位置偏移 |
-| 標籤字級與內距 | `.runner-tag` | `--result-tag-font-size`、`--result-tag-padding` | 改大會使標籤文字或色塊更大 |
+| 標籤字級與內距 | `.runner-tag` | `--font-small`、`--result-tag-padding` | 改大會使標籤文字或色塊更大 |
 | 標籤上下錯位 | `.tag-2`、`.tag-3` | `--result-tag-stagger` | 改大增加兩個標籤的錯位幅度 |
 | 空白標籤寬度 | `.runner-tag[aria-hidden="true"]` | `--result-blank-tag-width` | 改變空白裝飾色塊寬度 |
 | 推薦區內距 | `.v2-recommendation` | `--recommendation-padding` | 改大會增加文字與卡片邊緣的距離 |
-| 推薦標題／內文 | `.v2-recommendation h3`、`[data-recommendation-description]` | `--recommendation-heading-size`、`--recommendation-copy-size` | 調整推薦文案字級 |
+| 推薦標題／內文 | `.v2-recommendation h3`、`[data-recommendation-description]` | `--font-h3`、`--font-body` | 調整推薦文案字級 |
 | 補水圖片大小 | `.hydration-equipment-image` | `--hydration-image-size` | 改變每張裝備圖的顯示框；圖像使用 `contain` |
 | 補水圖片間距／與文字距離 | `.hydration-equipment` | `--hydration-image-gap`、`--hydration-image-text-gap` | 改變圖片彼此及圖片與推薦文字的距離 |
-| 永續選項間距／高度／字級 | `.hydration-choices`、`.hydration-choices .choice-card span` | `--hydration-choice-gap`、`--hydration-choice-height`、`--hydration-choice-font-size` | 兩個選項維持左右並排；手機與桌機可分開調整 |
+| 永續選項間距／高度／字級 | `.hydration-choices`、`.hydration-choices .choice-card span` | `--hydration-choice-gap`、`--hydration-choice-height`、`--font-body` | 兩個選項維持左右並排；字級共用 Body token |
 | 「繼續領獎」按鈕前後距離 | `.screen-result .button-primary` | `--result-continue-margin-top`、`--result-continue-margin-bottom` | 改變按鈕上下留白 |
 
 手機調整預設值；桌機調整 `@media (min-width: 720px)` 內的 `#result` 變數；寬度不超過 430px 的手機另有局部覆寫。若只想快速試值，可在 DevTools 選取 `#result`，暫時新增或修改對應的 `--變數名稱`。

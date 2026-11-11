@@ -1,5 +1,20 @@
 const CARD_WIDTH = 1080;
 const CARD_HEIGHT = 1920;
+const SHARE_CARD_TYPE = {
+  eyebrow: "800 36px",
+  display: "900 82px",
+  slogan: "700 43px",
+  tag: "700 23px",
+  sectionLabel: "800 29px",
+  recommendationHeading: "800 35px",
+  recommendationBody: "700 30px"
+};
+const SHARE_CARD_LINE_HEIGHT = {
+  tag: 26,
+  slogan: 58,
+  recommendationHeading: 52,
+  recommendationBody: 48
+};
 
 function roundedRect(context, x, y, width, height, radius) {
   const r = Math.min(radius, width / 2, height / 2);
@@ -64,11 +79,11 @@ function drawTag(context, text, x, y, width, colors) {
   context.fillStyle = colors.green;
   context.fill();
   context.fillStyle = colors.black;
-  context.font = `700 23px ${colors.fontFamily}`;
+  context.font = `${SHARE_CARD_TYPE.tag} ${colors.fontFamily}`;
   context.textAlign = "center";
   context.textBaseline = "middle";
   const lines = wrapText(context, `# ${text}`, width - 32).slice(0, 2);
-  lines.forEach((line, index) => context.fillText(line, x + width / 2, y + height / 2 + (index - (lines.length - 1) / 2) * 26));
+  lines.forEach((line, index) => context.fillText(line, x + width / 2, y + height / 2 + (index - (lines.length - 1) / 2) * SHARE_CARD_LINE_HEIGHT.tag));
   context.textAlign = "left";
   context.textBaseline = "alphabetic";
 }
@@ -110,9 +125,9 @@ export async function renderResultSharePng(canvas, model) {
   context.textAlign = "center";
   context.fillStyle = colors.white;
   context.textBaseline = "alphabetic";
-  context.font = `800 36px ${colors.fontFamily}`;
+  context.font = `${SHARE_CARD_TYPE.eyebrow} ${colors.fontFamily}`;
   context.fillText(model.eyebrow, CARD_WIDTH / 2, 112);
-  context.font = `900 82px ${colors.fontFamily}`;
+  context.font = `${SHARE_CARD_TYPE.display} ${colors.fontFamily}`;
   const titleWidth = Math.min(820, context.measureText(model.title).width + 90);
   roundedRect(context, (CARD_WIDTH - titleWidth) / 2, 112, titleWidth, 132, 36);
   context.fillStyle = colors.black;
@@ -120,9 +135,9 @@ export async function renderResultSharePng(canvas, model) {
   context.fillStyle = colors.white;
   context.textBaseline = "middle";
   context.fillText(model.title, CARD_WIDTH / 2, 178, titleWidth - 42);
-  context.font = `700 43px ${colors.fontFamily}`;
+  context.font = `${SHARE_CARD_TYPE.slogan} ${colors.fontFamily}`;
   const sloganLines = wrapText(context, model.slogan, 790).slice(0, 2);
-  sloganLines.forEach((line, index) => context.fillText(line, CARD_WIDTH / 2, 294 + index * 58));
+  sloganLines.forEach((line, index) => context.fillText(line, CARD_WIDTH / 2, 294 + index * SHARE_CARD_LINE_HEIGHT.slogan));
   context.textAlign = "left";
   drawContained(context, runnerImage, 150, 280, 780, 624);
 
@@ -154,7 +169,7 @@ export async function renderResultSharePng(canvas, model) {
   context.fillStyle = model.isPioneer ? colors.green : colors.blue;
   context.fill();
   context.fillStyle = colors.black;
-  context.font = `800 29px ${colors.fontFamily}`;
+  context.font = `${SHARE_CARD_TYPE.sectionLabel} ${colors.fontFamily}`;
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillText(model.isPioneer ? model.pioneerBanner : model.recommendationLabel, label.x + label.width / 2, label.y + label.height / 2, label.width - 30);
@@ -194,10 +209,10 @@ export async function renderResultSharePng(canvas, model) {
   }
 
   context.fillStyle = colors.white;
-  context.font = `800 35px ${colors.fontFamily}`;
-  const headingBottom = drawTextBlock(context, model.recommendationHeading, copyX, panel.y + 190, copyWidth, 52, 4);
-  context.font = `700 30px ${colors.fontFamily}`;
-  drawTextBlock(context, model.recommendationDescription, copyX, headingBottom + 36, model.isPioneer ? copyWidth - 100 : copyWidth, 48, 5);
+  context.font = `${SHARE_CARD_TYPE.recommendationHeading} ${colors.fontFamily}`;
+  const headingBottom = drawTextBlock(context, model.recommendationHeading, copyX, panel.y + 190, copyWidth, SHARE_CARD_LINE_HEIGHT.recommendationHeading, 4);
+  context.font = `${SHARE_CARD_TYPE.recommendationBody} ${colors.fontFamily}`;
+  drawTextBlock(context, model.recommendationDescription, copyX, headingBottom + 36, model.isPioneer ? copyWidth - 100 : copyWidth, SHARE_CARD_LINE_HEIGHT.recommendationBody, 5);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("PNG encoding failed.")), "image/png");

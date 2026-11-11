@@ -172,19 +172,17 @@
         <p class="redemption-instruction" data-i18n="v2.redemptionInstruction"></p>
         <div class="redemption-extras">
           <div class="redemption-action-column">
-            <button class="redemption-action-card result-download-card" type="button" data-action="download-result" disabled>
+            <button class="redemption-action-card result-download-card" type="button" aria-labelledby="share-save-label" data-action="download-result" disabled>
               <span class="result-download-preview"><img data-share-preview alt="" hidden /><span data-share-status data-i18n="v2.sharePreparing" aria-live="polite"></span></span>
-              <span class="result-download-copy"><strong data-i18n="v2.shareDownload"></strong></span>
             </button>
-            <button class="redemption-cta" type="button" data-action="download-result" data-i18n="v2.shareSaveButton" disabled></button>
+            <button class="redemption-cta" id="share-save-label" type="button" data-action="download-result" data-i18n="v2.shareSaveButton" disabled></button>
           </div>
           <div class="redemption-action-column">
-            <a class="redemption-action-card ig-placeholder-card" href="https://www.instagram.com/p/DejRMWyFydj/?img_index=1" target="_blank" rel="noopener noreferrer" data-ig-placeholder>
+            <a class="redemption-action-card ig-placeholder-card" aria-labelledby="ig-story-label" href="https://www.instagram.com/p/DejRMWyFydj/?img_index=1" target="_blank" rel="noopener noreferrer" data-ig-placeholder>
               <span class="ig-placeholder-thumbnail" aria-hidden="true"><img class="ig-placeholder-image" data-ig-image alt="" hidden /><span data-ig-fallback>IG</span></span>
               <span class="ig-placeholder-copy"><strong data-i18n="v2.igTitle"></strong><span data-i18n="v2.igPlaceholder"></span></span>
-              <span class="ig-placeholder-arrow" aria-hidden="true">↗</span>
             </a>
-            <a class="redemption-cta" href="https://www.instagram.com/p/DejRMWyFydj/?img_index=1" target="_blank" rel="noopener noreferrer" data-i18n="v2.igStoryButton"></a>
+            <a class="redemption-cta" id="ig-story-label" href="https://www.instagram.com/p/DejRMWyFydj/?img_index=1" target="_blank" rel="noopener noreferrer" data-i18n="v2.igStoryButton"></a>
           </div>
         </div>
         <button class="button button-secondary button-wide redemption-restart" type="button" data-action="restart" data-i18n="redemption.restart"></button>
@@ -193,7 +191,9 @@
 
     <canvas class="share-card-renderer" data-share-canvas width="1080" height="1920" hidden aria-hidden="true"></canvas>
 
-    <footer class="site-footer"><span data-i18n="footer.brand"></span> <span data-i18n="footer.tagline"></span></footer>
+    <footer class="site-footer">
+      <span class="site-footer-tagline" data-i18n="v2.startFooter"></span>
+    </footer>
     <script type="module" src="js/appV2.js"></script>
   </body>
 </html>
