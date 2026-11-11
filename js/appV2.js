@@ -6,11 +6,13 @@ import { isTestEmail } from "./participationValidation.js";
 import { getHydrationEquipment } from "./hydrationEquipment.js";
 import { resolveProjectAsset } from "./projectAssets.js";
 import { renderRedemptionView } from "./redemptionView.js";
+import { renderResultSharePng } from "./shareCard.js";
 import { APPS_SCRIPT_DEMO_MODE, submitParticipation, getPublicCampaignStatus,
   getMockSnapshot, applyMockScenario, setMockStock, resetMockTestData, clearMockData, prizeCatalog } from "./apiClient.js";
 import { clearAllocationRecovery, clearPendingRequest, savePendingRequest } from "./sessionRecovery.js";
 
 const $ = (selector) => document.querySelector(selector);
+const setDownloadButtonsDisabled = (disabled) => document.querySelectorAll('[data-action="download-result"]').forEach((button) => { button.disabled = disabled; });
 const RESULT_ILLUSTRATIONS = {
   experience: "./assets/result/賽事收藏家.png",
   lifestyle: "./assets/result/自在巡航員.png",
@@ -19,11 +21,16 @@ const RESULT_ILLUSTRATIONS = {
 const elements = {
   start: $("#start"), quiz: $("#quiz"), result: $("#result"), participation: $("#participation"), redemption: $("#redemption"),
   redemptionRunner: $("[data-redemption-runner]"), redemptionTitle: $("[data-redemption-title]"),
-  prizeImage: $("[data-prize-image]"), prizeName: $("[data-prize-name]"), sustainabilityMessage: $("[data-sustainability-message]")
+  prizeImage: $("[data-prize-image]"), prizeName: $("[data-prize-name]"), sustainabilityMessage: $("[data-sustainability-message]"),
+  shareCanvas: $("[data-share-canvas]"), sharePreview: $("[data-share-preview]"), shareStatus: $("[data-share-status]"),
+  sustainabilityResultMark: $("[data-sustainability-result-mark]"),
+  igImage: $("[data-ig-image]")
 };
 let content;
 const state = { language: "zh", answers: {}, orders: {}, index: 0, result: null, hydrationCommitment: null,
-  formErrorKey: null, displayedAllocation: null, requestId: null, sessionId: null, submitInProgress: false };
+  formErrorKey: null, displayedAllocation: null, requestId: null, sessionId: null, submitInProgress: false,
+  shareCardBlob: null, shareCardUrl: null, shareCardPromise: null };
+let shareRenderGeneration = 0;
 const text = (value) => value?.[state.language] || value?.zh || value?.en || "";
 const copy = (key) => text(content?.ui[key]);
 const id = () => globalThis.crypto?.randomUUID?.() || `v2-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -56,8 +63,11 @@ function updateStaticText() {
   if (!$("[data-result-error]").hidden) $("[data-result-error]").textContent = copy("v2.chooseError");
 }
 function reset() {
+  shareRenderGeneration += 1;
+  if (state.shareCardUrl) URL.revokeObjectURL(state.shareCardUrl);
   Object.assign(state, { answers: {}, orders: {}, index: 0, result: null, hydrationCommitment: null,
-    formErrorKey: null, displayedAllocation: null, requestId: null, sessionId: id(), submitInProgress: false });
+    formErrorKey: null, displayedAllocation: null, requestId: null, sessionId: id(), submitInProgress: false,
+    shareCardBlob: null, shareCardUrl: null, shareCardPromise: null });
   $("[data-participation-form]").reset();
   $("[data-form-error]").hidden = true;
   $("[data-result-error]").hidden = true;
@@ -71,6 +81,12 @@ function reset() {
   elements.redemptionRunner.textContent = "";
   elements.redemptionTitle.textContent = "";
   elements.sustainabilityMessage.textContent = "";
+  elements.sharePreview.removeAttribute("src");
+  elements.sharePreview.hidden = true;
+  elements.shareStatus.textContent = copy("v2.sharePreparing");
+  setDownloadButtonsDisabled(true);
+  elements.sustainabilityResultMark.removeAttribute("src");
+  elements.sustainabilityResultMark.hidden = true;
   clearAllocationRecovery();
   clearPendingRequest();
   if (content) updateStaticText();
@@ -124,47 +140,96 @@ function renderQuestion() {
   $("[data-action=next]").disabled = !state.answers[question.id];
   $("[data-action=next]").textContent = copy(state.index === 4 ? "quiz.seeResult" : "navigation.next");
 }
-function renderResult() {
+function buildResultViewModel() {
   const result = content.resultData[state.result.runnerType];
-  $("[data-result-title]").textContent = text(result.title);
-  $("[data-result-slogan]").textContent = text(result.slogan);
+  const recommendation = content.recommendations[`${state.result.runnerType}:${state.result.hydrationStyle}`];
+  return {
+    runnerType: state.result.runnerType,
+    eyebrow: copy("v2.youAre"),
+    title: text(result.title),
+    slogan: text(result.slogan),
+    image: {
+      src: resolveProjectAsset(RESULT_ILLUSTRATIONS[state.result.runnerType]),
+      alt: text(result.image.alt)
+    },
+    tags: result.tags.map((tag) => tag?.[state.language] || ""),
+    recommendationLabel: copy("v2.recommendation"),
+    pioneerBanner: copy("v2.pioneerThanks"),
+    recommendationHeading: text(recommendation.heading),
+    recommendationDescription: text(recommendation.description),
+    equipment: getHydrationEquipment(state.result.runnerType, state.result.hydrationStyle)
+      .map((item) => ({ ...item, src: resolveProjectAsset(item.src) })),
+    isPioneer: state.result.hydrationStyle === "pioneer",
+    sustainabilityImage: { src: resolveProjectAsset("./assets/永續先鋒隊.png") }
+  };
+}
+function prepareShareCard(model) {
+  const generation = ++shareRenderGeneration;
+  if (state.shareCardUrl) URL.revokeObjectURL(state.shareCardUrl);
+  state.shareCardBlob = null;
+  state.shareCardUrl = null;
+  elements.sharePreview.removeAttribute("src");
+  elements.sharePreview.hidden = true;
+  setDownloadButtonsDisabled(true);
+  elements.shareStatus.textContent = copy("v2.sharePreparing");
+  state.shareCardPromise = renderResultSharePng(elements.shareCanvas, model).then((blob) => {
+    if (generation !== shareRenderGeneration) return null;
+    state.shareCardBlob = blob;
+    state.shareCardUrl = URL.createObjectURL(blob);
+    elements.sharePreview.src = state.shareCardUrl;
+    elements.sharePreview.hidden = false;
+    elements.sharePreview.alt = `${model.title} — ${copy("v2.shareDownload")}`;
+    elements.shareStatus.textContent = copy("v2.shareReady");
+    setDownloadButtonsDisabled(false);
+    return blob;
+  }).catch(() => {
+    if (generation !== shareRenderGeneration) return null;
+    elements.shareStatus.textContent = copy("v2.shareError");
+    setDownloadButtonsDisabled(true);
+    return null;
+  });
+}
+function renderResult() {
+  const viewModel = buildResultViewModel();
+  $("[data-result-title]").textContent = viewModel.title;
+  $("[data-result-slogan]").textContent = viewModel.slogan;
   const runnerImage = $("[data-runner-image]");
-  const illustration = RESULT_ILLUSTRATIONS[state.result.runnerType];
-  runnerImage.hidden = !illustration;
-  if (illustration) {
-    runnerImage.src = resolveProjectAsset(illustration);
-    runnerImage.alt = text(result.image.alt);
+  runnerImage.hidden = !viewModel.image.src;
+  if (viewModel.image.src) {
+    runnerImage.src = viewModel.image.src;
+    runnerImage.alt = viewModel.image.alt;
   }
   else runnerImage.removeAttribute("src");
   document.querySelectorAll("[data-result-tag]").forEach((tag, index) => {
-    const value = result.tags[index]?.[state.language] || "";
+    const value = viewModel.tags[index] || "";
     tag.textContent = value;
     tag.hidden = !value;
     if (value) tag.removeAttribute("aria-hidden");
     else tag.setAttribute("aria-hidden", "true");
   });
-  const recommendation = content.recommendations[`${state.result.runnerType}:${state.result.hydrationStyle}`];
-  $("[data-recommendation-heading]").textContent = text(recommendation.heading);
-  $("[data-recommendation-description]").textContent = text(recommendation.description);
-  const equipment = getHydrationEquipment(state.result.runnerType, state.result.hydrationStyle);
+  $("[data-recommendation-heading]").textContent = viewModel.recommendationHeading;
+  $("[data-recommendation-description]").textContent = viewModel.recommendationDescription;
   const equipmentGallery = $("[data-hydration-equipment]");
   equipmentGallery.replaceChildren();
-  equipmentGallery.hidden = equipment.length === 0;
+  equipmentGallery.hidden = viewModel.isPioneer || viewModel.equipment.length === 0;
   equipmentGallery.setAttribute("aria-label", copy("v2.equipmentImages"));
-  equipment.forEach((item) => {
+  viewModel.equipment.forEach((item) => {
     const image = document.createElement("img");
     image.className = "hydration-equipment-image";
-    image.src = resolveProjectAsset(item.src);
+    image.src = item.src;
     image.alt = copy(item.altKey);
     equipmentGallery.append(image);
   });
-  $("[data-recommendation-section]").classList.toggle("is-pioneer", state.result.sustainability);
-  $("[data-existing-hydration]").hidden = !state.result.sustainability;
-  $("[data-hydration-options]").hidden = state.result.sustainability;
+  elements.sustainabilityResultMark.hidden = !viewModel.isPioneer;
+  if (viewModel.isPioneer) elements.sustainabilityResultMark.src = viewModel.sustainabilityImage.src;
+  $("[data-recommendation-section]").classList.toggle("is-pioneer", viewModel.isPioneer);
+  $("[data-existing-hydration]").hidden = !viewModel.isPioneer;
+  $("[data-hydration-options]").hidden = viewModel.isPioneer;
   document.querySelectorAll("[data-hydration-choice]").forEach((input) => {
     input.checked = input.value === state.hydrationCommitment;
     input.closest(".choice-card").classList.toggle("is-selected", input.checked);
   });
+  prepareShareCard(viewModel);
 }
 function continueToContact() {
   if (!state.result) return;
@@ -178,6 +243,20 @@ function continueToContact() {
 }
 function renderRedemption(allocation) {
   renderRedemptionView(allocation, { state, elements, resultData: content.resultData, text, copy, prizeCatalog, resolveProjectAsset, showScreen });
+}
+function downloadResultCard() {
+  if (!state.shareCardPromise) return;
+  state.shareCardPromise.then((blob) => {
+    if (!blob || !state.shareCardUrl) return;
+    const link = document.createElement("a");
+    link.href = state.shareCardUrl;
+    link.download = `garmin-run-${state.result.runnerType}.png`;
+    if ("download" in link) {
+      document.body.append(link);
+      link.click();
+      link.remove();
+    } else window.open(state.shareCardUrl, "_blank", "noopener");
+  });
 }
 function renderMockTools() {
   const snapshot = getMockSnapshot();
@@ -206,6 +285,7 @@ document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   const action = target?.dataset.action;
   if (!action || !content) return;
+  if (action === "download-result") { event.preventDefault(); downloadResultCard(); return; }
   if (state.submitInProgress && ["home", "retry", "restart", "back-result"].includes(action)) { event.preventDefault(); return; }
   if (action === "start") start();
   if (["home", "retry", "restart"].includes(action)) { event.preventDefault(); reset(); showScreen(elements.start); }
@@ -228,7 +308,10 @@ document.addEventListener("click", (event) => {
     updateStaticText();
     if (!elements.quiz.hidden) renderQuestion();
     if (!elements.result.hidden) renderResult();
-    if (!elements.redemption.hidden && state.displayedAllocation) renderRedemption(state.displayedAllocation);
+    if (!elements.redemption.hidden && state.displayedAllocation) {
+      renderRedemption(state.displayedAllocation);
+      if (state.result) prepareShareCard(buildResultViewModel());
+    }
     if (!$("[data-mock-panel]").hidden) renderMockTools();
   }
   if (action === "mock-tools") { $("[data-mock-panel]").hidden = false; renderMockTools(); }
@@ -314,6 +397,11 @@ window.addEventListener("pageshow", (event) => { if (event.persisted) { reset();
 loadContent().then((loaded) => {
   content = loaded;
   if (content.version !== 2) throw new Error("V2 content required");
+  elements.igImage.src = resolveProjectAsset("./assets/Garmin永續故事.png");
+  elements.igImage.addEventListener("load", () => {
+    elements.igImage.hidden = false;
+    $(`[data-ig-fallback]`).hidden = true;
+  }, { once: true });
   updateStaticText();
   $("[data-action=start]").disabled = false;
 }).catch(() => { $("[data-i18n='v2.startDescription']").textContent = copy("v2.startLoadError") || "無法載入測驗內容，請重新整理。"; });

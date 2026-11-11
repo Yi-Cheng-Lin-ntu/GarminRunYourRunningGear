@@ -11,8 +11,7 @@
 | 跑者名稱字級 | `.v2-result-heading h2` | `--result-title-size` | 改大／改小名稱；手機預設、桌機可另外設定 |
 | Slogan 字級 | `.v2-slogan` | `--result-slogan-size` | 改大／改小 Slogan |
 | 結果圖片顯示區比例 | `.runner-visual` | `--result-visual-ratio` | 調整圖片容器的寬高比例；實際寬度受結果頁內容寬度限制 |
-| 標題與結果圖片間距 | `.runner-visual` | `--result-section-gap` | 調整圖片區上方距離；此變數也用於標籤區下方間距 |
-| 結果圖片與標籤／推薦區間距 | `.runner-tags` | `--result-section-gap` | 調整標籤群組下方距離；標籤群組本身目前是可換行 flex 排列 |
+| 結果頁主要區塊間距 | `.result-layout` | `--result-section-gap` | 調整主視覺區與推薦區的垂直距離 |
 | 四個標籤間距 | `.runner-tags` | `--result-tags-gap` | 調整 flex 群組中標籤彼此的間距；目前沒有單顆標籤的 X／Y offset 變數 |
 | 標籤旋轉角度 | `.tag-1` 至 `.tag-4` | `--tag-1-rotation` 至 `--tag-4-rotation` | 調整各標籤角度；不影響位置偏移 |
 | 標籤字級與內距 | `.runner-tag` | `--result-tag-font-size`、`--result-tag-padding` | 改大會使標籤文字或色塊更大 |

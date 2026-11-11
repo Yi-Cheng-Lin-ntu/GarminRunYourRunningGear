@@ -82,45 +82,54 @@
       </section>
 
       <section class="screen screen-result" id="result" aria-labelledby="result-title" hidden>
-        <header class="v2-result-heading">
-          <p class="eyebrow" data-i18n="v2.youAre"></p>
-          <h2 id="result-title" data-result-title></h2>
-          <p class="v2-slogan" data-result-slogan></p>
-        </header>
-        <div class="runner-visual" data-runner-visual>
-          <img class="runner-visual-image" data-runner-image alt="" hidden />
-        </div>
-        <div class="runner-tags" data-runner-tags>
-          <div class="runner-tag" data-result-tag="0"></div>
-          <div class="runner-tag tag-2" data-result-tag="1"></div>
-          <div class="runner-tag tag-3" data-result-tag="2"></div>
-          <div class="runner-tag tag-4" data-result-tag="3"></div>
-        </div>
-        <section class="v2-recommendation" aria-labelledby="recommendation-title" data-recommendation-section>
-          <p id="recommendation-title" class="section-label" data-i18n="v2.recommendation"></p>
-          <div class="hydration-recommendation-row">
-            <div class="hydration-equipment" data-hydration-equipment role="group" data-i18n-aria="v2.equipmentImages" hidden></div>
-            <div class="hydration-copy">
-              <h3 data-recommendation-heading></h3>
-              <p data-recommendation-description></p>
+        <div class="result-layout">
+          <section class="result-identity">
+            <div class="result-hero-frame">
+              <header class="v2-result-heading">
+                <p class="eyebrow" data-i18n="v2.youAre"></p>
+                <h2 id="result-title" data-result-title></h2>
+                <p class="v2-slogan" data-result-slogan></p>
+              </header>
+              <div class="runner-visual" data-runner-visual>
+                <img class="runner-visual-image" data-runner-image alt="" hidden />
+              </div>
             </div>
-          </div>
-        </section>
-        <section class="v2-invitation" aria-labelledby="invitation-title">
-          <div data-existing-hydration hidden>
-            <h3 data-i18n="v2.pioneerThanks"></h3>
-          </div>
-          <fieldset data-hydration-options>
-            <legend id="invitation-title" data-i18n="v2.invitation"></legend>
-            <p data-i18n="v2.invitationNote"></p>
-            <div class="hydration-choices">
-              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice /><span><strong data-i18n="v2.joined"></strong></span></label>
-              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice /><span><strong data-i18n="v2.considering"></strong></span></label>
+            <div class="runner-tags" data-runner-tags>
+              <div class="runner-tag" data-result-tag="0"></div>
+              <div class="runner-tag tag-2" data-result-tag="1"></div>
+              <div class="runner-tag tag-3" data-result-tag="2"></div>
+              <div class="runner-tag tag-4" data-result-tag="3"></div>
             </div>
-          </fieldset>
-          <p class="form-error" data-result-error role="alert" hidden></p>
-          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue"></button>
-        </section>
+          </section>
+          <div class="result-details">
+            <section class="v2-recommendation" aria-labelledby="recommendation-title" data-recommendation-section>
+              <div class="pioneer-result-banner" data-existing-hydration hidden>
+                <h3 data-i18n="v2.pioneerThanks"></h3>
+              </div>
+              <p id="recommendation-title" class="section-label" data-i18n="v2.recommendation"></p>
+              <div class="hydration-recommendation-row">
+                <div class="hydration-equipment" data-hydration-equipment role="group" data-i18n-aria="v2.equipmentImages" hidden></div>
+                <img class="sustainability-result-mark" data-sustainability-result-mark alt="" hidden />
+                <div class="hydration-copy">
+                  <h3 data-recommendation-heading></h3>
+                  <p data-recommendation-description></p>
+                </div>
+              </div>
+            </section>
+            <section class="v2-invitation" aria-labelledby="invitation-title">
+              <fieldset data-hydration-options>
+                <legend id="invitation-title" data-i18n="v2.invitation"></legend>
+                <p data-i18n="v2.invitationNote"></p>
+                <div class="hydration-choices">
+                  <label class="choice-card"><input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice /><span><strong data-i18n="v2.joined"></strong></span></label>
+                  <label class="choice-card"><input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice /><span><strong data-i18n="v2.considering"></strong></span></label>
+                </div>
+              </fieldset>
+              <p class="form-error" data-result-error role="alert" hidden></p>
+              <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue"></button>
+            </section>
+          </div>
+        </div>
         <button class="button button-secondary button-wide v2-retry" type="button" data-action="retry" data-i18n="v2.retry"></button>
       </section>
 
@@ -146,9 +155,9 @@
         <div class="redemption-banner">
           <p class="eyebrow" data-i18n="redemption.eyebrow"></p>
           <p class="runner-type" data-redemption-runner></p>
-          <h2 id="redemption-title" data-redemption-title data-i18n="v2.redemptionTitle"></h2>
         </div>
         <div class="prize-card">
+          <h2 class="redemption-prize-title" id="redemption-title" data-redemption-title data-i18n="v2.redemptionTitle"></h2>
           <div class="prize-image" data-prize-image>
             <span data-i18n="redemption.placeholder"></span>
           </div>
@@ -156,9 +165,28 @@
         </div>
         <p class="sustainability-message" data-sustainability-message hidden></p>
         <p class="redemption-instruction" data-i18n="v2.redemptionInstruction"></p>
+        <div class="redemption-extras">
+          <div class="redemption-action-column">
+            <button class="redemption-action-card result-download-card" type="button" data-action="download-result" disabled>
+              <span class="result-download-preview"><img data-share-preview alt="" hidden /><span data-share-status data-i18n="v2.sharePreparing" aria-live="polite"></span></span>
+              <span class="result-download-copy"><strong data-i18n="v2.shareDownload"></strong></span>
+            </button>
+            <button class="redemption-cta" type="button" data-action="download-result" data-i18n="v2.shareSaveButton" disabled></button>
+          </div>
+          <div class="redemption-action-column">
+            <a class="redemption-action-card ig-placeholder-card" href="https://www.instagram.com/p/DejRMWyFydj/?img_index=1" target="_blank" rel="noopener noreferrer" data-ig-placeholder>
+              <span class="ig-placeholder-thumbnail" aria-hidden="true"><img class="ig-placeholder-image" data-ig-image alt="" hidden /><span data-ig-fallback>IG</span></span>
+              <span class="ig-placeholder-copy"><strong data-i18n="v2.igTitle"></strong><span data-i18n="v2.igPlaceholder"></span></span>
+              <span class="ig-placeholder-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="redemption-cta" href="https://www.instagram.com/p/DejRMWyFydj/?img_index=1" target="_blank" rel="noopener noreferrer" data-i18n="v2.igStoryButton"></a>
+          </div>
+        </div>
         <button class="button button-secondary button-wide redemption-restart" type="button" data-action="restart" data-i18n="redemption.restart"></button>
       </section>
     </main>
+
+    <canvas class="share-card-renderer" data-share-canvas width="1080" height="1920" hidden aria-hidden="true"></canvas>
 
     <footer class="site-footer"><span data-i18n="footer.brand"></span> <span data-i18n="footer.tagline"></span></footer>
     <script type="module" src="js/appV2.js"></script>

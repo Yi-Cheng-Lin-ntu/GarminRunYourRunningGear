@@ -54,22 +54,23 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.ok(existsSync(new URL("../assets/result/配速計算機.png", import.meta.url)));
   assert.match(html, /<section class="v2-recommendation"[\s\S]*?data-hydration-equipment/);
   assert.match(html, /class="runner-visual" data-runner-visual/);
+  assert.match(html, /class="result-hero-frame"/);
   assert.match(html, /data-runner-image[^>]*hidden/);
+  assert.match(html, /data-sustainability-result-mark/);
   assert.match(html, /class="runner-tags"[\s\S]*data-result-tag/);
+  assert.match(html, /data-share-canvas/);
+  assert.match(html, /data-share-preview/);
+  assert.match(html, /data-ig-placeholder/);
   assert.match(css, /\.hydration-equipment-image\s*\{[^}]*object-fit:\s*contain/s);
   assert.match(css, /\.runner-visual-image\s*\{[^}]*object-fit:\s*contain/s);
-  assert.match(css, /\.runner-visual-image\s*\{[^}]*border-radius:\s*var\(--radius-card\)/s);
-  assert.match(css, /\.screen-redemption\.is-sustainable::before,[\s\S]*?\.screen-redemption\.is-sustainable::after\s*\{[^}]*永續先鋒隊裝飾\.png/s);
-  assert.match(css, /\.screen-redemption\.is-sustainable::before/);
-  assert.match(css, /\.screen-redemption\.is-sustainable::after/);
-  assert.match(css, /\.screen-redemption\s*\{[^}]*border-radius:\s*var\(--radius-card\)/s);
-  assert.match(css, /\.screen-redemption\.is-sustainable\s*\{[^}]*overflow:\s*hidden/s);
-  assert.match(css, /--redemption-ribbon-aspect-ratio:\s*20\s*\/\s*1/);
-  assert.match(css, /\.screen-redemption\.is-sustainable::before,[\s\S]*?aspect-ratio:\s*var\(--redemption-ribbon-aspect-ratio\)/);
-  assert.match(css, /\.screen-redemption\.is-sustainable::before\s*\{[^}]*top:\s*var\(--redemption-ribbon-offset\)/s);
-  assert.match(css, /\.screen-redemption\.is-sustainable::after\s*\{[^}]*bottom:\s*var\(--redemption-ribbon-offset\)/s);
-  assert.match(css, /pointer-events:\s*none/);
-  assert.doesNotMatch(css, /\.screen-redemption\.is-non-sustainable::(?:before|after)/);
+  assert.match(css, /\.runner-visual-image\s*\{[^}]*border-radius:\s*4px/s);
+  assert.match(css, /\.screen-redemption\s*\{[^}]*background:\s*rgba\(8,11,13,\.72\);[^}]*color:\s*var\(--brand-white\)/s);
+  assert.match(css, /\.prize-card\s*\{[^}]*border:\s*1px solid rgba\(247,250,248,\.82\)/s);
+  assert.match(css, /\.prize-image::before\s*\{[^}]*background:\s*var\(--brand-green\)/s);
+  assert.match(html, /class="redemption-action-card result-download-card"[^>]*data-action="download-result"/);
+  assert.match(html, /class="redemption-cta"[^>]*data-action="download-result"/);
+  assert.match(html, /class="redemption-action-card ig-placeholder-card" href="https:\/\/www\.instagram\.com/);
+  assert.match(html, /class="redemption-cta" href="https:\/\/www\.instagram\.com/);
   const tuningVariables = [
     "result-title-size", "result-slogan-size", "result-title-slogan-gap", "result-visual-ratio",
     "result-section-gap", "result-tags-gap", "result-tag-font-size", "result-tag-padding",
@@ -81,9 +82,21 @@ test("hydration images and result layout are isolated from prize inventory and r
   for (const variable of tuningVariables) {
     assert.match(css, new RegExp(`var\\(--${variable}\\)`), `Unused tuning variable --${variable}`);
   }
+  for (const variable of ["redemption-prize-max-width", "redemption-prize-card-width", "redemption-prize-padding", "redemption-title-width", "redemption-title-height", "redemption-prize-image-height", "redemption-base-width", "redemption-base-height", "redemption-action-gap", "redemption-extras-max-width", "redemption-cta-height", "redemption-cta-radius"]) {
+    assert.match(css, new RegExp(`var\\(--${variable}\\)`), `Unused redemption tuning variable --${variable}`);
+  }
   assert.match(css, /\.runner-tags\s*\{[^}]*flex-wrap:\s*wrap/s);
-  assert.match(css, /\.hydration-recommendation-row\s*\{[^}]*grid-template-columns:[^;]*var\(--hydration-image-size\)/s);
+  assert.match(css, /\.result-identity\s*\{[^}]*width:\s*var\(--result-identity-width\)/s);
+  assert.match(css, /\.v2-result-heading\s*\{[^}]*margin-top:\s*calc\(0px - var\(--result-heading-frame-overlap\)\)/s);
+  assert.match(css, /\.v2-result-heading\s*\{[^}]*margin-bottom:\s*calc\(0px - var\(--result-heading-image-pull\)\)/s);
+  assert.match(css, /\.hydration-recommendation-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*34%\)/s);
   assert.match(css, /\.v2-recommendation\.is-pioneer \.hydration-recommendation-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
   assert.match(css, /\.runner-visual\s*\{[^}]*aspect-ratio:\s*var\(--result-visual-ratio\)/s);
-  assert.match(css, /\.runner-visual-image\s*\{[^}]*width:\s*100%;[^}]*height:\s*auto/s);
+  assert.match(css, /\.runner-visual-image\s*\{[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain/s);
+  assert.match(css, /--share-card-aspect-ratio:\s*9\s*\/\s*16/);
+  assert.match(css, /\.result-download-preview\s*\{[^}]*aspect-ratio:\s*var\(--share-card-aspect-ratio\)/s);
+  assert.match(html, /data-share-canvas width="1080" height="1920"/);
+  assert.match(readFileSync(new URL("../js/shareCard.js", import.meta.url), "utf8"), /CARD_WIDTH = 1080;[\s\S]*CARD_HEIGHT = 1920;/);
+  assert.match(css, /\.result-hero-frame\s*\{[^}]*border:\s*2px solid/s);
+  assert.match(css, /\.runner-tag\s*\{[^}]*background:\s*var\(--brand-green\)/s);
 });
