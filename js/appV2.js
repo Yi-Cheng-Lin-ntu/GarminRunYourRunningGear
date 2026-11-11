@@ -202,7 +202,7 @@ function renderResult() {
   else runnerImage.removeAttribute("src");
   document.querySelectorAll("[data-result-tag]").forEach((tag, index) => {
     const value = viewModel.tags[index] || "";
-    tag.textContent = value;
+    tag.textContent = value ? `# ${value}` : "";
     tag.hidden = !value;
     if (value) tag.removeAttribute("aria-hidden");
     else tag.setAttribute("aria-hidden", "true");

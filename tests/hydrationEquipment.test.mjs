@@ -7,6 +7,18 @@ import { parseContent } from "../js/contentData.js";
 const projectRoot = new URL("../", import.meta.url);
 const content = parseContent(readFileSync(new URL("../content.csv", import.meta.url), "utf8"));
 
+test("the homepage uses its hero artwork and localized campaign line", () => {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+
+  assert.match(html, /src="\.\/assets\/首頁圖片\.png"/);
+  assert.ok(existsSync(new URL("../assets/首頁圖片.png", import.meta.url)));
+  assert.match(html, /data-i18n="v2\.startManifestoRun"/);
+  assert.ok(content.ui["v2.startManifestoRun"]?.zh && content.ui["v2.startManifestoRun"]?.en);
+  assert.match(css, /\.start-visual img\s*\{[^}]*object-fit:\s*contain/s);
+  assert.match(css, /\.start-manifesto span:last-child\s*\{[^}]*color:\s*var\(--brand-green\)/s);
+});
+
 test("all nine stable recommendations map to their intended hydration images", () => {
   const expected = {
     "experience:precision": ["hydrationVest"],
@@ -52,6 +64,7 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.ok(existsSync(new URL("../assets/result/自在巡航員.png", import.meta.url)));
   assert.match(app, /performance:\s*"\.\/assets\/result\/配速計算機\.png"/);
   assert.ok(existsSync(new URL("../assets/result/配速計算機.png", import.meta.url)));
+  assert.match(app, /tag\.textContent = value \? `# \$\{value\}` : "";/);
   assert.match(html, /<section class="v2-recommendation"[\s\S]*?data-hydration-equipment/);
   assert.match(html, /class="runner-visual" data-runner-visual/);
   assert.match(html, /class="result-hero-frame"/);

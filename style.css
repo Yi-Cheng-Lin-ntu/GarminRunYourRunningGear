@@ -285,91 +285,95 @@ label {
   color: var(--brand-green);
 }
 
+.screen.screen-start:not([hidden]) {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto;
+  gap: clamp(12px, 2.4vw, 20px);
+  min-height: auto;
+  padding: 18px 0 32px;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.start-heading {
+  text-align: center;
+}
+
+.start-brand {
+  margin: 0;
+  color: var(--brand-green);
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 900;
+  letter-spacing: .04em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+#start-title {
+  max-width: none;
+  margin: 4px 0 0;
+  color: var(--brand-white);
+  font-size: clamp(1.75rem, 4.5vw, 2.625rem);
+  font-weight: 900;
+  letter-spacing: .06em;
+  line-height: 1.2;
+}
+
 .start-visual {
-  position: relative;
-  height: clamp(168px, 36vw, 220px);
-  margin: 0 0 var(--space-xl);
-  overflow: hidden;
-  border: 0;
-  border-top: 1px solid var(--color-line);
-  border-bottom: 1px solid var(--color-line);
-  border-radius: var(--radius-card);
-  background:
-    linear-gradient(120deg, transparent 68%, rgba(123,204,255,.12) 68%, rgba(123,204,255,.12) 69%, transparent 69%),
-    var(--color-bg-soft);
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1915 / 821;
+  max-height: 300px;
+  margin: 0;
+  overflow: visible;
 }
 
-.start-visual::before {
-  position: absolute;
-  right: -48px;
-  bottom: -70px;
-  width: 210px;
-  height: 210px;
-  border: 1px solid var(--color-blue-mid);
-  border-radius: 50%;
-  content: "";
+.start-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
-.start-visual::after {
-  position: absolute;
-  left: -35%;
-  top: 58%;
-  width: 170%;
-  height: 1px;
-  background: var(--color-blue-mid);
-  content: "";
-  transform: rotate(-18deg);
-}
-
-.visual-ring {
-  position: absolute;
-  border-radius: 50%;
-}
-
-.visual-ring-back {
-  top: 24px;
-  right: 28px;
-  width: 64px;
-  height: 64px;
-  border: 6px solid var(--color-blue);
-}
-
-.visual-ring-front {
-  left: 38px;
-  bottom: 32px;
-  width: 64px;
-  height: 64px;
-  border: 1px solid var(--color-blue-mid);
-}
-
-.visual-mark {
-  position: absolute;
-  z-index: 2;
-  left: 20px;
-  top: 50%;
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  font-size: clamp(4.5rem, 16vw, 6rem);
-  font-style: normal;
-  font-weight: 700;
-  letter-spacing: -.02em;
+.start-manifesto {
+  justify-self: start;
+  margin: 0;
+  color: var(--brand-white);
+  font-size: clamp(1.25rem, 3.8vw, 2.25rem);
+  font-weight: 900;
+  letter-spacing: .04em;
   line-height: 1;
-  transform: translateY(-50%);
-  transform-origin: left center;
+  text-align: left;
+  text-transform: uppercase;
 }
 
-.visual-kicker {
-  position: absolute;
-  z-index: 3;
-  right: 20px;
-  bottom: 18px;
-  padding: 7px 9px;
-  background: var(--brand-blue);
-  color: var(--color-bg);
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .12em;
-  line-height: 1.35;
+.start-manifesto span {
+  display: block;
+}
+
+.start-manifesto span:last-child {
+  color: var(--brand-green);
+}
+
+.screen-start > [data-action="start"] {
+  width: min(100%, 460px);
+  min-height: 60px;
+  justify-self: center;
+  border-radius: 10px;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 900;
+}
+
+.screen-start .lead {
+  max-width: none;
+  margin: 0;
+  color: var(--brand-white);
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  font-weight: 800;
+  letter-spacing: .02em;
+  line-height: 1.45;
 }
 
 .screen:not(.screen-redemption) .button-secondary {
@@ -703,7 +707,7 @@ label {
   --result-title-size: clamp(2rem, 8vw, 3.25rem);
   --result-slogan-size: clamp(1.125rem, 4.6vw, 1.5rem);
   --result-title-slogan-gap: 8px;
-  --result-identity-width: 96%;
+  --result-identity-width: 100%;
   --result-heading-frame-overlap: 36px;
   --result-heading-image-pull: 7px;
   --result-frame-top-rule-offset: clamp(23px, calc(12.47vw - 26.5px), 45px);
@@ -717,6 +721,9 @@ label {
   --recommendation-padding: 30px 20px 22px;
   --recommendation-heading-size: 21px;
   --recommendation-copy-size: 18px;
+  --sustainability-mark-size: 120px;
+  --sustainability-mark-offset: -12px;
+  --sustainability-mark-rotation: 30deg;
   --hydration-image-size: clamp(150px, 48vw, 240px);
   --hydration-image-gap: 8px;
   --hydration-content-gap: 18px;
@@ -783,8 +790,7 @@ label {
 .result-hero-frame {
   position: relative;
   padding: 12px var(--result-frame-inline-padding) var(--result-frame-bottom-padding);
-  border: 2px solid rgba(247,250,248,.88);
-  border-top-color: transparent;
+  border: 2px solid transparent;
   border-radius: 10px;
   background: rgba(8,11,13,.22);
 }
@@ -796,6 +802,16 @@ label {
   right: 0;
   left: 0;
   border-top: 2px solid rgba(247,250,248,.88);
+  pointer-events: none;
+}
+
+.result-hero-frame::after {
+  content: "";
+  position: absolute;
+  inset: var(--result-frame-top-rule-offset) 0 0;
+  border: 2px solid rgba(247,250,248,.88);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
   pointer-events: none;
 }
 
@@ -951,21 +967,20 @@ label {
 .v2-recommendation.is-pioneer .hydration-recommendation-row {
   grid-template-columns: minmax(0, 1fr);
   min-height: var(--hydration-image-size);
-  padding-right: 90px;
+  padding-right: calc(var(--sustainability-mark-size) - 10px);
 }
 
 .sustainability-result-mark {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
-  z-index: 1;
+  right: var(--sustainability-mark-offset);
+  bottom: var(--sustainability-mark-offset);
+  z-index: 2;
   display: block;
-  width: 92px;
-  height: 92px;
-  max-width: 24%;
-  max-height: 24%;
+  width: var(--sustainability-mark-size);
+  height: var(--sustainability-mark-size);
   border-radius: 50%;
   box-shadow: 0 3px 12px rgba(0,0,0,.32);
+  transform: rotate(var(--sustainability-mark-rotation));
   object-fit: contain;
 }
 
@@ -1773,7 +1788,7 @@ html:lang(en) .eyebrow {
   }
 
   #result {
-    --result-identity-width: 96%;
+    --result-identity-width: 100%;
     --result-heading-frame-overlap: 48px;
     --result-heading-image-pull: 12px;
     --result-frame-top-rule-offset: clamp(43px, calc(3.05vw + 13.7px), 53px);

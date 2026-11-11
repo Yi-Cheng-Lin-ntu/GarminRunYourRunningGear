@@ -50,15 +50,20 @@
 
     <main class="app-shell">
       <section class="screen screen-start is-active" id="start" aria-labelledby="start-title">
-        <div class="start-visual" aria-hidden="true">
-          <div class="visual-ring visual-ring-back"></div>
-          <div class="visual-ring visual-ring-front"></div>
-          <span class="visual-mark" data-i18n="v2.visualMark"></span>
-          <span class="visual-kicker"><span data-i18n="v2.visualKickerTop"></span><br /><span data-i18n="v2.visualKickerBottom"></span></span>
+        <div class="start-heading">
+          <p class="start-brand" aria-label="Garmin Run"><span data-i18n="brand.garmin"></span> <span data-i18n="brand.run"></span></p>
+          <h1 id="start-title" data-i18n="v2.startTitle"></h1>
         </div>
-        <h1 id="start-title" data-i18n="v2.startTitle"></h1>
-        <p class="lead" data-i18n="v2.startDescription"></p>
+        <div class="start-visual" aria-hidden="true">
+          <img src="./assets/首頁圖片.png" alt="" fetchpriority="high" />
+        </div>
+        <p class="start-manifesto" aria-label="You Run. You Choose. We Change.">
+          <span data-i18n="v2.startManifestoRun"></span>
+          <span data-i18n="v2.startManifestoChoose"></span>
+          <span data-i18n="v2.startManifestoChange"></span>
+        </p>
         <button class="button button-primary button-wide" type="button" data-action="start" data-i18n="v2.startButton" disabled></button>
+        <p class="lead" data-i18n="v2.startDescription"></p>
       </section>
 
       <section class="screen screen-quiz" id="quiz" aria-labelledby="question-title" hidden>
