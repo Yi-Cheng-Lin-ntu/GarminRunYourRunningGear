@@ -6,7 +6,7 @@ const base = process.env.UI_BASE_URL || "http://127.0.0.1:8020";
 const output = process.env.UI_OUTPUT_DIR || "/tmp/garmin-v2-results";
 const types = ["experience", "lifestyle", "performance"];
 const styles = ["precision", "rest", "pioneer"];
-const titles = { experience: "志在參加臘腸", lifestyle: "我就是來看看柴犬", performance: "突破PB飆速杜賓" };
+const titles = { experience: "賽事收藏家", lifestyle: "自在巡航員", performance: "配速計算機" };
 
 async function main() {
   const server = process.env.UI_SERVE === "1" ? await require("./helpers/staticServer.cjs").startStaticServer(base) : null;
@@ -198,15 +198,6 @@ async function main() {
       console.log(`PASS V2 Demo fixture ${version}`);
       await context.close();
     }
-    // Archive remains runnable; no /cute/ source files are modified.
-    const context = await browser.newContext();
-    await context.route("**/*", (route) => new URL(route.request().url()).origin === base ? route.continue() : route.abort());
-    const page = await context.newPage();
-    await page.goto(`${base}/cute/`); await page.locator("[data-action=start]").click();
-    for (let i = 1; i <= 5; i++) { await page.locator(`label[for=q${i}_experience]`).click(); await page.locator("[data-action=next]").click(); }
-    assert.match(await page.locator("[data-result-title]").innerText(), /我就是來看看柴犬/);
-    reports.push({ archiveCute: true, passed: true });
-    await context.close();
     fs.writeFileSync(`${output}/results.json`, JSON.stringify(reports, null, 2));
   } finally { await browser.close(); if (server) await new Promise((resolve) => server.close(resolve)); }
 }

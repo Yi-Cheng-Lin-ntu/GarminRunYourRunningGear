@@ -1,12 +1,12 @@
 # Garmin Run 2026 — Main V2 Design System
 
-以提供的文字規格製作；未取得 PDF，沒有依據不存在的附件推測版面。歷史 Urban 規格保留在 `archive/v1/DESIGN_SYSTEM.md`；`cute/` 是未修改的 V1 參考。
+以提供的文字規格製作；未取得 PDF，沒有依據不存在的附件推測版面。歷史 Urban 規格保留在 `archive/v1/DESIGN_SYSTEM.md`；Cute 原型已封存於 `_archive/cute-prototype/`，不屬於目前主站。
 
 ## 定位與七色
 
 主網站維持深黑、冰藍、螢光綠的 Garmin Run 品牌語言，以使用者提供的狗狗 PNG 為中心。結果圖直接融入深色頁面，不使用白色外框卡片；保留低對比道路紋理，裝飾不與圖片及文字競爭。系統 Sans-serif、直立字體，不額外下載字型。
 
-主網站只載入 `style.css`。Cute 使用自己的 `cute/base.css` 與 `cute/cute.css`，不載入主站樣式。主站目前的品牌色以 `style.css` 的 tokens 為準：
+主網站只載入 `style.css`。目前入口沒有 Cute 樣式或 UI variant 載入。主站目前的品牌色以 `style.css` 的 tokens 為準：
 
 | Token | HEX | 用途 |
 |---|---|---|
@@ -40,11 +40,7 @@
 
 `runner-scene` 使用兩欄三列 Grid 保留圖片完整通道，四個tag分散在上下四角：左右垂直錯位、依內容決定寬度，僅有少量角度變化，避免形成按鈕列。tag不跨入圖片row；空字串保留較短的裝飾色塊並設aria-hidden=true，無button角色。
 
-三張 PNG 使用原檔名、透明度與比例：
-
-- `assets/result/志在參加臘腸.png`：334×163、RGBA，43,080 bytes。
-- `assets/result/我就是來看看柴犬.png`：156×342、RGBA，64,579 bytes。
-- `assets/result/突破PB飆速杜賓.png`：156×297、RGBA，30,869 bytes。
+結果名稱由 `content.csv` 提供，三種 ID 的中文名稱目前已是新版名稱。**目前工作區缺少新版狗狗 PNG**：`assets/result/` 實際只包含 `賽事收藏家.png`、`自在巡航員.png`、`配速計算機.png`，主站仍用 `js/appV2.js` 的 `RESULT_ILLUSTRATIONS` 顯示這三張舊圖。CSV 中狗狗檔名與檢查點文件記錄的 SHA-256，無法在目前工作區找到對應檔案；恢復原圖前不應宣稱狗狗圖片已正確呈現。
 
 中央row手機220px、桌機260px，圖片width/height100%、object-fit:contain；臘腸橫幅與直立犬共用相同slot，不以逐圖座標調整。長英文標籤自然換行，拉高自己的row，不侵入中央圖片。結果頁主要尺寸與標籤位置由 `style.css` 的 `RESULT PAGE — QUICK TUNING` variables 控制，完整對照見 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
 

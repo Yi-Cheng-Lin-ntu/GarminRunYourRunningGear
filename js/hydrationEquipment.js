@@ -1,15 +1,15 @@
 const equipmentCatalog = Object.freeze({
   hydrationVest: Object.freeze({
     src: "./assets/waterequip/Garmin水袋背心.png",
-    alt: { zh: "Garmin 水袋背心", en: "Garmin hydration vest" }
+    altKey: "equipment.hydrationVest"
   }),
   softFlask: Object.freeze({
     src: "./assets/waterequip/Garmin軟水壺.png",
-    alt: { zh: "Garmin 軟水壺", en: "Garmin soft flask" }
+    altKey: "equipment.softFlask"
   }),
   softCup: Object.freeze({
     src: "./assets/waterequip/Garmin軟水杯.png",
-    alt: { zh: "Garmin 軟水杯", en: "Garmin soft cup" }
+    altKey: "equipment.softCup"
   })
 });
 

@@ -30,7 +30,7 @@ test("all nine stable recommendations map to their intended hydration images", (
     for (const item of equipment) {
       assert.ok(item.src.startsWith("./assets/waterequip/"));
       assert.ok(existsSync(new URL(item.src, projectRoot)), `Missing equipment image ${item.src}`);
-      assert.ok(item.alt.zh && item.alt.en);
+      assert.ok(content.ui[item.altKey]?.zh && content.ui[item.altKey]?.en);
     }
     if (hydrationStyle === "pioneer") assert.deepEqual(equipment, []);
   }

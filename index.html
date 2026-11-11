@@ -3,47 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Garmin Run 跑者風格與補水方式互動測驗" />
-    <title>Garmin Run | 跑者風格測驗</title>
+    <meta name="description" content="" data-i18n-content="meta.description" />
+    <title data-i18n="meta.title"></title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="#start" data-action="home" aria-label="Garmin Run home">GARMIN <span>RUN</span></a>
+      <a class="brand" href="#start" data-action="home" data-i18n-aria="brand.home"><span data-i18n="brand.garmin"></span> <span data-i18n="brand.run"></span></a>
       <div class="header-actions">
-        <span class="mock-mode-badge">MOCK MODE</span>
-        <button class="mock-tools-button" type="button" data-action="mock-tools">測試工具</button>
-        <button class="language-toggle" type="button" data-action="toggle-language" aria-label="Switch language">
-          <span data-language-label>EN</span>
+        <span class="mock-mode-badge" data-i18n="v2.mockBadge"></span>
+        <button class="mock-tools-button" type="button" data-action="mock-tools" data-i18n="v2.mockTools"></button>
+        <button class="language-toggle" type="button" data-action="toggle-language" data-i18n-aria="language.toggle">
+          <span data-language-label></span>
         </button>
       </div>
     </header>
 
-    <aside class="mock-tools-panel" data-mock-panel hidden aria-label="Mock Mode 測試工具">
+    <aside class="mock-tools-panel" data-mock-panel hidden data-i18n-aria="v2.mockPanelLabel">
       <div class="mock-tools-header">
         <div>
-          <p class="eyebrow">MOCK TEST ENVIRONMENT</p>
-          <h2>活動驗收工具</h2>
+          <p class="eyebrow" data-i18n="v2.mockEyebrow"></p>
+          <h2 data-i18n="v2.mockTitle"></h2>
         </div>
-        <button class="text-button" type="button" data-action="close-mock-tools">關閉</button>
+        <button class="text-button" type="button" data-action="close-mock-tools" data-i18n="v2.close"></button>
       </div>
-      <p class="mock-tools-note">僅使用瀏覽器本機測試資料，不會連接或修改 Google Sheets。</p>
+      <p class="mock-tools-note" data-i18n="v2.mockNote"></p>
       <div class="mock-scenarios">
-        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_available">購物袋有庫存</button>
-        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_empty">購物袋耗盡</button>
-        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="general_empty">一般獎品耗盡</button>
-        <button class="button button-secondary" type="button" data-action="mock-reset">重置初始庫存</button>
-        <button class="button button-secondary" type="button" data-action="mock-clear">清除測試資料</button>
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_available" data-i18n="v2.mockPremiumAvailable"></button>
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="premium_empty" data-i18n="v2.mockPremiumEmpty"></button>
+        <button class="button button-secondary" type="button" data-action="mock-scenario" data-scenario="general_empty" data-i18n="v2.mockGeneralEmpty"></button>
+        <button class="button button-secondary" type="button" data-action="mock-reset" data-i18n="v2.mockReset"></button>
+        <button class="button button-secondary" type="button" data-action="mock-clear" data-i18n="v2.mockClear"></button>
       </div>
       <div class="mock-stock-editor" data-mock-stock-editor></div>
       <div class="mock-snapshot">
-        <h3>Prizes</h3>
+        <h3 data-i18n="v2.mockPrizes"></h3>
         <div data-mock-prizes></div>
-        <h3>Participants</h3>
+        <h3 data-i18n="v2.mockParticipants"></h3>
         <div data-mock-participants></div>
-        <h3>Allocations</h3>
+        <h3 data-i18n="v2.mockAllocations"></h3>
         <div data-mock-allocations></div>
-        <h3>Inventory Log</h3>
+        <h3 data-i18n="v2.mockInventoryLog"></h3>
         <div data-mock-inventory-log></div>
       </div>
     </aside>
@@ -53,41 +53,41 @@
         <div class="start-visual" aria-hidden="true">
           <div class="visual-ring visual-ring-back"></div>
           <div class="visual-ring visual-ring-front"></div>
-          <span class="visual-mark">RUN</span>
-          <span class="visual-kicker">YOUR<br />PACE</span>
+          <span class="visual-mark" data-i18n="v2.visualMark"></span>
+          <span class="visual-kicker"><span data-i18n="v2.visualKickerTop"></span><br /><span data-i18n="v2.visualKickerBottom"></span></span>
         </div>
-        <h1 id="start-title" data-i18n="v2.startTitle">找到你的跑者節奏</h1>
-        <p class="lead" data-i18n="v2.startDescription">重溫Garmin Run找到你的跑者風格！</p>
-        <button class="button button-primary button-wide" type="button" data-action="start" data-i18n="v2.startButton" disabled>開始測驗</button>
+        <h1 id="start-title" data-i18n="v2.startTitle"></h1>
+        <p class="lead" data-i18n="v2.startDescription"></p>
+        <button class="button button-primary button-wide" type="button" data-action="start" data-i18n="v2.startButton" disabled></button>
       </section>
 
       <section class="screen screen-quiz" id="quiz" aria-labelledby="question-title" hidden>
         <div class="quiz-topline">
-          <button class="text-button" type="button" data-action="back" data-i18n="navigation.back">返回</button>
+          <button class="text-button" type="button" data-action="back" data-i18n="navigation.back"></button>
         </div>
-        <div class="progress-track" aria-label="Question progress" data-progress-track>
+        <div class="progress-track" data-i18n-aria="quiz.progress" data-progress-track>
           <span></span><span></span><span></span><span></span><span></span>
         </div>
         <div class="question-intro">
           <div class="question-number-wrap">
-            <span class="question-number" data-question-number>01</span><span class="question-total">/ 05</span>
+            <span class="question-number" data-question-number></span><span class="question-total" data-i18n="quiz.total"></span>
           </div>
           <p class="question-subtitle" data-question-subtitle></p>
           <h2 id="question-title" data-question-prompt></h2>
         </div>
         <form class="options-list" data-options-list></form>
         <div class="quiz-actions">
-          <button class="button button-primary button-wide" type="button" data-action="next" data-i18n="navigation.next" disabled>下一題</button>
+          <button class="button button-primary button-wide" type="button" data-action="next" data-i18n="navigation.next" disabled></button>
         </div>
       </section>
 
       <section class="screen screen-result" id="result" aria-labelledby="result-title" hidden>
         <header class="v2-result-heading">
-          <p class="eyebrow" data-i18n="v2.youAre">你是！</p>
+          <p class="eyebrow" data-i18n="v2.youAre"></p>
           <h2 id="result-title" data-result-title></h2>
           <p class="v2-slogan" data-result-slogan></p>
         </header>
-        <div class="runner-visual" data-runner-visual aria-hidden="true">
+        <div class="runner-visual" data-runner-visual>
           <img class="runner-visual-image" data-runner-image alt="" hidden />
         </div>
         <div class="runner-tags" data-runner-tags>
@@ -97,9 +97,9 @@
           <div class="runner-tag tag-4" data-result-tag="3"></div>
         </div>
         <section class="v2-recommendation" aria-labelledby="recommendation-title" data-recommendation-section>
-          <p id="recommendation-title" class="section-label" data-i18n="v2.recommendation">下一場，可以試試……</p>
+          <p id="recommendation-title" class="section-label" data-i18n="v2.recommendation"></p>
           <div class="hydration-recommendation-row">
-            <div class="hydration-equipment" data-hydration-equipment role="group" aria-label="補水裝備圖片" hidden></div>
+            <div class="hydration-equipment" data-hydration-equipment role="group" data-i18n-aria="v2.equipmentImages" hidden></div>
             <div class="hydration-copy">
               <h3 data-recommendation-heading></h3>
               <p data-recommendation-description></p>
@@ -108,58 +108,59 @@
         </section>
         <section class="v2-invitation" aria-labelledby="invitation-title">
           <div data-existing-hydration hidden>
-            <h3 data-i18n="v2.pioneerThanks">謝謝你已經開始自帶補水！</h3>
+            <h3 data-i18n="v2.pioneerThanks"></h3>
           </div>
           <fieldset data-hydration-options>
-            <legend id="invitation-title" data-i18n="v2.invitation">邀請你一起與我們自帶補水裝備</legend>
-            <p data-i18n="v2.invitationNote">承諾下一場嘗試自帶補水裝備，並非正式跑團會員登記。</p>
+            <legend id="invitation-title" data-i18n="v2.invitation"></legend>
+            <p data-i18n="v2.invitationNote"></p>
             <div class="hydration-choices">
-              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice /><span><strong data-i18n="v2.joined">加入永續先鋒隊</strong></span></label>
-              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice /><span><strong data-i18n="v2.considering">我會好好考慮的！</strong></span></label>
+              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice /><span><strong data-i18n="v2.joined"></strong></span></label>
+              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice /><span><strong data-i18n="v2.considering"></strong></span></label>
             </div>
           </fieldset>
           <p class="form-error" data-result-error role="alert" hidden></p>
-          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue">繼續領獎</button>
+          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue"></button>
         </section>
-        <button class="button button-secondary button-wide v2-retry" type="button" data-action="retry" data-i18n="v2.retry">重新測驗</button>
+        <button class="button button-secondary button-wide v2-retry" type="button" data-action="retry" data-i18n="v2.retry"></button>
       </section>
 
       <section class="screen screen-participation" id="participation" aria-labelledby="contact-title" hidden>
         <header class="participation-header">
-          <p class="demo-badge" data-mode-notice data-i18n="v2.mode">MOCK MODE｜請勿填寫真實個資</p>
-          <h2 id="contact-title" data-i18n="v2.contactTitle">填寫聯絡資訊，繼續領獎</h2>
+          <p class="demo-badge" data-mode-notice data-i18n="v2.mode"></p>
+          <h2 id="contact-title" data-i18n="v2.contactTitle"></h2>
         </header>
         <form class="participation-form" data-participation-form novalidate>
           <div class="v2-contact-fields">
-            <label><span data-i18n="v2.name">姓名（必填）</span><input type="text" maxlength="80" autocomplete="off" name="name" data-name required /></label>
-            <label><span data-i18n="v2.email">Email（必填）</span><input type="email" maxlength="254" autocomplete="off" name="email" data-email required /></label>
+            <label><span data-i18n="v2.name"></span><input type="text" maxlength="80" autocomplete="off" name="name" data-name required /></label>
+            <label><span data-i18n="v2.email"></span><input type="email" maxlength="254" autocomplete="off" name="email" data-email required /></label>
           </div>
           <div class="privacy-copy" id="privacy-copy" data-i18n="v2.privacy"></div>
           <label class="toggle-row"><input type="checkbox" data-privacy-check aria-describedby="privacy-copy" required /><span data-i18n="v2.privacyConfirm"></span></label>
           <p class="form-error" data-form-error role="alert" hidden></p>
-          <button class="button button-primary button-wide" type="submit" data-submit data-i18n="participation.submit">確認並領取現場獎品</button>
-          <button class="text-button" type="button" data-action="back-result" data-i18n="v2.backResult">返回結果</button>
+          <button class="button button-primary button-wide" type="submit" data-submit data-i18n="v2.submit"></button>
+          <button class="text-button" type="button" data-action="back-result" data-i18n="v2.backResult"></button>
         </form>
       </section>
 
       <section class="screen screen-redemption" id="redemption" aria-labelledby="redemption-title" hidden>
         <div class="redemption-banner">
-          <p class="eyebrow" data-i18n="redemption.eyebrow">現場兌換</p>
+          <p class="eyebrow" data-i18n="redemption.eyebrow"></p>
           <p class="runner-type" data-redemption-runner></p>
-          <h2 id="redemption-title" data-redemption-title>請至攤位領取Garmin周邊</h2>
+          <h2 id="redemption-title" data-redemption-title data-i18n="v2.redemptionTitle"></h2>
         </div>
         <div class="prize-card">
           <div class="prize-image" data-prize-image>
-            <span data-i18n="redemption.placeholder">獎品圖片尚未提供</span>
+            <span data-i18n="redemption.placeholder"></span>
           </div>
           <p class="prize-name" data-prize-name></p>
         </div>
         <p class="sustainability-message" data-sustainability-message hidden></p>
-        <button class="button button-secondary button-wide redemption-restart" type="button" data-action="restart" data-i18n="redemption.restart">再測一次</button>
+        <p class="redemption-instruction" data-i18n="v2.redemptionInstruction"></p>
+        <button class="button button-secondary button-wide redemption-restart" type="button" data-action="restart" data-i18n="redemption.restart"></button>
       </section>
     </main>
 
-    <footer class="site-footer">GARMIN RUN <span>MOVE WITH PURPOSE</span></footer>
+    <footer class="site-footer"><span data-i18n="footer.brand"></span> <span data-i18n="footer.tagline"></span></footer>
     <script type="module" src="js/appV2.js"></script>
   </body>
 </html>

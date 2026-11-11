@@ -1,6 +1,6 @@
 # Garmin Run｜UI 人工微調指南
 
-主網站入口是 `index.html`，互動由 `js/appV2.js` 控制，樣式集中在 `style.css`，可見文案主要由 `content.csv` 管理。`cute/` 是獨立參考版本，不要用它的 CSS 調整主網站。
+主網站入口是 `index.html`，互動由 `js/appV2.js` 控制，樣式集中在 `style.css`。主站供跑者閱讀的中英文文案集中在 `content.csv`；依畫面 key 編輯 `type=ui` 的 `id` 與 `zh`／`en` 欄位。Cute 原型已封存於 `_archive/cute-prototype/`，不會由主網站載入。
 
 ## A. CSS 微調
 
@@ -42,21 +42,24 @@
 | 三種跑者名稱 | `type=result`，`id=experience`、`lifestyle`、`performance`；名稱在 `zh`、`en` |
 | 三種 Slogan | 同一個 `result` row 的 `slogan_zh`、`slogan_en` |
 | 四個固定標籤 | 同一個 `result` row 的 `tag1_zh/en`～`tag4_zh/en`；空白欄位請保持空白 |
+| 領獎頁跑者名稱、標題與領取說明 | `type=ui`：`v2.redemptionRunnerPrefix`、`v2.redemptionTitle`、`v2.redemptionInstruction`；獎品名稱用 `prize.<prizeId>` |
 | 九種補水推薦標題 | `type=recommendation`；用 `parent_id`（跑者 ID）及 `hydration_style`（`precision`／`rest`／`pioneer`）定位；標題在 `zh`、`en` |
 | 九種補水推薦內文 | 同一 row 的 `description_zh`、`description_en` |
 | 永續邀請與選項 | `type=ui`：`v2.invitation`、`v2.invitationNote`、`v2.joined`、`v2.considering`、`v2.pioneerThanks` |
-| 聯絡頁標題、告知及按鈕 | `type=ui`：`v2.contactTitle`、`v2.contactIntro`、`v2.privacy`、`v2.privacyConfirm`、`participation.submit` |
+| 聯絡頁標題、告知及按鈕 | `type=ui`：`v2.contactTitle`、`v2.privacy`、`v2.privacyConfirm`、`v2.submit` |
 | 錯誤提示 | `type=ui`：`v2.chooseError`、`v2.nameError`、`v2.emailError`、`v2.privacyError`、`v2.demoEmailError`、`v2.submitError`、`v2.backendOld` |
 | 一般流程按鈕 | `type=ui`：`navigation.back`、`navigation.next`、`quiz.seeResult`、`v2.continue`、`v2.retry` |
+| 主站其他固定文案與無障礙標籤 | `type=ui`：`meta.*`、`brand.*`、`footer.*`、`language.*`、`quiz.*`、`v2.mock*`、`v2.redemption*` |
+| 獎品名稱與裝備圖片替代文字 | `type=ui`：`prize.<prizeId>`、`equipment.*` |
 
 ### 不在 CSV 的文字或資料
 
-- HTML 的 `<title>`、meta description、按鈕與區塊結構、預設文案：`index.html`。正常載入後，帶有 `data-i18n` 的文字會由 CSV 的同 ID 覆蓋。
-- 獎品暫停訊息由 Mock 或 Apps Script 回傳；獎品名稱及圖片路徑由 `js/apiClient.js` 的 Mock catalog 或 Apps Script 獎品資料提供。
-- 領獎畫面的部分動態文字與圖片載入失敗備援在共用的 `js/redemptionView.js`。
-- 補水裝備圖檔案、雙語替代文字與九組對應在 `js/hydrationEquipment.js`；這是推薦展示圖，不是現場獎品或庫存。
-- 載入 CSV 失敗時的提示、題數格式及測試工具中的庫存按鈕文案在 `js/appV2.js`。
-- `content.csv` 中的 V1 `ui` 文案不一定由 V2 使用；修改前先確認 ID 是否由 `index.html` 的 `data-i18n` 或 `js/appV2.js` 引用。
+- HTML 結構、互動屬性與 CSV key 在 `index.html`；一般文字與無障礙標籤由 `js/appV2.js` 依 key 從 CSV 填入。
+- 題號、庫存數字、選項字母及內部錯誤代碼由程式產生，屬於狀態或機制資料，不是可編輯文案。
+- CSV 本身無法載入時的緊急錯誤備援留在 `js/appV2.js`，因為此時無法再讀取 CSV。
+- 圖檔路徑與九組補水裝備對應仍是程式設定；補水裝備替代文字則由 `content.csv` 的 `equipment.*` 提供。
+- `js/apiClient.js` 保留 API／Mock 相容用的獎品名稱欄位；主站領獎頁和 Mock 工具顯示名稱以 `content.csv` 的 `prize.*` 為準。
+- Cute 封存版的歷史文案位於 `_archive/cute-prototype/` 與 `archive/v1/content.csv`，不影響主站目前顯示名稱。
 
 ## C. Chrome DevTools 快速步驟
 

@@ -6,6 +6,8 @@
 - 未提交、push 或部署本次 V2；檢查點是基準 commit 與以下來源檔雜湊紀錄。
 - 本機另保存基準已追蹤檔 `/tmp/garmin-v2/checkpoint-tracked.tar` 與三張原始 PNG `/tmp/garmin-v2/checkpoint/assets/result/`；暫存備份不隨 Git 分享。
 
+> 2026-11-11 盤點：目前 Codespace 的 `/tmp/garmin-v2/` 備份路徑不存在，工作區也沒有下列狗狗 PNG。表格保留的是先前檢查點紀錄，不能視為目前檔案存在的證明。
+
 | PNG | SHA-256 |
 |---|---|
 | 志在參加臘腸.png | `e9332b750bec6d7d554a5d79cc70404044daf8686280e91825ab8b44a05e8b97` |

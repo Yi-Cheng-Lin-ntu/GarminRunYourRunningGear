@@ -6,7 +6,7 @@
 
 `/` → `js/appV2.js` → Quiz → Result + Sustainability invitation → Contact → Redemption。
 
-`/cute/` → `cute/preview.js` → `js/app.js`（V1 controller）→ `archive/v1/content.csv`／`legacyClassificationRules.js`。
+目前只有主網站 V2 入口。舊 Cute 原型不再提供 `/cute/` 路徑，已移至 `_archive/cute-prototype/`；V1 資料與 controller 不會由目前頁面載入。
 
 視覺入口與 API Mode 獨立。共用 API client 的 `?mode=apps-script-demo` 仍指向既有 Demo Web App；未傳則 Mock。V2 提交前查公開狀態的 `quizVersion`，不相容則阻擋。沒有新增 Production 模式或公開部署設定。
 
@@ -17,6 +17,7 @@
 | `index.html` | 主網站 V2 DOM，結果頁邀請與獨立聯絡頁 |
 | `style.css` | 主網站唯一樣式表；含元件、結果頁、補水邀請、領獎與響應式樣式 |
 | `js/appV2.js` | V2 狀態、問題 rendering、結果／邀請、必填聯絡、同 request 重試、回首頁 |
+| `js/projectAssets.js` | 依專案根目錄解析圖片 URL；不含任何視覺版本設定 |
 | `js/contentData.js` | CSV parser／雙語資料映射；V2 強制五題三選、九推薦、獨立標籤欄 |
 | `content.csv` | V2 唯一執行期內容來源 |
 | `js/hydrationEquipment.js` | 依 `runnerType:hydrationStyle` 映射補水裝備展示圖片；不使用獎品庫存 ID |
@@ -27,11 +28,10 @@
 | `js/apiClient.js` | 前端 Mock／Apps Script Demo API adapter；Apps Script 後端程式獨立於此模組 |
 | `js/sessionRecovery.js` | 原 recovery／pending keys；新流程不恢復舊領獎頁 |
 | `js/redemptionView.js` | 從舊 app 抽出的同一套領獎 rendering，兩版共用，分配由後端決定 |
-| `js/uiVariant.js` | 歷史 Cute 顯示設定與 `resolveProjectAsset()`，V2 僅使用資產解析 |
-| `js/app.js`、`legacyClassificationRules.js` | Cute／V1 參考 controller 與分類規則，讀取 `archive/v1/content.csv` |
-| `cute/` | 使用 `cute/base.css`、`cute/cute.css` 與 `cute/preview.js`；不載入主站 `style.css` |
+| `_archive/cute-prototype/` | 封存的 Cute HTML／CSS／概念圖、舊 controller 與對應測試；不屬於目前網站入口 |
+| `_archive/legacy-v1/` | 舊版分類模組與 JS 內容資料；主站不載入 |
 | `archive/v1/` | V1 CSV 與歷史 README／Map／Design System |
-| `assets/result/` | 使用者提供的三張 PNG；未生成、下載、替換或重新編碼 |
+| `assets/result/` | 工作區現有檔案仍為 `賽事收藏家.png`、`自在巡航員.png`、`配速計算機.png`；`appV2.js` 暫以 runner ID 對應這三張舊圖。新版狗狗 PNG（CSV 所列新檔名）目前不在工作區，不能宣稱結果已呈現狗狗圖 |
 | `assets/waterequip/` | 三張補水裝備 PNG；由 `js/hydrationEquipment.js` 映射至結果推薦區 |
 | `UI_TUNING_GUIDE.md` | CSS 變數、CSV 文案欄位與 DevTools 操作指引 |
 | `apps-script/*.gs` | 下述 V2 後端與既有分配／管理 |
@@ -82,6 +82,6 @@ Participants／DemoParticipants 既有18欄不移動，追加：第19欄 quizVer
 
 `node --test tests/*.test.mjs`：原 Mock／資格 + V2 exhaustive分類、文案、PNG、九推薦、聯絡與確認、Demo reserved email、Production草稿、記憶體後端分配與append-only migration。
 
-`tests/v2UiRegression.cjs`：五尺寸主流程、雙語、圖片／標籤不重疊、空白格、必填／邀請 gating、Mock獎品與paused、刷新／重測、Pages子路徑、舊後端阻擋與V2 Demo fixture、Cute參考smoke。
+`tests/v2UiRegression.cjs`：五尺寸主流程、雙語、圖片／標籤不重疊、空白格、必填／邀請 gating、Mock獎品與paused、刷新／重測、Pages子路徑、舊後端阻擋與V2 Demo fixture。V1／Cute 測試已封存，不作目前入口驗證。
 
 本輪不做真實遠端寫入、高並發、故障注入或 processing 部分寫入恢復；不變更部署、庫存或真實個資。姓名／Email不寫URL、一般console、公開文件或截圖。測試只在隔離瀏覽器contexts與記憶體Sheet操作。

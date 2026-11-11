@@ -1,4 +1,4 @@
-> 本文件保留 2026-11-09 的 V2 實作與驗收摘要。現行入口與模組以 [PROJECT_MAP.md](PROJECT_MAP.md) 為準；結果頁人工微調請參考 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
+> 本文件保留 2026-11-09 的 V2 實作與驗收摘要。2026-11-11 起 Cute 原型已移出發佈目錄，文中 `/cute/` 測試紀錄僅代表當時狀態。現行入口與模組以 [PROJECT_MAP.md](PROJECT_MAP.md) 為準；結果頁人工微調請參考 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
 
 # Garmin Run 2026 V2 — 實作與驗收紀錄
 

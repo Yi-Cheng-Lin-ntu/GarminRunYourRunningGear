@@ -7,7 +7,7 @@ HTML、CSS、Vanilla JavaScript ES Modules，GitHub Pages 靜態前端，Google 
 - 固定五題、各三個選項，每輪打亂選項；返回保留答案與排列。
 - **Q1、Q2、Q3、Q5** 各計一分；最高分決定類型，平手直接依 **Q2 答案的類型**。
 - **Q4 獨立**：precision／rest 不具原本自帶資格；pioneer 才是 existing、享購物袋優先。
-- experience＝志在參加臘腸；lifestyle＝我就是來看看柴犬；performance＝突破PB飆速杜賓。
+- experience＝賽事收藏家；lifestyle＝自在巡航員；performance＝配速計算機。
 - 結果頁：固定 Slogan、四個固定標籤（含空白色塊）、完整 PNG、九組 `runnerType × hydrationStyle` 推薦、永續邀請。
 - precision／rest 必須選 joined／considering 才能進聯絡頁；pioneer 直接繼續，不再二次加入。
 - **全員姓名、Email、告知確認必填；合法提交固定 `raffleOptIn=true`**。
@@ -27,7 +27,6 @@ python3 -m http.server 8020 --bind 0.0.0.0
 
 - `/`：V2 主網站，預設本機 Mock。
 - `/?mode=apps-script-demo`：相同 UI，測試 Apps Script Demo；舊後端未宣告 `quizVersion=2` 時會阻擋提交。
-- `/cute/`：保留的 V1 視覺參考；使用凍結 V1 CSV／規則。不作本次正式版本。
 
 本次 8020 預覽使用同等功能的暫存 handler，額外支援 `/GarminRunYourRunningGear/` 專案前綴；不修改 Pages 設定。
 
@@ -42,7 +41,7 @@ python3 -m http.server 8020 --bind 0.0.0.0
 - [V2_REVIEW.md](V2_REVIEW.md)：測試、截圖、限制與交接清單。
 - [apps-script/README.md](apps-script/README.md)：**V2 後端手動更新、Demo migration 與重新部署步驟**。
 
-`cute/` 原始檔案與 SVG 不修改；`archive/v1/` 保存其內容與歷史文件。`js/quizData.js`、`js/resultData.js` 是更早的歷史資料，不是主網站執行期來源。
+Cute 原型與 V1 controller 已移到 `_archive/cute-prototype/`，不再有 `/cute/` 公開入口，也不屬於目前 Pages 頁面。歷史 V1 CSV／文件仍保存在 `archive/v1/`；舊 JS 資料移到 `_archive/legacy-v1/`。目前三種結果顯示名稱只以 `content.csv` 的 result rows 為準。
 
 ## 測試
 
@@ -50,7 +49,7 @@ python3 -m http.server 8020 --bind 0.0.0.0
 node --test tests/*.test.mjs
 ```
 
-包含 243 組分類前後端對照、九組推薦及原文、四標籤、資格、全員聯絡與確認、Production 草稿拒絕、Demo 測試資料限制、記憶體 Sheets migration／分配／防重、既有 Mock 庫存測試。
+包含 243 組分類前後端對照、九組推薦及原文、四標籤、資格、全員聯絡與確認、Production 草稿拒絕、Demo 測試資料限制、記憶體 Sheets migration／分配／防重、既有 Mock 庫存測試，以及主入口與結果名稱檢查。
 
 選用 Playwright 本機瀏覽器驗收（不新增網站 runtime 套件）：
 
@@ -64,4 +63,4 @@ node tests/v2UiRegression.cjs
 
 `CHROMIUM_PATH` 可省略以使用 Playwright 已安裝的 Chromium。測試自行啟停本機 server，封鎖外部流量；Apps Script 使用 fixture，不寫遠端 Sheets。預設截圖輸出 `/tmp/garmin-v2-results`；本輪證據在 `docs/v2-review/`。
 
-先前 `uiRegression.cjs`、`cuteUiRegression.cjs` 為 V1 歷史腳本，不應再對 V2 主入口執行。延至正式上線前的高並發、故障注入及 processing 中斷恢復測試未在本輪執行。
+V1 UI 回歸腳本封存於 `_archive/cute-prototype/tests/`，不再由目前 V2 測試命令執行。延至正式上線前的高並發、故障注入及 processing 中斷恢復測試未在本輪執行。

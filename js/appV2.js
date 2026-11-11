@@ -4,7 +4,7 @@ import { classificationRules } from "./classificationRules.js";
 import { derivePrizeEligibility } from "./prizeEligibility.js";
 import { isTestEmail } from "./participationValidation.js";
 import { getHydrationEquipment } from "./hydrationEquipment.js";
-import { resolveProjectAsset } from "./uiVariant.js";
+import { resolveProjectAsset } from "./projectAssets.js";
 import { renderRedemptionView } from "./redemptionView.js";
 import { APPS_SCRIPT_DEMO_MODE, submitParticipation, getPublicCampaignStatus,
   getMockSnapshot, applyMockScenario, setMockStock, resetMockTestData, clearMockData, prizeCatalog } from "./apiClient.js";
@@ -37,13 +37,21 @@ function showScreen(screen) {
 }
 function updateStaticText() {
   document.documentElement.lang = state.language === "zh" ? "zh-Hant" : "en";
+  document.title = copy("meta.title");
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     const value = copy(element.dataset.i18n);
-    if (value) element.textContent = value;
+    element.textContent = value;
   });
-  $("[data-language-label]").textContent = state.language === "zh" ? "EN" : "中";
+  document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+    element.setAttribute("aria-label", copy(element.dataset.i18nAria));
+  });
+  document.querySelectorAll("[data-i18n-content]").forEach((element) => {
+    element.setAttribute("content", copy(element.dataset.i18nContent));
+  });
+  $("[data-language-label]").textContent = copy(state.language === "zh" ? "language.toEnglish" : "language.toChinese");
+  $(".mock-mode-badge").textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoBadge" : "v2.mockBadge");
   $("[data-mode-notice]").textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoNotice" : "v2.mode");
-  $("[data-submit]").textContent = copy(state.submitInProgress ? "v2.processing" : "participation.submit");
+  $("[data-submit]").textContent = copy(state.submitInProgress ? "v2.processing" : "v2.submit");
   if (!$("[data-form-error]").hidden && state.formErrorKey) $("[data-form-error]").textContent = copy(state.formErrorKey);
   if (!$("[data-result-error]").hidden) $("[data-result-error]").textContent = copy("v2.chooseError");
 }
@@ -120,10 +128,13 @@ function renderResult() {
   const result = content.resultData[state.result.runnerType];
   $("[data-result-title]").textContent = text(result.title);
   $("[data-result-slogan]").textContent = text(result.slogan);
-  const illustration = RESULT_ILLUSTRATIONS[state.result.runnerType];
   const runnerImage = $("[data-runner-image]");
+  const illustration = RESULT_ILLUSTRATIONS[state.result.runnerType];
   runnerImage.hidden = !illustration;
-  if (illustration) runnerImage.src = resolveProjectAsset(illustration);
+  if (illustration) {
+    runnerImage.src = resolveProjectAsset(illustration);
+    runnerImage.alt = text(result.image.alt);
+  }
   else runnerImage.removeAttribute("src");
   document.querySelectorAll("[data-result-tag]").forEach((tag, index) => {
     const value = result.tags[index]?.[state.language] || "";
@@ -139,14 +150,12 @@ function renderResult() {
   const equipmentGallery = $("[data-hydration-equipment]");
   equipmentGallery.replaceChildren();
   equipmentGallery.hidden = equipment.length === 0;
-  equipmentGallery.setAttribute("aria-label", state.language === "zh"
-    ? "補水裝備圖片"
-    : "Hydration equipment images");
+  equipmentGallery.setAttribute("aria-label", copy("v2.equipmentImages"));
   equipment.forEach((item) => {
     const image = document.createElement("img");
     image.className = "hydration-equipment-image";
     image.src = resolveProjectAsset(item.src);
-    image.alt = text(item.alt);
+    image.alt = copy(item.altKey);
     equipmentGallery.append(image);
   });
   $("[data-recommendation-section]").classList.toggle("is-pioneer", state.result.sustainability);
@@ -168,7 +177,7 @@ function continueToContact() {
   showScreen(elements.participation);
 }
 function renderRedemption(allocation) {
-  renderRedemptionView(allocation, { state, elements, resultData: content.resultData, text, prizeCatalog, resolveProjectAsset, showScreen });
+  renderRedemptionView(allocation, { state, elements, resultData: content.resultData, text, copy, prizeCatalog, resolveProjectAsset, showScreen });
 }
 function renderMockTools() {
   const snapshot = getMockSnapshot();
@@ -176,7 +185,7 @@ function renderMockTools() {
   editor.replaceChildren();
   for (const prize of snapshot.prizes) {
     const label = document.createElement("label");
-    label.textContent = text({ zh: prize.nameZh, en: prize.nameEn });
+    label.textContent = copy(`prize.${prize.prizeId}`);
     const input = document.createElement("input");
     Object.assign(input, { type: "number", min: "0", step: "1", value: prize.remainingStock });
     input.dataset.mockPrize = prize.prizeId;
@@ -184,7 +193,7 @@ function renderMockTools() {
   }
   const apply = document.createElement("button");
   apply.type = "button"; apply.className = "button button-secondary"; apply.dataset.action = "mock-set-stock";
-  apply.textContent = state.language === "zh" ? "套用庫存數量" : "Apply stock";
+  apply.textContent = copy("v2.mockApplyStock");
   editor.append(apply);
   $("[data-mock-prizes]").textContent = snapshot.prizes.map((p) => `${p.prizeId}: ${p.remainingStock}`).join(" | ");
   // Counts only: do not render contact details in the development panel.
@@ -226,10 +235,10 @@ document.addEventListener("click", (event) => {
   if (action === "close-mock-tools") $("[data-mock-panel]").hidden = true;
   if (action === "mock-scenario") { applyMockScenario(target.dataset.scenario); renderMockTools(); }
   if (action === "mock-reset") { resetMockTestData(); renderMockTools(); }
-  if (action === "mock-clear" && window.confirm(state.language === "zh" ? "清除本機 Mock 測試資料？" : "Clear local Mock data?")) { clearMockData(); renderMockTools(); }
+  if (action === "mock-clear" && window.confirm(copy("v2.mockClearConfirm"))) { clearMockData(); renderMockTools(); }
   if (action === "mock-set-stock") {
     const stock = Object.fromEntries(Array.from(document.querySelectorAll("[data-mock-prize]")).map((input) => [input.dataset.mockPrize, input.value]));
-    if (!setMockStock(stock).ok) window.alert(state.language === "zh" ? "庫存需為非負整數" : "Stock must be non-negative integers");
+    if (!setMockStock(stock).ok) window.alert(copy("v2.mockInvalidStock"));
     renderMockTools();
   }
 });
@@ -299,7 +308,6 @@ $("[data-action=start]").disabled = true;
 reset();
 showScreen(elements.start);
 if (APPS_SCRIPT_DEMO_MODE) {
-  $(".mock-mode-badge").textContent = "APPS SCRIPT DEMO · V2";
   $(".mock-tools-button").hidden = true;
 }
 window.addEventListener("pageshow", (event) => { if (event.persisted) { reset(); showScreen(elements.start); } });
@@ -308,4 +316,4 @@ loadContent().then((loaded) => {
   if (content.version !== 2) throw new Error("V2 content required");
   updateStaticText();
   $("[data-action=start]").disabled = false;
-}).catch(() => { $("[data-i18n='v2.startDescription']").textContent = "無法載入 V2 測驗內容，請重新整理。"; });
+}).catch(() => { $("[data-i18n='v2.startDescription']").textContent = copy("v2.startLoadError") || "無法載入測驗內容，請重新整理。"; });
