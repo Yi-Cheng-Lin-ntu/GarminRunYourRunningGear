@@ -1,5 +1,7 @@
 # Cute Running Club — Alternate UI Prototype v0.1
 
+> 封存歷史文件，不代表目前主網站。現行主站 runnerType／名稱／圖片為：`experience`＝賽事收藏家（`assets/result/賽事收藏家.png`）、`lifestyle`＝自在巡航員（`assets/result/自在巡航員.png`）、`performance`＝配速計算機（`assets/result/配速計算機.png`）。以下角色設定只記錄 Cute 原型，不是現行跑者名稱或圖片。
+
 ## 定位與狀態
 
 柔和、可愛、活潑、有一點幽默感的 Garmin Run 跑步社群測驗。關鍵字：Cute、Friendly、Soft、Playful、Cheerful、Minimal、Illustration-driven、Running Community。

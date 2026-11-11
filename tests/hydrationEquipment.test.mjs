@@ -36,7 +36,7 @@ test("all nine stable recommendations map to their intended hydration images", (
   }
 });
 
-test("hydration images and result layout are isolated from prize inventory and dog artwork", () => {
+test("hydration images and result layout are isolated from prize inventory and runner artwork", () => {
   const equipmentModule = readFileSync(new URL("../js/hydrationEquipment.js", import.meta.url), "utf8");
   const app = readFileSync(new URL("../js/appV2.js", import.meta.url), "utf8");
   const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
@@ -56,7 +56,6 @@ test("hydration images and result layout are isolated from prize inventory and d
   assert.match(html, /class="runner-visual" data-runner-visual/);
   assert.match(html, /data-runner-image[^>]*hidden/);
   assert.match(html, /class="runner-tags"[\s\S]*data-result-tag/);
-  assert.doesNotMatch(html, /data-dog-image/);
   assert.match(css, /\.hydration-equipment-image\s*\{[^}]*object-fit:\s*contain/s);
   assert.match(css, /\.runner-visual-image\s*\{[^}]*object-fit:\s*contain/s);
   assert.match(css, /\.runner-visual-image\s*\{[^}]*border-radius:\s*var\(--radius-card\)/s);

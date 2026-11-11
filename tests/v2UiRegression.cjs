@@ -45,7 +45,9 @@ async function main() {
         assert.ok(layout.visual.height > 0, "replaceable runner visual area should remain available");
         assert.ok(layout.tags.top >= layout.visual.top + layout.visual.height, "tags should be below the runner visual");
         assert.ok(layout.copy.width > 0, "recommendation text should remain visible");
-        assert.equal(await page.locator("[data-dog-image]").count(), 0);
+        const runnerImage = page.locator("[data-runner-image]");
+        assert.equal(await runnerImage.count(), 1);
+        assert.ok(await runnerImage.evaluate((image) => image.complete && image.naturalWidth > 0), "runner result image should load");
         if (await page.locator("[data-hydration-equipment]").isVisible()) {
           assert.ok(layout.equipment.left < layout.copy.left, "hydration images should be left of recommendation text");
         }
@@ -177,7 +179,9 @@ async function main() {
         await page.locator(`label[for=q${i}_${i === 4 ? "pioneer" : "performance"}]`).click();
         await page.locator("[data-action=next]").click();
       }
-      assert.equal(await page.locator("[data-dog-image]").count(), 0);
+      const runnerImage = page.locator("[data-runner-image]");
+      assert.equal(await runnerImage.count(), 1);
+      assert.ok(await runnerImage.evaluate((image) => image.complete && image.naturalWidth > 0), "runner result image should load");
       assert.ok(await page.locator("[data-runner-visual]").isVisible());
       await page.locator("[data-action=continue]").click();
       await page.locator("[data-name]").fill("Demo Runner"); await page.locator("[data-email]").fill("test@example.com"); await page.check("[data-privacy-check]");

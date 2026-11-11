@@ -1,5 +1,7 @@
 # Cute Running Club — UI Prototype Review
 
+> 封存歷史驗收紀錄，不代表目前主網站。現行主站 runnerType／名稱／圖片為：`experience`＝賽事收藏家（`assets/result/賽事收藏家.png`）、`lifestyle`＝自在巡航員（`assets/result/自在巡航員.png`）、`performance`＝配速計算機（`assets/result/配速計算機.png`）。本文的柴犬、臘腸、杜賓名稱與截圖只屬於當時 Cute 原型。
+
 日期：2026-11-05。開發起點 `c693ed9`／`checkpoint/pre-cute-20261105`。保留原版、使用共享業務模組；未 push、未改公開部署、未連線寫入 Apps Script 或 Google Sheets。
 
 ## 架構與變更

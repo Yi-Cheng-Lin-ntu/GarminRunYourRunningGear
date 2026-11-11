@@ -10,10 +10,10 @@
 |---|---|---|---|
 | 跑者名稱字級 | `.v2-result-heading h2` | `--result-title-size` | 改大／改小名稱；手機預設、桌機可另外設定 |
 | Slogan 字級 | `.v2-slogan` | `--result-slogan-size` | 改大／改小 Slogan |
-| 狗狗圖片高度／寬度 | `.runner-scene`、`.runner-image img` | `--result-dog-height`、`--result-dog-width` | 改變圖片區域；圖片仍保持比例，不會裁切 |
-| 狗狗圖與標題距離 | `.runner-scene` | `--result-title-image-gap` | 改大會讓狗狗圖離標題更遠 |
-| 狗狗圖與推薦區距離 | `.runner-scene` | `--result-image-recommendation-gap` | 改大會增加推薦區前的留白 |
-| 四個標籤位置 | `.tag-1` 至 `.tag-4` | `--tag-1-x/y` 至 `--tag-4-x/y` | 用正負 `px` 移動標籤；不會覆蓋原本旋轉 |
+| 結果圖片顯示區比例 | `.runner-visual` | `--result-visual-ratio` | 調整圖片容器的寬高比例；實際寬度受結果頁內容寬度限制 |
+| 標題與結果圖片間距 | `.runner-visual` | `--result-section-gap` | 調整圖片區上方距離；此變數也用於標籤區下方間距 |
+| 結果圖片與標籤／推薦區間距 | `.runner-tags` | `--result-section-gap` | 調整標籤群組下方距離；標籤群組本身目前是可換行 flex 排列 |
+| 四個標籤間距 | `.runner-tags` | `--result-tags-gap` | 調整 flex 群組中標籤彼此的間距；目前沒有單顆標籤的 X／Y offset 變數 |
 | 標籤旋轉角度 | `.tag-1` 至 `.tag-4` | `--tag-1-rotation` 至 `--tag-4-rotation` | 調整各標籤角度；不影響位置偏移 |
 | 標籤字級與內距 | `.runner-tag` | `--result-tag-font-size`、`--result-tag-padding` | 改大會使標籤文字或色塊更大 |
 | 標籤上下錯位 | `.tag-2`、`.tag-3` | `--result-tag-stagger` | 改大增加兩個標籤的錯位幅度 |
@@ -27,7 +27,7 @@
 
 手機調整預設值；桌機調整 `@media (min-width: 720px)` 內的 `#result` 變數；寬度不超過 430px 的手機另有局部覆寫。若只想快速試值，可在 DevTools 選取 `#result`，暫時新增或修改對應的 `--變數名稱`。
 
-狗狗圖與補水裝備圖各有獨立容器：`.runner-image` 與 `.hydration-equipment`。不要把裝備圖放進 `.runner-scene`，也不要修改狗狗圖的 `object-fit: contain`。
+三張結果圖片分別由 `content.csv` 的 `image_src` 與 `js/appV2.js` 的 `RESULT_ILLUSTRATIONS` 對應；檔案是 `assets/result/賽事收藏家.png`、`assets/result/自在巡航員.png`、`assets/result/配速計算機.png`。結果圖容器是 `.runner-visual`，圖片 selector 是 `.runner-visual-image`；補水裝備圖使用獨立的 `.hydration-equipment` 容器。圖片使用 `object-fit: contain`。
 
 ## B. 文案修改
 
@@ -70,7 +70,7 @@
 5. 找到相同 selector／變數後，把滿意的數值寫回 `style.css`。
 6. 重新整理頁面，確認修改已寫入檔案且沒有依賴 DevTools 的暫存樣式。
 
-CSS 尺寸通常使用 `px`；例如 `--hydration-image-size: 100px;`。標籤位置可用正負值，例如 `--tag-1-x: 6px;`。只改 CSS 外觀，不要修改分類、資格或庫存邏輯。
+CSS 尺寸通常使用 `px`；例如 `--hydration-image-size: 100px;`。目前沒有每個標籤獨立的 X／Y offset 變數；如需調整標籤排列，請在 DevTools 檢查 `.runner-tags` 與 `.runner-tag` 的實際 flex 樣式。只改 CSS 外觀，不要修改分類、資格或庫存邏輯。
 
 ## D. 補水裝備圖片對應
 
@@ -83,4 +83,4 @@ CSS 尺寸通常使用 `px`；例如 `--hydration-image-size: 100px;`。標籤�
 | `lifestyle:precision` | 軟水壺＋水袋背心 |
 | 三種 `*:pioneer` | 不顯示裝備圖，保留原本肯定與邀請文案 |
 
-圖片檔案尺寸：水袋背心 1199×1312、軟水壺 1024×1536、軟水杯 221×424。CSS 限制圖片顯示框、使用 `object-fit: contain`，雙圖在窄畫面可換行，不會更動狗狗圖片區。
+圖片檔案尺寸：水袋背心 1199×1312、軟水壺 1024×1536、軟水杯 221×424。CSS 限制圖片顯示框、使用 `object-fit: contain`，雙圖在窄畫面可換行，不會更動跑者結果圖片區。

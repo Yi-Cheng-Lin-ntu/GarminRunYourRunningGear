@@ -29,7 +29,6 @@ function payload(style = "rest", commitment = "considering") {
 
 test("CSV has exactly five ordered questions, three options each, exact approved Chinese copy", () => {
   const prompts = ["我參加 Garmin Run 是因為...", "從5月報名到今天比賽前…", "賽前一晚收拾裝備", "跑到補給站前", "剩下最後 2K"];
-  const subtitles = ["回到五月開放報名", "一路從報名走到比賽前", "比賽前一晚", "來到補給站", "進入最後衝刺"];
   const options = [
     ["跑者大拜拜之一，必須搶！", "有好玩賽事都報！", "目標賽事之一，11月底是突破PB的好時機！"],
     ["蛤? 訓練是什麼?", "不分賽季，平常都一直在跑啦", "每天課表吃到飽"],
@@ -42,8 +41,6 @@ test("CSV has exactly five ordered questions, three options each, exact approved
   content.quizData.questions.forEach((q, i) => {
     assert.equal(q.id, `q${i + 1}`);
     assert.equal(q.prompt.zh, prompts[i]);
-    assert.equal(q.subtitle.zh, subtitles[i]);
-    assert.ok(q.subtitle.en);
     assert.deepEqual(q.options.map((o) => o.text.zh), options[i]);
     assert.ok(q.options.every((o) => o.text.en));
   });

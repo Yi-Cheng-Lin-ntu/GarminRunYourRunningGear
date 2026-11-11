@@ -1,6 +1,6 @@
 # Garmin Run 2026 Project Map — V2
 
-以 2026-11-09 工作區為準；本機 V2 驗收版本，不代表正式上線。舊架構文件在 `archive/v1/PROJECT_MAP.md`。
+以 2026-11-11 工作區為準；主網站 V2，是否正式上線仍以部署狀態為準。舊架構文件在 `archive/v1/PROJECT_MAP.md`。
 
 ## 入口與狀態
 
@@ -31,7 +31,7 @@
 | `_archive/cute-prototype/` | 封存的 Cute HTML／CSS／概念圖、舊 controller 與對應測試；不屬於目前網站入口 |
 | `_archive/legacy-v1/` | 舊版分類模組與 JS 內容資料；主站不載入 |
 | `archive/v1/` | V1 CSV 與歷史 README／Map／Design System |
-| `assets/result/` | 工作區現有檔案仍為 `賽事收藏家.png`、`自在巡航員.png`、`配速計算機.png`；`appV2.js` 暫以 runner ID 對應這三張舊圖。新版狗狗 PNG（CSV 所列新檔名）目前不在工作區，不能宣稱結果已呈現狗狗圖 |
+| `assets/result/` | 目前三張跑者結果圖為 `賽事收藏家.png`、`自在巡航員.png`、`配速計算機.png`；`appV2.js` 依 runner ID 映射，與 `content.csv` 的 `image_src` 一致 |
 | `assets/waterequip/` | 三張補水裝備 PNG；由 `js/hydrationEquipment.js` 映射至結果推薦區 |
 | `UI_TUNING_GUIDE.md` | CSS 變數、CSV 文案欄位與 DevTools 操作指引 |
 | `apps-script/*.gs` | 下述 V2 後端與既有分配／管理 |
@@ -44,7 +44,7 @@
 - `question`：Q1–Q5，固定順序；配對 `question_subtitle` row 以 `parent_id=q1...q5` 提供雙語副標。
 - `option`：每題三個唯一 ID；四個計分題為 `qN_experience/lifestyle/performance`。
 - Q4 只允許 `q4_precision/rest/pioneer`，traits 空白、hydration_style 對應；只有 pioneer 的 sustainability=true。
-- `result`：三個原 ID、狗狗名稱、固定 slogan、四個獨立 tag 欄、PNG／alt；標籤空字串保留位置。
+- `result`：三個原 ID 與顯示名稱（experience＝賽事收藏家、lifestyle＝自在巡航員、performance＝配速計算機）、固定 slogan、四個獨立 tag 欄、PNG／alt；標籤空字串保留位置。
 - `recommendation`：以 `parent_id=runnerType`、`hydration_style` 建立九個唯一映射；zh/en 為裝備／肯定標題，description 為推薦文案。pioneer 的 runtime gear=null。
 - `ui`：新版標籤、錯誤、測試告知，使用 `v2.*` key。英文暫譯，尚待核定。
 
@@ -60,7 +60,7 @@ Q1／Q2／Q3／Q5 各一分；最高分平手用 `answers.q2` 的類型，不看
 | q4_rest | rest | false | joined／considering | false |
 | q4_pioneer | pioneer | true | existing | true |
 
-sustainabilityRewardEligible = existingSelfHydration 或 joined。狗狗名稱不參與資格；結果頁的承諾不是第六題或跑團會員。
+sustainabilityRewardEligible = existingSelfHydration 或 joined。跑者顯示名稱與結果圖片不參與資格；結果頁的承諾不是第六題或跑團會員。
 
 ## V2 提交與儲存
 

@@ -4,7 +4,7 @@
 
 ## 定位與七色
 
-主網站維持深黑、冰藍、螢光綠的 Garmin Run 品牌語言，以使用者提供的狗狗 PNG 為中心。結果圖直接融入深色頁面，不使用白色外框卡片；保留低對比道路紋理，裝飾不與圖片及文字競爭。系統 Sans-serif、直立字體，不額外下載字型。
+主網站維持深黑、冰藍、螢光綠的 Garmin Run 品牌語言，以三張跑者結果 PNG 為視覺焦點。圖片直接融入深色頁面，不使用白色外框卡片；保留低對比道路紋理，裝飾不與圖片及文字競爭。系統 Sans-serif、直立字體，不額外下載字型。
 
 主網站只載入 `style.css`。目前入口沒有 Cute 樣式或 UI variant 載入。主站目前的品牌色以 `style.css` 的 tokens 為準：
 
@@ -28,7 +28,7 @@
 
 ## 結果卡順序
 
-1. 「你是！」→狗狗名稱→固定 slogan。
+1. 「你是！」→跑者名稱→固定 slogan。
 2. 四格標籤與中央完整 PNG。
 3. 「下一場，可以試試……」→依 `runnerType:hydrationStyle` 的裝備／肯定標題與推薦文案。
 4. 永續邀請：precision／rest二選一，pioneer只感謝；「繼續領獎」。
@@ -38,13 +38,19 @@
 
 ## 四個固定標籤與圖片
 
-`runner-scene` 使用兩欄三列 Grid 保留圖片完整通道，四個tag分散在上下四角：左右垂直錯位、依內容決定寬度，僅有少量角度變化，避免形成按鈕列。tag不跨入圖片row；空字串保留較短的裝飾色塊並設aria-hidden=true，無button角色。
+目前主站使用 `.runner-visual` 呈現結果圖片，接著由 `.runner-tags` 顯示四個標籤；目前標籤為可換行的 flex 群組。空字串標籤隱藏文字並保留版面邏輯，無 button 角色。樣式以現行 `style.css` 為準。
 
-結果名稱由 `content.csv` 提供，三種 ID 的中文名稱目前已是新版名稱。**目前工作區缺少新版狗狗 PNG**：`assets/result/` 實際只包含 `賽事收藏家.png`、`自在巡航員.png`、`配速計算機.png`，主站仍用 `js/appV2.js` 的 `RESULT_ILLUSTRATIONS` 顯示這三張舊圖。CSV 中狗狗檔名與檢查點文件記錄的 SHA-256，無法在目前工作區找到對應檔案；恢復原圖前不應宣稱狗狗圖片已正確呈現。
+目前顯示名稱及圖片對應如下，名稱由 `content.csv` 提供，圖片由 `js/appV2.js` 的 `RESULT_ILLUSTRATIONS` 映射，並與 CSV 的 `image_src` 一致：
 
-中央row手機220px、桌機260px，圖片width/height100%、object-fit:contain；臘腸橫幅與直立犬共用相同slot，不以逐圖座標調整。長英文標籤自然換行，拉高自己的row，不侵入中央圖片。結果頁主要尺寸與標籤位置由 `style.css` 的 `RESULT PAGE — QUICK TUNING` variables 控制，完整對照見 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
+| runnerType | 顯示名稱 | 圖片 |
+|---|---|---|
+| `experience` | 賽事收藏家 | `assets/result/賽事收藏家.png` |
+| `lifestyle` | 自在巡航員 | `assets/result/自在巡航員.png` |
+| `performance` | 配速計算機 | `assets/result/配速計算機.png` |
 
-補水裝備圖片只出現在推薦區，使用 `js/hydrationEquipment.js` 以穩定的 `runnerType:hydrationStyle` 對應；pioneer 不顯示裝備圖。圖片使用 `object-fit:contain` 與獨立小尺寸區域，不影響狗狗圖或四角標籤。
+圖片使用 `object-fit: contain`。結果頁的主要尺寸與間距由 `style.css` 的 `RESULT PAGE — QUICK TUNING` variables 控制，實際 selector 和變數見 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
+
+補水裝備圖片只出現在推薦區，使用 `js/hydrationEquipment.js` 以穩定的 `runnerType:hydrationStyle` 對應；pioneer 不顯示裝備圖。圖片使用 `object-fit:contain` 與獨立小尺寸區域，不影響跑者結果圖片或標籤。
 
 ## 聯絡與領獎
 
@@ -52,7 +58,7 @@
 
 聯絡頁獨立：姓名、Email、未核准測試告知及確認checkbox，沒有raffle toggle；所有合法提交自動登記測試抽獎。畫面明示虛構資料，Demo提示保留網域限制，不捏造官方政策或期限。
 
-領獎保留原版markup與共用rendering、商品圖片contain、paused畫面及再測一次。existing／joined綠底，considering冰藍。顏色代表行動資格，不是狗狗分類或獎品等級。
+領獎保留原版markup與共用rendering、商品圖片contain、paused畫面及再測一次。existing／joined綠底，considering冰藍。顏色代表行動資格，不是跑者分類或獎品等級。
 
 ## Accessibility 與驗收
 

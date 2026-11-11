@@ -1,5 +1,7 @@
 # Garmin Run 2026 Project Map
 
+> 封存的 V1 專案地圖，以下資訊是歷史版本。現行主站 runnerType／名稱／圖片為：`experience`＝賽事收藏家（`assets/result/賽事收藏家.png`）、`lifestyle`＝自在巡航員（`assets/result/自在巡航員.png`）、`performance`＝配速計算機（`assets/result/配速計算機.png`）。
+
 本文件是專案交接與維護地圖，用於讓 Codex 或後續開發者快速理解目前專案、修改 UI 與驗證功能。本文件以 **2026-11-04 的實際 repository 狀態**為準。
 
 ## 1. 專案現況

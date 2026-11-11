@@ -1,5 +1,7 @@
 # Garmin Run Your Running Gear
 
+> 封存的 V1 README，僅供歷史參考。現行主站 runnerType／名稱／圖片為：`experience`＝賽事收藏家（`assets/result/賽事收藏家.png`）、`lifestyle`＝自在巡航員（`assets/result/自在巡航員.png`）、`performance`＝配速計算機（`assets/result/配速計算機.png`）。
+
 Garmin Run 2026 的跑者風格與補水方式互動測驗 prototype。
 
 這是使用 HTML、CSS 與 Vanilla JavaScript 建立的 static front end，可直接部署到 GitHub Pages，不需要後端服務。

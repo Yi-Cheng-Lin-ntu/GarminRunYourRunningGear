@@ -1,8 +1,10 @@
 > 本文件保留 2026-11-09 的 V2 實作與驗收摘要。2026-11-11 起 Cute 原型已移出發佈目錄，文中 `/cute/` 測試紀錄僅代表當時狀態。現行入口與模組以 [PROJECT_MAP.md](PROJECT_MAP.md) 為準；結果頁人工微調請參考 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
 
+> 2026-11-11 素材更新：本文件後段的狗狗素材名稱與截圖描述是較早版本紀錄，已由目前三張跑者結果圖取代。現行名稱、圖片映射及尺寸以本文「目前結果圖片」表格和 `content.csv`／`js/appV2.js` 為準。
+
 # Garmin Run 2026 V2 — 實作與驗收紀錄
 
-日期：2026-11-09。基準 `f0f5ff7`，維持 main 工作區，依最新指示不建分支，以 [V2_CHECKPOINT.md](V2_CHECKPOINT.md) 記錄檢查點。未commit、push、merge、改Pages設定、部署Apps Script或操作遠端Sheets／庫存。三張未追蹤PNG原樣保留，雜湊未變。
+日期：2026-11-09（歷史實作紀錄）。基準 `f0f5ff7`，維持 main 工作區，依當時指示不建分支，以 [V2_CHECKPOINT.md](V2_CHECKPOINT.md) 記錄檢查點。該次沒有 commit、push、merge、改 Pages 設定、部署 Apps Script 或操作遠端 Sheets／庫存；當時的圖片與後續圖片更新分開記錄。
 
 ## 已實作
 
@@ -19,13 +21,13 @@
 
 未找到工作目錄內PDF，也沒有本輪可用PDF附檔；依文字規格實作，未聲稱讀過PDF。
 
-| 類型 | 原始PNG | 大小／格式 |
-|---|---|---|
-| experience | `志在參加臘腸.png` | 43,080 bytes，334×163 RGBA |
-| lifestyle | `我就是來看看柴犬.png` | 64,579 bytes，156×342 RGBA |
-| performance | `突破PB飆速杜賓.png` | 30,869 bytes，156×297 RGBA |
+| runnerType | 現行顯示名稱 | 現行 PNG | 大小／格式 |
+|---|---|---|---|
+| experience | 賽事收藏家 | `assets/result/賽事收藏家.png` | 1,103,516 bytes，1199×1312 RGBA |
+| lifestyle | 自在巡航員 | `assets/result/自在巡航員.png` | 1,617,874 bytes，1254×1254 RGBA |
+| performance | 配速計算機 | `assets/result/配速計算機.png` | 937,682 bytes，1670×941 RGBA |
 
-不裁切、不轉檔、不生成或替換；`object-fit:contain`，module相對專案root解析。狗狗為主視覺，四格tag使用固定Grid上下角，中央row專留圖片，沒有逐圖座標。空白標籤仍保留色塊並aria-hidden，非按鈕。
+目前程式透過 `runnerType` 對應這三張圖片，CSV 的 `image_src`、alt 文字及 `appV2.js` 的 `RESULT_ILLUSTRATIONS` 一致。圖片使用 `object-fit:contain`。目前 `.runner-visual` 呈現圖片，四個標籤由 `.runner-tags` flex 群組呈現；空白標籤仍保留空值狀態，不作互動按鈕。
 
 V2固定七色；舊base CSS的歷史值不回寫Cute。淺底深字、CTA綠底黑字。已檢視375／390與1280代表截圖；長英文及中文tag不與圖片重疊，左右不溢出。pioneer保留推薦區標題，但內容改為肯定與邀請朋友，不顯示裝備名稱。
 
@@ -58,9 +60,9 @@ V2固定七色；舊base CSS的歷史值不回寫Cute。淺底深字、CTA綠底
 |---|---|---|
 | 首頁 | [手機](docs/v2-review/390-landing.png) | [桌機](docs/v2-review/1280-landing.png) |
 | 題目 | [手機](docs/v2-review/390-quiz.png) | [桌機](docs/v2-review/1280-quiz.png) |
-| 臘腸＋precision | [手機](docs/v2-review/390-result-experience-precision.png) | [桌機](docs/v2-review/1280-result-experience-precision.png) |
-| 柴犬＋rest | [手機](docs/v2-review/390-result-lifestyle-rest.png) | [桌機](docs/v2-review/1280-result-lifestyle-rest.png) |
-| 杜賓＋pioneer | [手機](docs/v2-review/390-result-performance-pioneer.png) | [桌機](docs/v2-review/1280-result-performance-pioneer.png) |
+| experience＋precision（早期狗狗素材版截圖） | [手機](docs/v2-review/390-result-experience-precision.png) | [桌機](docs/v2-review/1280-result-experience-precision.png) |
+| lifestyle＋rest（早期狗狗素材版截圖） | [手機](docs/v2-review/390-result-lifestyle-rest.png) | [桌機](docs/v2-review/1280-result-lifestyle-rest.png) |
+| performance＋pioneer（早期狗狗素材版截圖） | [手機](docs/v2-review/390-result-performance-pioneer.png) | [桌機](docs/v2-review/1280-result-performance-pioneer.png) |
 | 聯絡頁 | [手機](docs/v2-review/390-contact.png) | [桌機](docs/v2-review/1280-contact.png) |
 | 英文結果 | [手機](docs/v2-review/390-english-result-performance.png) | [桌機](docs/v2-review/1280-english-result-performance.png) |
 | 一般領獎 | [手機](docs/v2-review/390-redemption-experience.png) | [桌機](docs/v2-review/1280-redemption-experience.png) |
