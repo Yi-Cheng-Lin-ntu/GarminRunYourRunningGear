@@ -2,14 +2,13 @@ import { loadContent } from "./contentData.js";
 import { classifyAnswers } from "./classificationEngine.js";
 import { classificationRules } from "./classificationRules.js";
 import { derivePrizeEligibility } from "./prizeEligibility.js";
-import { isTestEmail } from "./participationValidation.js";
 import { getHydrationEquipment } from "./hydrationEquipment.js";
 import { resolveProjectAsset } from "./projectAssets.js";
 import { renderRedemptionView } from "./redemptionView.js";
 import { renderResultSharePng } from "./shareCard.js";
-import { APPS_SCRIPT_DEMO_MODE, submitParticipation, getPublicCampaignStatus,
+import { APPS_SCRIPT_DEMO_MODE, API_STATUS, MOCK_MODE, submitAnonymousResult as sendAnonymousResult, getPublicCampaignStatus, getExistingAllocation,
   getMockSnapshot, applyMockScenario, setMockStock, resetMockTestData, clearMockData, prizeCatalog } from "./apiClient.js";
-import { clearAllocationRecovery, clearPendingRequest, savePendingRequest } from "./sessionRecovery.js";
+import { clearAllocationRecovery, clearPendingRequest, readPendingRequest, savePendingRequest } from "./sessionRecovery.js";
 
 const $ = (selector) => document.querySelector(selector);
 const setDownloadButtonsDisabled = (disabled) => document.querySelectorAll('[data-action="download-result"]').forEach((button) => { button.disabled = disabled; });
@@ -19,7 +18,7 @@ const RESULT_ILLUSTRATIONS = {
   performance: "./assets/result/配速計算機.png"
 };
 const elements = {
-  start: $("#start"), quiz: $("#quiz"), result: $("#result"), participation: $("#participation"), redemption: $("#redemption"),
+  start: $("#start"), quiz: $("#quiz"), result: $("#result"), redemption: $("#redemption"),
   redemptionRunner: $("[data-redemption-runner]"), redemptionTitle: $("[data-redemption-title]"),
   prizeImage: $("[data-prize-image]"), prizeName: $("[data-prize-name]"), sustainabilityMessage: $("[data-sustainability-message]"),
   shareStage: $("[data-share-stage]"), shareContext: $("[data-share-context]"), shareRoot: $("[data-share-root]"),
@@ -29,12 +28,28 @@ const elements = {
 };
 let content;
 const state = { language: "zh", answers: {}, orders: {}, index: 0, result: null, hydrationCommitment: null,
-  formErrorKey: null, displayedAllocation: null, requestId: null, sessionId: null, submitInProgress: false,
+  displayedAllocation: null, requestId: null, sessionId: null, submitInProgress: false,
   shareCardBlob: null, shareCardUrl: null, shareCardPromise: null };
 let shareRenderGeneration = 0;
 const text = (value) => value?.[state.language] || value?.zh || value?.en || "";
 const copy = (key) => text(content?.ui[key]);
 const id = () => globalThis.crypto?.randomUUID?.() || `v2-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+function centerHydrationChoiceText() {
+  if (state.language !== "zh") return;
+  document.querySelectorAll(".hydration-choices .choice-card strong").forEach((label) => {
+    const match = label.textContent.match(/^(.+?)([!！?？.,，。．、:：;；~～…]+)$/u);
+    if (!match) return;
+    const text = document.createElement("span");
+    text.className = "choice-label-text";
+    text.textContent = match[1];
+    const punctuation = document.createElement("span");
+    punctuation.className = "choice-label-punctuation";
+    punctuation.textContent = match[2];
+    text.append(punctuation);
+    label.replaceChildren(text);
+  });
+}
 
 function showScreen(screen) {
   for (const item of Object.values(elements).filter((element) => element.classList.contains("screen"))) {
@@ -50,6 +65,7 @@ function updateStaticText() {
     const value = copy(element.dataset.i18n);
     element.textContent = value;
   });
+  centerHydrationChoiceText();
   document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
     element.setAttribute("aria-label", copy(element.dataset.i18nAria));
   });
@@ -57,22 +73,20 @@ function updateStaticText() {
     element.setAttribute("content", copy(element.dataset.i18nContent));
   });
   $("[data-language-label]").textContent = copy(state.language === "zh" ? "language.toEnglish" : "language.toChinese");
-  $(".mock-mode-badge").textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoBadge" : "v2.mockBadge");
-  $("[data-mode-notice]").textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoNotice" : "v2.mode");
-  $("[data-submit]").textContent = copy(state.submitInProgress ? "v2.processing" : "v2.submit");
-  if (!$("[data-form-error]").hidden && state.formErrorKey) $("[data-form-error]").textContent = copy(state.formErrorKey);
-  if (!$("[data-result-error]").hidden) $("[data-result-error]").textContent = copy("v2.chooseError");
+  const badge = $(".mock-mode-badge");
+  const modeNotice = $("[data-mode-notice]");
+  if (badge) badge.textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoBadge" : "v2.mockBadge");
+  if (modeNotice) modeNotice.textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoNotice" : "v2.mode");
 }
-function reset() {
+function reset({ clearRecovery = true } = {}) {
   shareRenderGeneration += 1;
   if (state.shareCardUrl) URL.revokeObjectURL(state.shareCardUrl);
   Object.assign(state, { answers: {}, orders: {}, index: 0, result: null, hydrationCommitment: null,
-    formErrorKey: null, displayedAllocation: null, requestId: null, sessionId: id(), submitInProgress: false,
+    displayedAllocation: null, requestId: null, sessionId: id(), submitInProgress: false,
     shareCardBlob: null, shareCardUrl: null, shareCardPromise: null });
-  $("[data-participation-form]").reset();
-  $("[data-form-error]").hidden = true;
   $("[data-result-error]").hidden = true;
-  $("[data-submit]").disabled = false;
+  $("[data-action=continue]").disabled = false;
+  $("[data-action=continue]").textContent = copy("v2.continue");
   document.querySelectorAll("[data-hydration-choice]").forEach((input) => { input.checked = false; });
   $("[data-result-title]").textContent = "";
   $("[data-result-slogan]").textContent = "";
@@ -90,8 +104,10 @@ function reset() {
   setDownloadButtonsDisabled(true);
   elements.sustainabilityResultMark.removeAttribute("src");
   elements.sustainabilityResultMark.hidden = true;
-  clearAllocationRecovery();
-  clearPendingRequest();
+  if (clearRecovery) {
+    clearAllocationRecovery();
+    clearPendingRequest();
+  }
   if (content) updateStaticText();
 }
 function shuffle(options) {
@@ -240,19 +256,71 @@ function renderResult() {
   $("[data-hydration-options]").hidden = viewModel.isPioneer;
   document.querySelectorAll("[data-hydration-choice]").forEach((input) => {
     input.checked = input.value === state.hydrationCommitment;
+    input.disabled = Boolean(state.requestId) || state.submitInProgress;
     input.closest(".choice-card").classList.toggle("is-selected", input.checked);
   });
+  const submitButton = $("[data-action=continue]");
+  submitButton.disabled = !API_STATUS.configured || state.submitInProgress;
+  if (!API_STATUS.configured) {
+    $("[data-result-error]").textContent = copy("v2.serviceUnavailable");
+    $("[data-result-error]").hidden = false;
+  }
   prepareShareCard(viewModel);
 }
-function continueToContact() {
+async function submitAnonymousResult() {
   if (!state.result) return;
+  if (state.submitInProgress) return;
   if (!state.result.sustainability && !["joined", "considering"].includes(state.hydrationCommitment)) {
     $("[data-result-error]").textContent = copy("v2.chooseError");
     $("[data-result-error]").hidden = false;
     return;
   }
+  if (!API_STATUS.configured) {
+    $("[data-result-error]").textContent = copy("v2.serviceUnavailable");
+    $("[data-result-error]").hidden = false;
+    return;
+  }
   $("[data-result-error]").hidden = true;
-  showScreen(elements.participation);
+  const eligibility = derivePrizeEligibility({
+    runnerType: state.result.runnerType,
+    existingSelfHydration: state.result.sustainability,
+    hydrationCommitment: state.hydrationCommitment
+  });
+  if (!state.requestId) state.requestId = id();
+  const payload = {
+    submissionVersion: 1,
+    quizVersion: 2,
+    answers: { ...state.answers },
+    runnerType: state.result.runnerType,
+    hydrationStyle: state.result.hydrationStyle,
+    q4Answer: state.result.q4Answer,
+    ...eligibility,
+    requestId: state.requestId,
+    sessionId: state.sessionId
+  };
+  savePendingRequest({ sessionId: state.sessionId, requestId: state.requestId, payload });
+  state.submitInProgress = true;
+  const button = $("[data-action=continue]");
+  button.disabled = true;
+  button.textContent = copy("v2.processing");
+  document.querySelectorAll("[data-hydration-choice]").forEach((input) => { input.disabled = true; });
+  try {
+    const status = await getPublicCampaignStatus();
+    if (!status.ok || status.quizVersion !== 2 || status.submissionVersion !== 1) throw new Error(status.code || "UNSUPPORTED_QUIZ_VERSION");
+    const response = await sendAnonymousResult(payload);
+    if (!response.ok) throw new Error(response.code || "SUBMISSION_FAILED");
+    clearPendingRequest();
+    renderRedemption(response);
+  } catch (failure) {
+    const messageKey = ["API_NOT_CONFIGURED", "API_ENVIRONMENT_NOT_CONFIGURED", "ALLOCATION_PAUSED"].includes(failure.message) ? "v2.serviceUnavailable" :
+      failure.message === "UNSUPPORTED_QUIZ_VERSION" ? "v2.backendOld" : "v2.submitError";
+    $("[data-result-error]").textContent = copy(messageKey);
+    $("[data-result-error]").hidden = false;
+  } finally {
+    state.submitInProgress = false;
+    button.disabled = !API_STATUS.configured;
+    button.textContent = copy("v2.retrySubmit");
+  }
 }
 function renderRedemption(allocation) {
   renderRedemptionView(allocation, { state, elements, resultData: content.resultData, text, copy, prizeCatalog, resolveProjectAsset, showScreen });
@@ -298,6 +366,7 @@ document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   const action = target?.dataset.action;
   if (!action || !content) return;
+  if (action.startsWith("mock-") && !MOCK_MODE) return;
   if (action === "download-result") { event.preventDefault(); downloadResultCard(); return; }
   if (state.submitInProgress && ["home", "retry", "restart", "back-result"].includes(action)) { event.preventDefault(); return; }
   if (action === "start") start();
@@ -314,8 +383,7 @@ document.addEventListener("click", (event) => {
     if (state.index > 0) { state.index--; renderQuestion(); }
     else { reset(); showScreen(elements.start); }
   }
-  if (action === "continue") continueToContact();
-  if (action === "back-result") { renderResult(); showScreen(elements.result); }
+  if (action === "continue") submitAnonymousResult();
   if (action === "toggle-language") {
     state.language = state.language === "zh" ? "en" : "zh";
     updateStaticText();
@@ -340,7 +408,7 @@ document.addEventListener("click", (event) => {
 });
 document.addEventListener("change", (event) => {
   const input = event.target;
-  if (input.matches("[data-hydration-choice]")) {
+  if (input.matches("[data-hydration-choice]") && !state.requestId && !state.submitInProgress) {
     state.hydrationCommitment = input.value;
     $("[data-result-error]").hidden = true;
     renderResult();
@@ -353,60 +421,42 @@ document.addEventListener("change", (event) => {
   }
 });
 
-$("[data-participation-form]").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (state.submitInProgress || !state.result) return;
-  const name = $("[data-name]").value.trim();
-  const email = $("[data-email]").value.trim();
-  let errorKey;
-  if (!name || name.length > 80) errorKey = "v2.nameError";
-  else if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errorKey = "v2.emailError";
-  else if (!$("[data-privacy-check]").checked) errorKey = "v2.privacyError";
-  else if (APPS_SCRIPT_DEMO_MODE && !isTestEmail(email)) errorKey = "v2.demoEmailError";
-  const error = $("[data-form-error]");
-  if (errorKey) { state.formErrorKey = errorKey; error.textContent = copy(errorKey); error.hidden = false; return; }
-  const eligibility = derivePrizeEligibility({ runnerType: state.result.runnerType, existingSelfHydration: state.result.sustainability, hydrationCommitment: state.hydrationCommitment });
-  if (!state.requestId) state.requestId = id();
-  savePendingRequest({ sessionId: state.sessionId, requestId: state.requestId });
-  const payload = {
-    ...eligibility, quizVersion: 2, demoMode: true, answers: { ...state.answers },
-    hydrationStyle: state.result.hydrationStyle, q4Answer: state.result.q4Answer,
-    requestId: state.requestId, sessionId: state.sessionId, raffleOptIn: true, name, email,
-    privacyConfirmed: true, testDataConfirmed: true,
-    privacyNoticeVersion: APPS_SCRIPT_DEMO_MODE ? "DEMO_ONLY" : "DRAFT_NOT_APPROVED",
-    privacyAcknowledgedAt: new Date().toISOString()
-  };
-  state.submitInProgress = true;
-  $("[data-submit]").disabled = true;
-  updateStaticText(); error.hidden = true;
-  try {
-    if (APPS_SCRIPT_DEMO_MODE) {
-      const status = await getPublicCampaignStatus();
-      if (status.quizVersion !== 2) throw new Error("UNSUPPORTED_QUIZ_VERSION");
-    }
-    const response = await submitParticipation(payload);
-    if (!response.ok) throw new Error(response.code || "SUBMISSION_FAILED");
-    clearPendingRequest();
-    renderRedemption(response);
-  } catch (failure) {
-    const known = { UNSUPPORTED_QUIZ_VERSION: "v2.backendOld", INVALID_RAFFLE_NAME: "v2.nameError", INVALID_RAFFLE_EMAIL: "v2.emailError", TEST_DATA_REQUIRED: "v2.demoEmailError", INVALID_PRIVACY_ACKNOWLEDGEMENT: "v2.privacyError" };
-    state.formErrorKey = known[failure.message] || "v2.submitError";
-    error.textContent = copy(state.formErrorKey);
-    error.hidden = false;
-  } finally {
-    state.submitInProgress = false;
-    $("[data-submit]").disabled = false;
-    updateStaticText();
-  }
-});
-
 $("[data-action=start]").disabled = true;
-reset();
+reset({ clearRecovery: false });
 showScreen(elements.start);
-if (APPS_SCRIPT_DEMO_MODE) {
-  $(".mock-tools-button").hidden = true;
+const developmentControls = [$(".mock-mode-badge"), $(".mock-tools-button")];
+developmentControls.forEach((element) => { if (element) element.hidden = !MOCK_MODE; });
+if (!MOCK_MODE) {
+  const panel = $("[data-mock-panel]");
+  if (panel) panel.hidden = true;
 }
-window.addEventListener("pageshow", (event) => { if (event.persisted) { reset(); showScreen(elements.start); } });
+window.addEventListener("pageshow", (event) => { if (event.persisted) restorePendingSubmission(); });
+
+async function restorePendingSubmission() {
+  const pending = readPendingRequest();
+  if (!pending?.sessionId || !pending?.requestId) return;
+  try {
+    const recovery = await getExistingAllocation(pending);
+    if (recovery?.ok && recovery.found) {
+      clearPendingRequest();
+      renderRedemption(recovery.allocation || recovery);
+      return;
+    }
+  } catch {
+    // Keep the pending anonymous payload and request ID so the user can retry safely.
+  }
+  if (!pending.payload || !content) return;
+  state.answers = { ...pending.payload.answers };
+  state.sessionId = pending.sessionId;
+  state.requestId = pending.requestId;
+  state.result = classifyAnswers({ questions: content.quizData.questions, answers: state.answers, runnerTypes: content.runnerTypes, rules: classificationRules });
+  state.hydrationCommitment = pending.payload.hydrationCommitment;
+  renderResult();
+  showScreen(elements.result);
+  $("[data-result-error]").textContent = copy("v2.submitError");
+  $("[data-result-error]").hidden = false;
+  $("[data-action=continue]").textContent = copy("v2.retrySubmit");
+}
 loadContent().then((loaded) => {
   content = loaded;
   if (content.version !== 2) throw new Error("V2 content required");
@@ -417,4 +467,5 @@ loadContent().then((loaded) => {
   }, { once: true });
   updateStaticText();
   $("[data-action=start]").disabled = false;
+  restorePendingSubmission();
 }).catch(() => { $("[data-i18n='v2.startDescription']").textContent = copy("v2.startLoadError") || "無法載入測驗內容，請重新整理。"; });

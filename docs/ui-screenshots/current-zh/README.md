@@ -1,11 +1,5 @@
-# 目前版本｜中文頁面截圖
+# 歷史中文 UI 截圖
 
-共 23 張，使用 390px 手機 viewport 與本機 Mock Mode：
+此資料夾的截圖是在舊版聯絡資訊／個資登記流程下產生，僅供視覺歷史參考，不代表目前匿名提交版本。截圖未連接 Apps Script 或正式庫存；其中頁面內容已不再是現行流程。
 
-- `home.png`：首頁。
-- `quiz-q1.png` 至 `quiz-q5.png`：五題測驗。
-- `result-{experience|lifestyle|performance}-{precision|rest|pioneer}.png`：九種結果組合。
-- `contact-{considering|joined|existing|paused}.png`：聯絡資訊頁在各流程狀態下的畫面。
-- `redemption-{considering|joined|existing|paused}.png`：一般、永續與庫存暫停兌獎狀態。
-
-測試流程使用隔離的瀏覽器 Mock 資料及虛構測試資料，未連接 Apps Script 或正式庫存。
+目前前端沒有聯絡資訊畫面。請以 Codespaces／本機 Development Mock 實際預覽匿名結果提交與領獎流程，不要將本資料夾的 contact 截圖當作驗收依據。

@@ -1,66 +1,51 @@
-# Garmin Run 2026 — 主網站 V2（本機驗收中）
+# Garmin Run 2026｜跑者風格測驗
 
-HTML、CSS、Vanilla JavaScript ES Modules，GitHub Pages 靜態前端，Google Apps Script + Sheets 後端。此工作區尚未 push、merge 或部署 V2，也未操作遠端庫存。依最新指示維持原分支，以 [V2_CHECKPOINT.md](V2_CHECKPOINT.md) 記錄開發起點與三張原始 PNG 雜湊。
+五題匿名跑者測驗，結果頁同時呈現補水建議與永續倡議；使用者選擇後提交匿名結果，由 Google Apps Script 重新驗證並即時分配現場周邊。活動紙本抽獎獨立於網站，不建立線上抽獎名單。
 
-## V2 行為
+## 流程與資料
 
-- 固定五題、各三個選項，每輪打亂選項；返回保留答案與排列。
-- **Q1、Q2、Q3、Q5** 各計一分；最高分決定類型，平手直接依 **Q2 答案的類型**。
-- **Q4 獨立**：precision／rest 不具原本自帶資格；pioneer 才是 existing、享購物袋優先。
-- experience＝賽事收藏家；lifestyle＝自在巡航員；performance＝配速計算機。
-- 結果頁：固定 Slogan、四個固定標籤（含空白色塊）、完整 PNG、九組 `runnerType × hydrationStyle` 推薦、永續邀請。
-- precision／rest 必須選 joined／considering 才能進聯絡頁；pioneer 直接繼續，不再二次加入。
-- **全員姓名、Email、告知確認必填；合法提交固定 `raffleOptIn=true`**。
-- 個資告知未經 Garmin 核准；僅測試占位，不能視為正式政策或抽獎辦法。
-- 現有 A 級優先／fallback、加權庫存、requestId 防重、paused、領獎版面與商品圖保留。
-- 重新整理／重測回首頁；新測驗產生新 session／request。不以 Email 或瀏覽器紀錄阻止施測。
+1. Q1、Q2、Q3、Q5 計分；平手依 Q2 答案決定跑者類型。
+2. Q4 獨立決定補水類型；只有 pioneer 表示既有自帶補水。
+3. 非 pioneer 在結果頁選擇加入或考慮；pioneer 沿用 existing。
+4. 按下「繼續領獎」後前端提交匿名答案、分類、補水狀態與技術請求識別碼。
+5. Apps Script 重算答案與資格，在 LockService 保護下執行即時分配；成功或暫停結果才進入領獎頁。
 
-## Codespaces 預覽
+跑者 ID 仍為 experience、lifestyle、performance，顯示名稱依 content.csv。保留既有 A 級購物袋優先、一般獎品依剩餘庫存加權、fallback、暫停、RequestId 冪等性及庫存日誌。
 
-在 repository 根目錄執行：
+**網站不蒐集或提交姓名、Email、電話、地址、同意資料或紙本抽獎資料。** requestId、sessionId、時間與答案仍是可關聯的技術／活動資料，故不宣稱符合所有法規意義上的完全匿名。sessionId 僅供同一提交恢復，不作跨活動識別。
 
-```bash
-python3 -m http.server 8020 --bind 0.0.0.0
-```
+## API 環境與預覽
 
-從 Codespaces **Ports → 8020 → Open in Browser** 開啟：
+API 環境由 js/environment.js 依部署 hostname 決定，不接受網址 query string 切換 Mock：
 
-- `/`：V2 主網站，預設本機 Mock。
-- `/?mode=apps-script-demo`：相同 UI，測試 Apps Script Demo；舊後端未宣告 `quizVersion=2` 時會阻擋提交。
+- localhost、Codespaces：Development，使用瀏覽器 localStorage 測試庫存與匿名 Mock 紀錄。
+- 經明確設定的 Staging hostname：使用獨立測試 Apps Script／Spreadsheet；目前尚未設定 Staging URL 與 hostname。
+- 其他 hostname（含 GitHub Pages）：Production。Production API URL 目前留空，因此提交安全停用，不會靜默切回 Mock。
 
-本次 8020 預覽使用同等功能的暫存 handler，額外支援 `/GarminRunYourRunningGear/` 專案前綴；不修改 Pages 設定。
+在 Codespaces 啟動：
 
-**只填虛構資料。** Mock 存在該來源瀏覽器 localStorage；不會重設現有庫存或歷史。Demo 僅接受明確確認的測試資料，Email 限保留測試網域 example.com／example.org／example.net／.test／.invalid。正式資料蒐集未開啟。
+    python3 -m http.server 8020 --bind 0.0.0.0
 
-## 內容與架構
+從 Ports 開啟 8020。Mock 資料只在該瀏覽器來源的本機儲存；啟動新版本會移除舊 Mock 參加者紀錄中的姓名／Email 欄位，新的 Mock 不寫這些欄位。Production 不展示 Mock 工具，也不讀取或分配 Mock 獎品。
 
-- [PROJECT_MAP.md](PROJECT_MAP.md)：檔案、資料契約、V1 參考與相容性。
-- [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)：V2 版面、七色、四個固定標籤與圖片規範。
-- [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)：結果頁 CSS 微調、CSV 文案欄位與 Chrome DevTools 操作。
-- [content.csv](content.csv)：唯一 V2 執行期文案；英文全部為暫譯、待核定。
-- [V2_REVIEW.md](V2_REVIEW.md)：測試、截圖、限制與交接清單。
-- [apps-script/README.md](apps-script/README.md)：**V2 後端手動更新、Demo migration 與重新部署步驟**。
+## Apps Script 與 Sheets
 
-Cute 原型與 V1 controller 已移到 `_archive/cute-prototype/`，不再有 `/cute/` 公開入口，也不屬於目前 Pages 頁面。歷史 V1 CSV／文件仍保存在 `archive/v1/`；舊 JS 資料移到 `_archive/legacy-v1/`。目前三種結果顯示名稱只以 `content.csv` 的 result rows 為準。
+Repo 中 .gs 原始碼不會自動更新遠端 /exec。請先看 Apps Script 部署與遷移手冊。匿名契約為 submissionVersion 1、quizVersion 2；Apps Script 以 Script Property APP_ENVIRONMENT 決定 staging 或 production，忽略並拒絕前端環境切換欄位。
 
-## 測試
+Migration 僅追加 Participants 的 8 個追溯欄，以及 Requests 的 2 個冪等欄位；保留舊 18 欄、舊資料及所有庫存。Migration 不執行 setupActivitySheets()，也未對遠端 Spreadsheet 執行。
 
-```bash
-node --test tests/*.test.mjs
-```
+## 開發與驗證
 
-包含 243 組分類前後端對照、九組推薦及原文、四標籤、資格、全員聯絡與確認、Production 草稿拒絕、Demo 測試資料限制、記憶體 Sheets migration／分配／防重、既有 Mock 庫存測試，以及主入口與結果名稱檢查。
+    node --test tests/*.test.mjs
 
-選用 Playwright 本機瀏覽器驗收（不新增網站 runtime 套件）：
+測試使用記憶體 Spreadsheet 與本機 Mock；不可連正式 API、正式 Sheet 或正式庫存。選用瀏覽器測試 tests/v2UiRegression.cjs 只適用本機/Codespaces，需已安裝 Playwright 與 Chromium。
 
-```bash
-npm install --prefix /tmp/garmin-v2/tools playwright
-UI_SERVE=1 UI_BASE_URL=http://127.0.0.1:8021 \
-PLAYWRIGHT_MODULE=/tmp/garmin-v2/tools/node_modules/playwright \
-CHROMIUM_PATH=/path/to/chrome \
-node tests/v2UiRegression.cjs
-```
+## 文件
 
-`CHROMIUM_PATH` 可省略以使用 Playwright 已安裝的 Chromium。測試自行啟停本機 server，封鎖外部流量；Apps Script 使用 fixture，不寫遠端 Sheets。預設截圖輸出 `/tmp/garmin-v2-results`；本輪證據在 `docs/v2-review/`。
+- PROJECT_MAP.md：入口、資料流、API 與欄位契約。
+- DESIGN_SYSTEM.md：既有主網站視覺規範。
+- UI_TUNING_GUIDE.md：結果頁 CSS 與 CSV 文案維護。
+- apps-script/README.md：Staging／Production 隔離、migration、部署及回滾。
+- V2_REVIEW.md：本次匿名流程改版與驗證摘要。
 
-V1 UI 回歸腳本封存於 `_archive/cute-prototype/tests/`，不再由目前 V2 測試命令執行。延至正式上線前的高並發、故障注入及 processing 中斷恢復測試未在本輪執行。
+本次程式碼未部署 Apps Script、未發布 GitHub Pages、未連線或修改任何遠端試算表，亦未提交真實參與紀錄。

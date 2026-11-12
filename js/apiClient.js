@@ -1,5 +1,8 @@
-import { validateV2Payload } from "./participationValidation.js";
+import { validateAnonymousPayload } from "./participationValidation.js";
+import { API_CONFIGURED, API_DEMO_MODE, API_ENVIRONMENT, API_URL, IS_DEVELOPMENT } from "./environment.js";
 import {
+  clearAllocationRecovery,
+  clearPendingRequest,
   readAllocationRecovery,
   readPendingRequest,
   saveAllocationRecovery
@@ -12,12 +15,9 @@ const MOCK_ALLOCATIONS_KEY = "garminRunMockAllocations";
 const MOCK_INVENTORY_LOG_KEY = "garminRunMockInventoryLog";
 let mockAllocationQueue = Promise.resolve();
 
-const searchParams = new URLSearchParams(globalThis.location?.search || "");
-export const APPS_SCRIPT_DEMO_MODE = searchParams.get("mode") === "apps-script-demo";
-export const MOCK_MODE = !APPS_SCRIPT_DEMO_MODE;
-
-const APPS_SCRIPT_DEMO_URL =
-  "https://script.google.com/macros/s/AKfycbzpY0s-HZ5o0fTqinyFqZotoN5wWmLn9toWL1SZefK_WODZ_t3iGHz8UWpWH-okIV3fEw/exec";
+export const APPS_SCRIPT_DEMO_MODE = API_DEMO_MODE;
+export const MOCK_MODE = IS_DEVELOPMENT;
+export const API_STATUS = Object.freeze({ environment: API_ENVIRONMENT, configured: API_CONFIGURED });
 
 export const prizeCatalog = {
   cap: { nameZh: "Garmin 漁夫帽", nameEn: "Garmin Cap", imagePath: "./assets/prizes/Garmin漁夫帽.png" },
@@ -72,24 +72,27 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function validateMockPayload(payload) {
-  if (!payload || typeof payload.requestId !== "string" || payload.requestId.length < 1 || payload.requestId.length > 128) {
-    return "INVALID_REQUEST_ID";
-  }
-  if (!["experience", "lifestyle", "performance"].includes(payload.runnerType)) {
-    return "INVALID_RUNNER_TYPE";
-  }
-  if (typeof payload.existingSelfHydration !== "boolean" || typeof payload.sustainabilityRewardEligible !== "boolean" || typeof payload.premiumPrizeEligible !== "boolean") {
-    return "INVALID_ELIGIBILITY";
-  }
-  if (!["existing", "joined", "considering"].includes(payload.hydrationCommitment)) {
-    return "INVALID_HYDRATION_COMMITMENT";
-  }
-  if (payload.raffleOptIn === true) {
-    if (typeof payload.name !== "string" || !payload.name.trim() || payload.name.length > 80) return "INVALID_RAFFLE_NAME";
-    if (typeof payload.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email) || payload.email.length > 254) return "INVALID_RAFFLE_EMAIL";
-  }
-  return null;
+function mockFingerprint(payload) {
+  return JSON.stringify({
+    sessionId: payload.sessionId,
+    answers: payload.answers,
+    runnerType: payload.runnerType,
+    hydrationStyle: payload.hydrationStyle,
+    hydrationCommitment: payload.hydrationCommitment,
+    premiumPrizeEligible: payload.premiumPrizeEligible,
+    sustainabilityRewardEligible: payload.sustainabilityRewardEligible
+  });
+}
+
+function anonymizeStoredMockParticipants() {
+  const records = getJsonArray(MOCK_PARTICIPANTS_KEY);
+  const sanitized = records.map((record) => {
+    const next = { ...record };
+    for (const key of ["name", "email", "phone", "address", "raffleOptIn", "privacyNoticeVersion", "privacyAcknowledgedAt"]) delete next[key];
+    return next;
+  });
+  if (JSON.stringify(records) !== JSON.stringify(sanitized)) saveJson(MOCK_PARTICIPANTS_KEY, sanitized);
+  return sanitized;
 }
 
 function getJsonArray(key) {
@@ -101,14 +104,17 @@ function getJsonArray(key) {
   }
 }
 
+// Remove contact fields left by earlier Mock builds on this origin, regardless of environment.
+anonymizeStoredMockParticipants();
+
 export function resetMockTestData() {
   saveJson(MOCK_REQUESTS_KEY, {});
   saveJson(MOCK_STOCK_KEY, { ...DEFAULT_MOCK_STOCK });
   saveJson(MOCK_PARTICIPANTS_KEY, []);
   saveJson(MOCK_ALLOCATIONS_KEY, []);
   saveJson(MOCK_INVENTORY_LOG_KEY, []);
-  localStorage.removeItem("garminRunDemoAllocation");
-  localStorage.removeItem("garminRunPendingRequest");
+  clearAllocationRecovery();
+  clearPendingRequest();
   return { ok: true, stock: { ...DEFAULT_MOCK_STOCK }, demoMode: true };
 }
 
@@ -158,26 +164,26 @@ export function getMockSnapshot() {
       remainingStock: Math.max(0, Number(stock[prizeId] || 0)),
       allocatedCount: Math.max(0, DEFAULT_MOCK_STOCK[prizeId] - Math.max(0, Number(stock[prizeId] || 0)))
     })),
-    participants: getJsonArray(MOCK_PARTICIPANTS_KEY),
+    participants: anonymizeStoredMockParticipants(),
     allocations: getJsonArray(MOCK_ALLOCATIONS_KEY),
     inventoryLog: getJsonArray(MOCK_INVENTORY_LOG_KEY),
     requestCount: Object.keys(getMockRequests()).length
   };
 }
 
-export async function submitParticipation(payload) {
-  if (payload?.quizVersion === 2) {
-    try { payload = validateV2Payload(payload, { mode: APPS_SCRIPT_DEMO_MODE ? "demo" : "mock" }); }
-    catch (error) { return { ok: false, retryable: false, code: error.message, demoMode: true }; }
-  }
-  if (APPS_SCRIPT_DEMO_MODE) {
+export async function submitAnonymousResult(rawPayload) {
+  let payload;
+  try { payload = validateAnonymousPayload(rawPayload); }
+  catch (error) { return { ok: false, retryable: false, code: error.message, demoMode: API_DEMO_MODE }; }
+  if (!API_CONFIGURED) return { ok: false, retryable: true, code: "API_NOT_CONFIGURED", demoMode: false };
+  if (!IS_DEVELOPMENT) {
     const controller = new AbortController();
     const timeoutId = globalThis.setTimeout(() => controller.abort(), 30000);
     try {
-      const response = await fetch(APPS_SCRIPT_DEMO_URL, {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=UTF-8" },
-        body: JSON.stringify({ ...payload, demoMode: true }),
+        body: JSON.stringify(payload),
         signal: controller.signal
       });
       const text = await response.text();
@@ -198,19 +204,12 @@ export async function submitParticipation(payload) {
 
   await delay(450);
   const allocate = () => {
-    const validationError = validateMockPayload(payload);
-    if (validationError) {
-      return {
-        ok: false,
-        retryable: false,
-        code: validationError,
-        message: { zh: "Mock 資料驗證失敗", en: "Mock data validation failed" },
-        demoMode: true
-      };
-    }
     const requests = getMockRequests();
     if (requests[payload.requestId]) {
-      return { ok: true, ...requests[payload.requestId], idempotentReplay: true };
+      const saved = requests[payload.requestId];
+      if (saved._fingerprint !== mockFingerprint(payload)) return { ok: false, retryable: false, code: "REQUEST_ID_CONFLICT", demoMode: true };
+      const { _fingerprint, ...result } = saved;
+      return { ok: true, ...result, idempotentReplay: true };
     }
 
     const stock = getMockStock();
@@ -253,21 +252,20 @@ export async function submitParticipation(payload) {
         requestId: payload.requestId,
         createdAt: new Date().toISOString(),
         runnerType: payload.runnerType,
-        quizVersion: payload.quizVersion || 1,
+        submissionVersion: payload.submissionVersion,
+        quizVersion: payload.quizVersion,
+        answers: payload.answers,
         hydrationStyle: payload.hydrationStyle || "",
         q4Answer: payload.q4Answer || "",
         existingSelfHydration: payload.existingSelfHydration,
         hydrationCommitment: payload.hydrationCommitment,
         sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
         premiumPrizeEligible: payload.premiumPrizeEligible,
-        raffleOptIn: payload.raffleOptIn === true,
-        name: payload.raffleOptIn === true ? payload.name : "",
-        email: payload.raffleOptIn === true ? payload.email : "",
         prizeId: "",
         allocationStatus: "paused",
         redemptionStatus: "not_applicable"
       });
-      requests[payload.requestId] = pausedResult;
+      requests[payload.requestId] = { ...pausedResult, _fingerprint: mockFingerprint(payload) };
       saveJson(MOCK_PARTICIPANTS_KEY, participants);
       saveJson(MOCK_REQUESTS_KEY, requests);
       saveAllocationRecovery(pausedResult);
@@ -300,16 +298,15 @@ export async function submitParticipation(payload) {
         requestId: payload.requestId,
         createdAt: new Date().toISOString(),
         runnerType: payload.runnerType,
-        quizVersion: payload.quizVersion || 1,
+        submissionVersion: payload.submissionVersion,
+        quizVersion: payload.quizVersion,
+        answers: payload.answers,
         hydrationStyle: payload.hydrationStyle || "",
         q4Answer: payload.q4Answer || "",
         existingSelfHydration: payload.existingSelfHydration,
         hydrationCommitment: payload.hydrationCommitment,
         sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
         premiumPrizeEligible: payload.premiumPrizeEligible,
-        raffleOptIn: payload.raffleOptIn === true,
-        name: payload.raffleOptIn === true ? payload.name : "",
-        email: payload.raffleOptIn === true ? payload.email : "",
         prizeId,
         allocationStatus: "allocated",
         redemptionStatus: "unverified"
@@ -345,7 +342,7 @@ export async function submitParticipation(payload) {
       saveJson(MOCK_INVENTORY_LOG_KEY, inventoryLog);
     }
 
-    requests[payload.requestId] = result;
+    requests[payload.requestId] = { ...result, _fingerprint: mockFingerprint(payload) };
     saveJson(MOCK_REQUESTS_KEY, requests);
     saveJson(MOCK_STOCK_KEY, stock);
     saveAllocationRecovery(result);
@@ -360,15 +357,14 @@ export async function submitParticipation(payload) {
   return mockAllocationQueue;
 }
 
-export async function getExistingAllocation() {
-  if (APPS_SCRIPT_DEMO_MODE) {
-    const pending = readPendingRequest();
-    if (!pending?.sessionId || !pending?.requestId) return { ok: true, found: false, demoMode: true };
-    const url = new URL(APPS_SCRIPT_DEMO_URL);
+export async function getExistingAllocation(pending = readPendingRequest()) {
+  if (!IS_DEVELOPMENT && !API_CONFIGURED) return { ok: false, found: false, code: "API_NOT_CONFIGURED", demoMode: false };
+  if (!IS_DEVELOPMENT && API_CONFIGURED) {
+    if (!pending?.sessionId || !pending?.requestId) return { ok: true, found: false, demoMode: API_DEMO_MODE };
+    const url = new URL(API_URL);
     url.searchParams.set("action", "getExistingAllocation");
     url.searchParams.set("requestId", pending.requestId);
     url.searchParams.set("sessionId", pending.sessionId);
-    url.searchParams.set("demoMode", "true");
     const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
     const result = await response.json();
     return result;
@@ -377,19 +373,21 @@ export async function getExistingAllocation() {
   const recovery = readAllocationRecovery();
   if (!recovery) return { ok: true, found: false, demoMode: true };
   const request = getMockRequests()[recovery.requestId];
-  return request
-    ? { ok: true, found: true, ...request, demoMode: true }
-    : { ok: true, found: false, demoMode: true };
+  if (request) {
+    const { _fingerprint, ...allocation } = request;
+    return { ok: true, found: true, allocation: { ok: true, ...allocation, demoMode: true }, demoMode: true };
+  }
+  return { ok: true, found: false, demoMode: true };
 }
 
 export async function getPublicCampaignStatus() {
-  if (APPS_SCRIPT_DEMO_MODE) {
-    const url = new URL(APPS_SCRIPT_DEMO_URL);
+  if (!API_CONFIGURED) return { ok: false, configured: false, code: "API_NOT_CONFIGURED", demoMode: false };
+  if (!IS_DEVELOPMENT) {
+    const url = new URL(API_URL);
     url.searchParams.set("action", "getPublicCampaignStatus");
-    url.searchParams.set("demoMode", "true");
     const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
     return response.json();
   }
   await delay(100);
-  return { ok: true, quizVersion: 2, allocationEnabled: true, raffleEnabled: true, demoMode: true };
+  return { ok: true, configured: true, quizVersion: 2, submissionVersion: 1, allocationEnabled: true, demoMode: true };
 }

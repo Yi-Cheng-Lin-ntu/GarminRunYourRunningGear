@@ -1,44 +1,47 @@
 var RUNNER_TYPES = ["experience", "lifestyle", "performance"];
+var HYDRATION_STYLES = ["precision", "rest", "pioneer"];
 var HYDRATION_COMMITMENTS = ["existing", "joined", "considering"];
+var FORBIDDEN_PERSONAL_FIELDS = ["name", "email", "phone", "address", "raffleOptIn",
+  "privacyConfirmed", "privacyNoticeVersion", "privacyAcknowledgedAt", "testDataConfirmed"];
 
-function validateParticipationPayload(raw) {
-  if (!raw || typeof raw !== "object") throw new Error("INVALID_PAYLOAD");
-  if (raw.quizVersion !== 2) throw new Error("UNSUPPORTED_QUIZ_VERSION");
+function validateAnonymousSubmission(raw, demoMode) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("INVALID_PAYLOAD");
+  if (raw.submissionVersion !== 1 || raw.quizVersion !== 2) throw new Error("UNSUPPORTED_SUBMISSION_VERSION");
+  FORBIDDEN_PERSONAL_FIELDS.forEach(function (field) {
+    if (Object.prototype.hasOwnProperty.call(raw, field)) throw new Error("PERSONAL_DATA_NOT_ALLOWED");
+  });
   ["requestId", "sessionId"].forEach(function (key) {
     if (typeof raw[key] !== "string" || !raw[key].trim() || raw[key].length > 128) {
       throw new Error(key === "requestId" ? "INVALID_REQUEST_ID" : "INVALID_SESSION_ID");
     }
   });
   var classified = classifyServerAnswers(raw.answers);
-  var existing = classified.sustainability;
+  var existing = classified.existingSelfHydration;
+  var commitment = existing ? "existing" : raw.hydrationCommitment;
+  if (HYDRATION_COMMITMENTS.indexOf(commitment) < 0 || (existing && raw.hydrationCommitment !== "existing")) {
+    throw new Error("INVALID_HYDRATION_COMMITMENT");
+  }
+  var sustainabilityEligible = existing || commitment === "joined";
   if (raw.runnerType !== classified.runnerType || raw.hydrationStyle !== classified.hydrationStyle ||
       raw.q4Answer !== classified.q4Answer || raw.existingSelfHydration !== existing ||
-      (existing ? raw.hydrationCommitment !== "existing" : ["joined", "considering"].indexOf(raw.hydrationCommitment) < 0) ||
-      raw.premiumPrizeEligible !== existing ||
-      raw.sustainabilityRewardEligible !== (existing || raw.hydrationCommitment === "joined")) {
+      raw.hydrationCommitment !== commitment || raw.sustainabilityRewardEligible !== sustainabilityEligible ||
+      raw.premiumPrizeEligible !== existing) {
     throw new Error("ELIGIBILITY_MISMATCH");
   }
-  if (raw.raffleOptIn !== true) throw new Error("INVALID_RAFFLE_OPTION");
-  if (typeof raw.name !== "string" || !raw.name.trim() || raw.name.length > 80) throw new Error("INVALID_RAFFLE_NAME");
-  if (typeof raw.email !== "string" || raw.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw.email)) throw new Error("INVALID_RAFFLE_EMAIL");
-  if (raw.privacyConfirmed !== true || typeof raw.privacyAcknowledgedAt !== "string" || isNaN(Date.parse(raw.privacyAcknowledgedAt))) {
-    throw new Error("INVALID_PRIVACY_ACKNOWLEDGEMENT");
-  }
-  var demo = raw.demoMode === true;
-  var expected = getSettingValue(demo ? "demoPrivacyNoticeVersion" : "privacyNoticeVersion");
-  if (!expected || (!demo && /^(DRAFT|DEMO)/i.test(expected)) || /^DRAFT/i.test(expected) || raw.privacyNoticeVersion !== expected) {
-    throw new Error("PRIVACY_NOTICE_NOT_APPROVED");
-  }
-  if (demo && (raw.testDataConfirmed !== true || !/@(?:[a-z0-9-]+\.)*(?:example\.(?:com|org|net)|[a-z0-9-]+\.(?:test|invalid))$/i.test(raw.email))) {
-    throw new Error("TEST_DATA_REQUIRED");
-  }
   return {
-    quizVersion: 2, requestId: raw.requestId, sessionId: raw.sessionId,
-    runnerType: classified.runnerType, hydrationStyle: classified.hydrationStyle, q4Answer: classified.q4Answer,
-    existingSelfHydration: existing, hydrationCommitment: raw.hydrationCommitment,
-    sustainabilityRewardEligible: existing || raw.hydrationCommitment === "joined", premiumPrizeEligible: existing,
-    raffleOptIn: true, name: sanitizeText(raw.name, 80), email: sanitizeText(raw.email, 254),
-    privacyNoticeVersion: expected, privacyAcknowledgedAt: raw.privacyAcknowledgedAt, demoMode: demo
+    submissionVersion: 1,
+    quizVersion: 2,
+    requestId: raw.requestId,
+    sessionId: raw.sessionId,
+    answers: { q1: raw.answers.q1, q2: raw.answers.q2, q3: raw.answers.q3, q4: raw.answers.q4, q5: raw.answers.q5 },
+    runnerType: classified.runnerType,
+    hydrationStyle: classified.hydrationStyle,
+    q4Answer: classified.q4Answer,
+    existingSelfHydration: existing,
+    hydrationCommitment: commitment,
+    sustainabilityRewardEligible: sustainabilityEligible,
+    premiumPrizeEligible: existing,
+    demoMode: demoMode === true
   };
 }
 
@@ -50,18 +53,16 @@ function classifyServerAnswers(answers) {
     if (!type) throw new Error("INVALID_ANSWER");
     scores[type]++;
   });
-  var style = ["precision", "rest", "pioneer"].filter(function (candidate) { return answers.q4 === "q4_" + candidate; })[0];
+  var style = HYDRATION_STYLES.filter(function (candidate) { return answers.q4 === "q4_" + candidate; })[0];
   if (!style) throw new Error("INVALID_ANSWER");
   var highest = Math.max(scores.experience, scores.lifestyle, scores.performance);
   var candidates = RUNNER_TYPES.filter(function (type) { return scores[type] === highest; });
   return {
     runnerType: candidates.length === 1 ? candidates[0] : answers.q2.slice(3),
-    scores: scores, hydrationStyle: style, q4Answer: answers.q4,
-    sustainability: style === "pioneer", existingSelfHydration: style === "pioneer"
+    scores: scores,
+    hydrationStyle: style,
+    q4Answer: answers.q4,
+    existingSelfHydration: style === "pioneer",
+    sustainability: style === "pioneer"
   };
-}
-
-function sanitizeText(value, maxLength) {
-  var text = String(value == null ? "" : value).trim().slice(0, maxLength);
-  return /^[=+\-@]/.test(text) ? "'" + text : text;
 }

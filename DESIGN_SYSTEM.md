@@ -56,7 +56,7 @@
 
 先鋒隊選項放在 `.hydration-choices`，手機／桌機皆為等寬雙欄，圖形標記位於上方；選取維持綠框、綠色側線及radio提示。間距由 `--hydration-choice-gap` 控制。
 
-聯絡頁獨立：姓名、Email、未核准測試告知及確認checkbox，沒有raffle toggle；所有合法提交自動登記測試抽獎。畫面明示虛構資料，Demo提示保留網域限制，不捏造官方政策或期限。
+結果頁的永續選擇為 joined／considering；pioneer 沿用 existing。按繼續後直接提交匿名測驗及補水資料，不顯示姓名、Email、個資確認或網路抽獎表單。紙本抽獎在網站之外獨立處理。
 
 領獎保留原版markup與共用rendering、商品圖片contain、paused畫面及再測一次。existing／joined綠底，considering冰藍。顏色代表行動資格，不是跑者分類或獎品等級。
 
@@ -64,6 +64,6 @@
 
 深色畫面使用White／Muted，focus為冰藍；亮色領獎頁使用Black文字及focus。Black on Green約14.4:1、Black on Ice Blue約16.9:1。重要邊界使用深色；選取狀態除顏色外有側線／勾號或radio。空標籤不朗讀，PNG有雙語alt；錯誤保留alert，尊重reduced-motion。
 
-至少驗收375／390／430／768／1280px、中文／英文、四格位置、長標籤、完整PNG、邀請gating、必填聯絡與Mock領獎。證據與限制見 `V2_REVIEW.md`。英文為暫譯待核定；實機Safari／Android與螢幕閱讀器仍需人工驗收。
+至少驗收375／390／430／768／1280px、中文／英文、四格位置、長標籤、完整PNG、邀請 gating、匿名提交與 Mock 領獎。證據與限制見 V2_REVIEW.md。英文為暫譯待核定；實機 Safari／Android 與螢幕閱讀器仍需人工驗收。
 
 `V2_REVIEW.md` 與 `docs/v2-review/` 是既有驗收紀錄；目前可人工調整的 CSS 與文案位置請以 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md) 及目前程式為準。

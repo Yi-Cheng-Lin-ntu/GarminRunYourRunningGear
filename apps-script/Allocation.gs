@@ -35,7 +35,7 @@ function getPrizeImagePath(prizeId) {
   return paths[prizeId] || "";
 }
 
-function submitParticipation(payload) {
+function submitAnonymousResult(payload) {
   var now = new Date();
   var names = getModeSheetNames(payload.demoMode);
   var ss = SpreadsheetApp.getActive();
@@ -44,32 +44,23 @@ function submitParticipation(payload) {
   var participantSheet = ss.getSheetByName(names.participants);
   var allocationSheet = ss.getSheetByName(names.allocations);
   var inventorySheet = ss.getSheetByName(names.inventoryLog);
-  if (!requestSheet || !prizeSheet || !participantSheet || !allocationSheet || !inventorySheet) {
-    throw new Error("SHEET_SETUP_REQUIRED");
-  }
+  if (!requestSheet || !prizeSheet || !participantSheet || !allocationSheet || !inventorySheet) throw new Error("SHEET_SETUP_REQUIRED");
+  requireAnonymousSchema(participantSheet, requestSheet);
 
-  requireV2ParticipantColumns(participantSheet);
-
+  var fingerprint = getSubmissionFingerprint(payload);
   var existing = findRequest(payload.requestId, payload.demoMode);
   if (existing) {
-    if (existing.values[3] === "allocated" && existing.values[4]) {
+    if (existing.values[1] !== payload.sessionId || existing.values[8] !== fingerprint) throw new Error("REQUEST_ID_CONFLICT");
+    if ((existing.values[3] === "allocated" || existing.values[3] === "paused") && existing.values[4]) {
       var replay = JSON.parse(existing.values[4]);
       replay.idempotentReplay = true;
       return replay;
-    }
-    if (existing.values[3] === "paused" && existing.values[4]) {
-      var paused = JSON.parse(existing.values[4]);
-      paused.idempotentReplay = true;
-      return paused;
     }
     throw new Error("REQUEST_PENDING_RETRY");
   }
 
   if (!payload.demoMode && getSettingValue("allocationEnabled") !== "true") {
-    return allocationPausedResult(payload, names, requestSheet, now);
-  }
-  if (!payload.demoMode && getSettingValue("raffleEnabled") !== "true" && payload.raffleOptIn) {
-    return allocationPausedResult(payload, names, requestSheet, now, "RAFFLE_DISABLED");
+    return allocationPausedResult(payload, names, requestSheet, now, "ALLOCATION_PAUSED");
   }
 
   var prizeId = null;
@@ -84,23 +75,15 @@ function submitParticipation(payload) {
     prizeId = weightedPrize(prizeRows, Math.random());
     allocationMethod = payload.premiumPrizeEligible ? "premium_fallback" : "general_weighted";
   }
-  if (!prizeId) {
-    return allocationPausedResult(payload, names, requestSheet, now);
-  }
+  if (!prizeId) return allocationPausedResult(payload, names, requestSheet, now, "ALLOCATION_PAUSED");
 
   var prize = findPrize(prizeId, payload.demoMode);
   var remaining = Number(prize.values[5]);
   var allocated = Number(prize.values[6]) || 0;
-  if (remaining <= 0) return allocationPausedResult(payload, names, requestSheet, now);
-
-  var participantId = payload.demoMode
-    ? "demo_" + Utilities.getUuid()
-    : "participant_" + Utilities.getUuid();
+  if (remaining <= 0) return allocationPausedResult(payload, names, requestSheet, now, "ALLOCATION_PAUSED");
+  var participantId = (payload.demoMode ? "staging_" : "participant_") + Utilities.getUuid();
   var allocationId = "allocation_" + Utilities.getUuid();
-  var redemptionCode = payload.demoMode
-    ? "DEMO-" + payload.requestId.slice(-6).toUpperCase()
-    : "GR26-" + payload.requestId.slice(-8).toUpperCase();
-
+  var redemptionCode = (payload.demoMode ? "STG-" : "GR26-") + payload.requestId.slice(-8).toUpperCase();
   var result = {
     ok: true,
     demoMode: payload.demoMode,
@@ -121,24 +104,18 @@ function submitParticipation(payload) {
   };
 
   requestSheet.appendRow([
-    payload.requestId, payload.sessionId, participantId, "processing", JSON.stringify(result), now, now
+    payload.requestId, payload.sessionId, participantId, "processing", JSON.stringify(result), now, now,
+    payload.submissionVersion, fingerprint
   ]);
-
   prizeSheet.getRange(prize.row, 6).setValue(remaining - 1);
   prizeSheet.getRange(prize.row, 7).setValue(allocated + 1);
-
-  participantSheet.appendRow([
-    participantId, payload.requestId, now, payload.runnerType, payload.existingSelfHydration,
-    payload.hydrationCommitment, payload.sustainabilityRewardEligible, payload.premiumPrizeEligible,
-    payload.raffleOptIn, payload.name, payload.email, payload.privacyNoticeVersion,
-    payload.privacyAcknowledgedAt, prizeId, "allocated", now, redemptionCode, "unverified", payload.quizVersion, payload.hydrationStyle, payload.q4Answer
-  ]);
+  participantSheet.appendRow(getParticipantRow(payload, participantId, now, prizeId, "allocated", redemptionCode, "unverified"));
   allocationSheet.appendRow([
     allocationId, participantId, payload.requestId, prizeId, now, allocationMethod, "allocated"
   ]);
   inventorySheet.appendRow([
     "inventory_" + Utilities.getUuid(), now, prizeId, "allocation", -1, remaining, remaining - 1,
-    allocationMethod, allocationId, payload.demoMode ? "demo-system" : "public-api"
+    allocationMethod, allocationId, payload.demoMode ? "staging-system" : "public-api"
   ]);
 
   var completedRequest = findRequest(payload.requestId, payload.demoMode);
@@ -151,23 +128,15 @@ function submitParticipation(payload) {
 }
 
 function allocationPausedResult(payload, names, requestSheet, now, code) {
-  var participantId = payload.demoMode
-    ? "demo_" + Utilities.getUuid()
-    : "participant_" + Utilities.getUuid();
-  var pausedZh = code === "RAFFLE_DISABLED"
-    ? "賽後抽獎目前暫停，但感謝你的參與"
-    : "現場獎品已贈送完畢，謝謝您的參與~";
-  var pausedEn = code === "RAFFLE_DISABLED"
-    ? "Raffle registration is paused, but thank you for participating."
-    : "All prizes have been given out. Thank you for participating!";
+  var participantId = (payload.demoMode ? "staging_" : "participant_") + Utilities.getUuid();
   var result = {
     ok: true,
     retryable: false,
     demoMode: payload.demoMode,
     code: code || "ALLOCATION_PAUSED",
     message: {
-      zh: pausedZh,
-      en: pausedEn
+      zh: "現場獎品已贈送完畢，謝謝您的參與~",
+      en: "All prizes have been given out. Thank you for participating!"
     },
     participantId: participantId,
     sessionId: payload.sessionId,
@@ -178,14 +147,32 @@ function allocationPausedResult(payload, names, requestSheet, now, code) {
     requestId: payload.requestId
   };
   var participantSheet = SpreadsheetApp.getActive().getSheetByName(names.participants);
-  participantSheet.appendRow([
+  requestSheet.appendRow([
+    payload.requestId, payload.sessionId, participantId, "paused", JSON.stringify(result), now, now,
+    payload.submissionVersion, getSubmissionFingerprint(payload)
+  ]);
+  participantSheet.appendRow(getParticipantRow(payload, participantId, now, "", "paused", "", "not_applicable"));
+  return result;
+}
+
+function getParticipantRow(payload, participantId, now, prizeId, status, redemptionCode, redemptionStatus) {
+  return [
     participantId, payload.requestId, now, payload.runnerType, payload.existingSelfHydration,
     payload.hydrationCommitment, payload.sustainabilityRewardEligible, payload.premiumPrizeEligible,
-    payload.raffleOptIn, payload.name, payload.email, payload.privacyNoticeVersion,
-    payload.privacyAcknowledgedAt, "", "paused", now, "", "not_applicable", payload.quizVersion, payload.hydrationStyle, payload.q4Answer
-  ]);
-  requestSheet.appendRow([
-    payload.requestId, payload.sessionId, participantId, "paused", JSON.stringify(result), now, now
-  ]);
-  return result;
+    false, "", "", "", "", prizeId, status, now, redemptionCode, redemptionStatus,
+    payload.quizVersion, payload.hydrationStyle, payload.q4Answer, payload.submissionVersion,
+    payload.answers.q1, payload.answers.q2, payload.answers.q3, payload.answers.q5
+  ];
+}
+
+function getSubmissionFingerprint(payload) {
+  return JSON.stringify({
+    answers: [payload.answers.q1, payload.answers.q2, payload.answers.q3, payload.answers.q4, payload.answers.q5],
+    runnerType: payload.runnerType,
+    hydrationStyle: payload.hydrationStyle,
+    hydrationCommitment: payload.hydrationCommitment,
+    sustainabilityRewardEligible: payload.sustainabilityRewardEligible,
+    premiumPrizeEligible: payload.premiumPrizeEligible,
+    submissionVersion: payload.submissionVersion
+  });
 }

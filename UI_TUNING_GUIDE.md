@@ -24,11 +24,11 @@
 | Typography Level | CSS variable | Mobile 字級 | Desktop 字級 | 字重 | 使用的頁面與元素 | 主要 selector |
 |---|---|---:|---:|---:|---|---|
 | Display | `--font-display` | 32px | 40px | 900 | 首頁品牌、We Change、跑者名稱 | `.start-brand`、`.start-manifesto span:last-child`、`.v2-result-heading h2` |
-| H1 | `--font-h1` | 28px | 32px | 800 | 首頁標題、個資頁與兌獎頁主標題 | `#start-title`、`.participation-header h2`、`.redemption-banner h2`、`.redemption-prize-title` |
+| H1 | `--font-h1` | 28px | 32px | 800 | 首頁標題與兌獎頁主標題 | `#start-title`、`.redemption-banner h2`、`.redemption-prize-title` |
 | H2 | `--font-h2` | 22px | 24px | 800 | 測驗題目／題號、區塊標題、獎品名稱、永續標題 | `.question-intro h2`、`.question-number`、結果推薦標籤、`.prize-name` |
 | H3 | `--font-h3` | 18px | 20px | 700 | 跑者 slogan、推薦標題、永續邀請、互動卡片標題 | `.v2-slogan`、`.v2-recommendation h3`、`.v2-invitation legend` |
-| Body | `--font-body` | 16px | 16px | 400（按鈕／強調文字 700） | 一般說明、推薦內文、欄位與按鈕 | `body`、推薦說明、`.v2-contact-fields label`、`.button` |
-| Small | `--font-small` | 13px | 13px | 400（強調標籤 700） | 題目副標、標籤、輔助／次要說明與工具狀態 | `.question-subtitle`、`.runner-tag`、`.privacy-copy`、`.mock-mode-badge` |
+| Body | `--font-body` | 16px | 16px | 400（按鈕／強調文字 700） | 一般說明、推薦內文與按鈕 | `body`、推薦說明、`.button` |
+| Small | `--font-small` | 13px | 13px | 400（強調標籤 700） | 題目副標、標籤、輔助說明與開發工具狀態 | `.question-subtitle`、`.runner-tag`、`.mock-mode-badge` |
 
 字重、行高與字距也有共用變數：`--weight-body`、`--weight-emphasis`、`--weight-heading`、`--weight-display`、`--line-height-heading`、`--line-height-body`、`--line-height-small`、`--letter-spacing-brand` 與 `--letter-spacing-ui`。選取頁面元素後，可在 DevTools 的 `:root` 規則調整字級 token，立即檢視全站對應層級；若只在某頁測試，可在該頁容器暫時覆寫同名變數。
 
@@ -77,15 +77,14 @@ Canvas 下載圖不繼承 CSS，字級集中在 `js/shareCard.js` 的 `SHARE_CAR
 | 九種補水推薦標題 | `type=recommendation`；用 `parent_id`（跑者 ID）及 `hydration_style`（`precision`／`rest`／`pioneer`）定位；標題在 `zh`、`en` |
 | 九種補水推薦內文 | 同一 row 的 `description_zh`、`description_en` |
 | 永續邀請與選項 | `type=ui`：`v2.invitation`、`v2.invitationNote`、`v2.joined`、`v2.considering`、`v2.pioneerThanks` |
-| 聯絡頁標題、告知及按鈕 | `type=ui`：`v2.contactTitle`、`v2.privacy`、`v2.privacyConfirm`、`v2.submit` |
-| 錯誤提示 | `type=ui`：`v2.chooseError`、`v2.nameError`、`v2.emailError`、`v2.privacyError`、`v2.demoEmailError`、`v2.submitError`、`v2.backendOld` |
+| 匿名提交錯誤與狀態 | `type=ui`：`v2.chooseError`、`v2.submitError`、`v2.backendOld`、`v2.serviceUnavailable`、`v2.retrySubmit` |
 | 一般流程按鈕 | `type=ui`：`navigation.back`、`navigation.next`、`quiz.seeResult`、`v2.continue`、`v2.retry` |
 | 主站其他固定文案與無障礙標籤 | `type=ui`：`meta.*`、`brand.*`、`footer.*`、`language.*`、`quiz.*`、`v2.mock*`、`v2.redemption*` |
 | 獎品名稱與裝備圖片替代文字 | `type=ui`：`prize.<prizeId>`、`equipment.*` |
 
 ### 不在 CSV 的文字或資料
 
-- HTML 結構、互動屬性與 CSV key 在 `index.html`；一般文字與無障礙標籤由 `js/appV2.js` 依 key 從 CSV 填入。
+- HTML 結構與互動屬性在 `index.html`；一般文字與無障礙標籤由 `js/appV2.js` 依 key 從 CSV 填入。匿名提交頁沒有姓名、Email或告知確認欄位。
 - 題號、庫存數字、選項字母及內部錯誤代碼由程式產生，屬於狀態或機制資料，不是可編輯文案。
 - CSV 本身無法載入時的緊急錯誤備援留在 `js/appV2.js`，因為此時無法再讀取 CSV。
 - 圖檔路徑與九組補水裝備對應仍是程式設定；補水裝備替代文字則由 `content.csv` 的 `equipment.*` 提供。

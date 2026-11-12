@@ -183,23 +183,16 @@ function verifyInventoryConsistency() {
       }
     }
   });
+  ["Requests", "DemoRequests"].forEach(function (sheetName) {
+    var sheet = ss.getSheetByName(sheetName);
+    if (!sheet || sheet.getLastRow() < 2) return;
+    var rows = sheet.getDataRange().getValues();
+    for (var i = 1; i < rows.length; i++) {
+      if (String(rows[i][3]) === "processing") {
+        problems.push(sheetName + "/" + String(rows[i][0]) + ": request remains processing; inspect participant, allocation and inventory log before retry or repair");
+      }
+    }
+  });
   SpreadsheetApp.getUi().alert(problems.length ? problems.join("\n") : "庫存與分配紀錄一致。");
 }
 
-function exportRaffleListCsv() {
-  var ss = SpreadsheetApp.getActive();
-  var source = ss.getSheetByName(SHEET_NAMES.Participants);
-  var exportName = "RaffleExport";
-  var target = ss.getSheetByName(exportName) || ss.insertSheet(exportName);
-  target.clear();
-  target.getRange(1, 1, 1, 4).setValues([["participantId","name","email","createdAt"]]);
-  var values = source.getDataRange().getValues();
-  var rows = [];
-  for (var i = 1; i < values.length; i++) {
-    if (values[i][8] === true || String(values[i][8]).toLowerCase() === "true") {
-      rows.push([values[i][0], values[i][9], values[i][10], values[i][2]]);
-    }
-  }
-  if (rows.length) target.getRange(2, 1, rows.length, 4).setValues(rows);
-  SpreadsheetApp.getUi().alert("抽獎名單已更新至「RaffleExport」工作表，共 " + rows.length + " 筆。請使用 Sheet 的下載功能匯出 CSV。");
-}

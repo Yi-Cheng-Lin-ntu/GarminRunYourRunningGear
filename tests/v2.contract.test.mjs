@@ -6,7 +6,7 @@ import { parseContent } from "../js/contentData.js";
 import { classifyAnswers } from "../js/classificationEngine.js";
 import { classificationRules } from "../js/classificationRules.js";
 import { derivePrizeEligibility } from "../js/prizeEligibility.js";
-import { validateV2Payload } from "../js/participationValidation.js";
+import { validateAnonymousPayload } from "../js/participationValidation.js";
 
 const content = parseContent(readFileSync(new URL("../content.csv", import.meta.url), "utf8"));
 const types = ["experience", "lifestyle", "performance"];
@@ -21,9 +21,7 @@ function payload(style = "rest", commitment = "considering") {
   return {
     ...derivePrizeEligibility({ runnerType: result.runnerType, existingSelfHydration: result.sustainability, hydrationCommitment: commitment }),
     answers: a, quizVersion: 2, hydrationStyle: style, q4Answer: a.q4,
-    requestId: "v2-test-request", sessionId: "v2-test-session", demoMode: true,
-    name: "Demo Runner", email: "runner@example.com", raffleOptIn: true, privacyConfirmed: true,
-    testDataConfirmed: true, privacyNoticeVersion: "DEMO_ONLY", privacyAcknowledgedAt: "2026-11-09T00:00:00Z"
+    requestId: "anon-test-request", sessionId: "anon-test-session", submissionVersion: 1
   };
 }
 
@@ -115,30 +113,29 @@ test("Three PNGs, fixed slogans and four tags; all nine recommendations match ap
   }
 });
 
-test("V2 contact, consent, automatic raffle and Demo restrictions agree with Apps Script", () => {
+test("Anonymous contract omits personal data and agrees with Apps Script", () => {
   for (const [style, commitment] of [["pioneer", "existing"], ["rest", "joined"], ["precision", "considering"]]) {
     const data = payload(style, commitment);
-    assert.equal(validateV2Payload(data, { mode: "demo" }).raffleOptIn, true);
-    const server = backend.validateParticipationPayload(data);
+    const frontend = validateAnonymousPayload(data);
+    assert.equal(frontend.submissionVersion, 1);
+    assert.equal(Object.hasOwn(frontend, "name"), false);
+    assert.equal(Object.hasOwn(frontend, "email"), false);
+    const server = backend.validateAnonymousSubmission(data, true);
     assert.equal(server.premiumPrizeEligible, style === "pioneer");
     assert.equal(server.sustainabilityRewardEligible, commitment !== "considering");
     assert.equal(server.q4Answer, `q4_${style}`);
     assert.equal(server.hydrationStyle, style);
   }
   const invalids = [
-    [{ name: "" }, "INVALID_RAFFLE_NAME"], [{ email: "invalid" }, "INVALID_RAFFLE_EMAIL"],
-    [{ raffleOptIn: false }, "INVALID_RAFFLE_OPTION"], [{ privacyConfirmed: false }, "INVALID_PRIVACY_ACKNOWLEDGEMENT"],
-    [{ privacyAcknowledgedAt: "" }, "INVALID_PRIVACY_ACKNOWLEDGEMENT"], [{ privacyNoticeVersion: "DRAFT_NOT_APPROVED" }, "PRIVACY_NOTICE_NOT_APPROVED"],
-    [{ email: "demo@garmin.com" }, "TEST_DATA_REQUIRED"], [{ testDataConfirmed: false }, "TEST_DATA_REQUIRED"],
+    [{ name: "not retained" }, "PERSONAL_DATA_NOT_ALLOWED"], [{ email: "not-retained@example.invalid" }, "PERSONAL_DATA_NOT_ALLOWED"],
     [{ premiumPrizeEligible: true }, "ELIGIBILITY_MISMATCH"], [{ q4Answer: "q4_pioneer" }, "ELIGIBILITY_MISMATCH"],
-    [{ quizVersion: 1 }, "UNSUPPORTED_QUIZ_VERSION"]
+    [{ quizVersion: 1 }, "UNSUPPORTED_SUBMISSION_VERSION"], [{ submissionVersion: 2 }, "UNSUPPORTED_SUBMISSION_VERSION"],
+    [{ answers: { ...answers(), q4: "q4_invalid" } }, "INVALID_ANSWER"]
   ];
   for (const [override, code] of invalids) {
-    assert.throws(() => validateV2Payload({ ...payload(), ...override }, { mode: "demo" }), new RegExp(code));
-    assert.throws(() => backend.validateParticipationPayload({ ...payload(), ...override }), new RegExp(code));
+    assert.throws(() => validateAnonymousPayload({ ...payload(), ...override }), new RegExp(code));
+    assert.throws(() => backend.validateAnonymousSubmission({ ...payload(), ...override }, true), new RegExp(code));
   }
-  assert.throws(() => backend.validateParticipationPayload({ ...payload(), demoMode: false, privacyNoticeVersion: "DRAFT_NOT_APPROVED" }), /PRIVACY_NOTICE_NOT_APPROVED/);
-  assert.throws(() => validateV2Payload(payload(), { mode: "production" }), /PRIVACY_NOTICE_NOT_APPROVED/);
   assert.throws(() => front({ ...answers(), q2: "q2_sustainability" }), /INVALID_ANSWER/);
 });
 

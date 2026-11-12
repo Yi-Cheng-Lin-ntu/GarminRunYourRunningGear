@@ -78,6 +78,17 @@ test("mobile shell edges align and hydration artwork stays within the copy gutte
   assert.match(css, /\.sustainability-result-mark\s*\{[^}]*z-index:\s*0/s);
 });
 
+test("hydration choice text centers independently of trailing punctuation", () => {
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../js/appV2.js", import.meta.url), "utf8");
+
+  assert.match(app, /function centerHydrationChoiceText\(\)[\s\S]*?label\.textContent\.match\(\//);
+  assert.match(app, /text\.className = "choice-label-text";[\s\S]*?punctuation\.className = "choice-label-punctuation";/);
+  assert.match(app, /centerHydrationChoiceText\(\);[\s\S]*?document\.querySelectorAll\("\[data-i18n-aria\]"\)/);
+  assert.match(css, /\.hydration-choices \.choice-label-text\s*\{[^}]*display:\s*inline-block/s);
+  assert.match(css, /\.hydration-choices \.choice-label-punctuation\s*\{[^}]*position:\s*absolute;[^}]*inset-inline-start:\s*100%/s);
+});
+
 test("the main stylesheet uses brand and semantic color tokens without color aliases", () => {
   const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
   const shareCard = readFileSync(new URL("../js/shareCard.js", import.meta.url), "utf8");

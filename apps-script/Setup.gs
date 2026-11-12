@@ -27,7 +27,8 @@ function setupActivitySheets() {
     ["participantId","requestId","createdAt","runnerType","existingSelfHydration","hydrationCommitment",
      "sustainabilityRewardEligible","premiumPrizeEligible","raffleOptIn","name","email",
      "privacyNoticeVersion","privacyAcknowledgedAt","prizeId","allocationStatus","allocationTime",
-     "redemptionCode","redemptionStatus"]
+     "redemptionCode","redemptionStatus","quizVersion","hydrationStyle","q4Answer","submissionVersion",
+     "q1Answer","q2Answer","q3Answer","q5Answer"]
   ]);
   ensureSheet(ss, SHEET_NAMES.Prizes, [
     ["prizeId","nameZh","nameEn","category","initialStock","remainingStock","allocatedCount","enabled","imagePath"]
@@ -39,7 +40,7 @@ function setupActivitySheets() {
     ["logId","timestamp","prizeId","action","quantityDelta","beforeStock","afterStock","reason","relatedAllocationId","operator"]
   ]);
   ensureSheet(ss, SHEET_NAMES.Requests, [
-    ["requestId","sessionId","participantId","status","resultJson","createdAt","updatedAt"]
+    ["requestId","sessionId","participantId","status","resultJson","createdAt","updatedAt","submissionVersion","submissionFingerprint"]
   ]);
   ensureSheet(ss, SHEET_NAMES.Settings, [
     ["key","value"],
@@ -54,7 +55,8 @@ function setupActivitySheets() {
     ["participantId","requestId","createdAt","runnerType","existingSelfHydration","hydrationCommitment",
      "sustainabilityRewardEligible","premiumPrizeEligible","raffleOptIn","name","email",
      "privacyNoticeVersion","privacyAcknowledgedAt","prizeId","allocationStatus","allocationTime",
-     "redemptionCode","redemptionStatus"]
+     "redemptionCode","redemptionStatus","quizVersion","hydrationStyle","q4Answer","submissionVersion",
+     "q1Answer","q2Answer","q3Answer","q5Answer"]
   ]);
   ensureSheet(ss, SHEET_NAMES.DemoPrizes, [
     ["prizeId","nameZh","nameEn","category","initialStock","remainingStock","allocatedCount","enabled","imagePath"]
@@ -66,7 +68,7 @@ function setupActivitySheets() {
     ["logId","timestamp","prizeId","action","quantityDelta","beforeStock","afterStock","reason","relatedAllocationId","operator"]
   ]);
   ensureSheet(ss, SHEET_NAMES.DemoRequests, [
-    ["requestId","sessionId","participantId","status","resultJson","createdAt","updatedAt"]
+    ["requestId","sessionId","participantId","status","resultJson","createdAt","updatedAt","submissionVersion","submissionFingerprint"]
   ]);
   ensureSheet(ss, SHEET_NAMES.AdminAudit, [
     ["timestamp","operator","action","details"]
@@ -76,8 +78,6 @@ function setupActivitySheets() {
   initializePrizesIfEmpty(ss, SHEET_NAMES.DemoPrizes);
   ensurePrizeImagePaths(ss, SHEET_NAMES.Prizes);
   ensurePrizeImagePaths(ss, SHEET_NAMES.DemoPrizes);
-  migrateV2ParticipantColumns(ss, false);
-  migrateV2ParticipantColumns(ss, true);
   return { ok: true };
 }
 
@@ -121,39 +121,81 @@ function onOpen() {
     .addItem("調整獎品庫存", "adjustPrizeStockAdmin")
     .addItem("暫停獎品分配", "pauseAllocationAdmin")
     .addItem("恢復獎品分配", "resumeAllocationAdmin")
-    .addItem("匯出抽獎名單 CSV", "exportRaffleListCsv")
     .addToUi();
 }
 
-// Append-only V2 participant metadata. Never initializes or updates any prize stock.
-var V2_PARTICIPANT_COLUMNS = ["quizVersion", "hydrationStyle", "q4Answer"];
-function requireV2ParticipantColumns(sheet) {
-  if (!sheet || sheet.getLastColumn() < 21 ||
-      sheet.getRange(1, 19, 1, 3).getValues()[0].join(",") !== V2_PARTICIPANT_COLUMNS.join(",")) {
-    throw new Error("V2_MIGRATION_REQUIRED");
+var LEGACY_PARTICIPANT_HEADERS = ["participantId","requestId","createdAt","runnerType","existingSelfHydration","hydrationCommitment",
+  "sustainabilityRewardEligible","premiumPrizeEligible","raffleOptIn","name","email","privacyNoticeVersion","privacyAcknowledgedAt",
+  "prizeId","allocationStatus","allocationTime","redemptionCode","redemptionStatus"];
+var V2_PARTICIPANT_HEADERS = ["quizVersion","hydrationStyle","q4Answer"];
+var ANONYMOUS_PARTICIPANT_HEADERS = ["submissionVersion","q1Answer","q2Answer","q3Answer","q5Answer"];
+var LEGACY_REQUEST_HEADERS = ["requestId","sessionId","participantId","status","resultJson","createdAt","updatedAt"];
+var ANONYMOUS_REQUEST_HEADERS = ["submissionVersion","submissionFingerprint"];
+
+function requireAnonymousSchema(participantSheet, requestSheet) {
+  var expectedParticipants = LEGACY_PARTICIPANT_HEADERS.concat(V2_PARTICIPANT_HEADERS, ANONYMOUS_PARTICIPANT_HEADERS);
+  var expectedRequests = LEGACY_REQUEST_HEADERS.concat(ANONYMOUS_REQUEST_HEADERS);
+  if (!participantSheet || !requestSheet ||
+      !headersEqual(participantSheet, expectedParticipants) || !headersEqual(requestSheet, expectedRequests)) {
+    throw new Error("ANONYMOUS_SCHEMA_MIGRATION_REQUIRED");
   }
 }
-function migrateV2ParticipantColumns(ss, demoMode) {
-  var sheet = ss.getSheetByName(demoMode ? SHEET_NAMES.DemoParticipants : SHEET_NAMES.Participants);
-  if (!sheet) throw new Error("SHEET_SETUP_REQUIRED");
-  if (sheet.getMaxColumns && sheet.getMaxColumns() < 21) sheet.insertColumnsAfter(sheet.getMaxColumns(), 21 - sheet.getMaxColumns());
-  var headers = sheet.getRange(1, 1, 1, Math.max(21, sheet.getLastColumn())).getValues()[0];
-  if (headers[0] !== "participantId" || headers[17] !== "redemptionStatus") throw new Error("V2_MIGRATION_REQUIRED");
-  for (var i = 0; i < 3; i++) {
-    if (headers[18 + i] && headers[18 + i] !== V2_PARTICIPANT_COLUMNS[i]) throw new Error("V2_MIGRATION_REQUIRED");
-  }
-  sheet.getRange(1, 19, 1, 3).setValues([V2_PARTICIPANT_COLUMNS]);
+
+function headersEqual(sheet, expected) {
+  if (sheet.getLastColumn() !== expected.length) return false;
+  return sheet.getRange(1, 1, 1, expected.length).getValues()[0].join("\u001f") === expected.join("\u001f");
 }
-function migrateDemoV2() {
+
+function appendSchemaHeaders(sheet, allowedPrefixes, targetHeaders) {
+  if (!sheet || sheet.getLastRow() < 1) throw new Error("UNKNOWN_SCHEMA");
+  var lastColumn = sheet.getLastColumn();
+  var actual = sheet.getRange(1, 1, 1, Math.max(1, lastColumn)).getValues()[0];
+  var match = allowedPrefixes.some(function (prefix) {
+    return actual.length === prefix.length && actual.join("\u001f") === prefix.join("\u001f");
+  });
+  if (!match) throw new Error("UNKNOWN_SCHEMA");
+  var missing = targetHeaders.slice(actual.length);
+  if (!missing.length) return;
+  var requiredColumns = actual.length + missing.length;
+  if (sheet.getMaxColumns && sheet.getMaxColumns() < requiredColumns) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), requiredColumns - sheet.getMaxColumns());
+  }
+  sheet.getRange(1, actual.length + 1, 1, missing.length).setValues([missing]);
+}
+
+// Append-only, repeatable migration. Never creates sheets or changes prize/inventory rows.
+function migrateAnonymousSubmissionSchema(ss, demoMode) {
+  var participantName = demoMode ? SHEET_NAMES.DemoParticipants : SHEET_NAMES.Participants;
+  var requestName = demoMode ? SHEET_NAMES.DemoRequests : SHEET_NAMES.Requests;
+  var participantSheet = ss.getSheetByName(participantName);
+  var requestSheet = ss.getSheetByName(requestName);
+  if (!participantSheet || !requestSheet) throw new Error("SHEET_SETUP_REQUIRED");
+  var v2Headers = LEGACY_PARTICIPANT_HEADERS.concat(V2_PARTICIPANT_HEADERS);
+  var fullParticipantHeaders = v2Headers.concat(ANONYMOUS_PARTICIPANT_HEADERS);
+  appendSchemaHeaders(participantSheet,
+    [LEGACY_PARTICIPANT_HEADERS, v2Headers, fullParticipantHeaders], fullParticipantHeaders);
+  appendSchemaHeaders(requestSheet,
+    [LEGACY_REQUEST_HEADERS, LEGACY_REQUEST_HEADERS.concat(ANONYMOUS_REQUEST_HEADERS)],
+    LEGACY_REQUEST_HEADERS.concat(ANONYMOUS_REQUEST_HEADERS));
+  return { ok: true, demoMode: demoMode === true, participantColumns: fullParticipantHeaders.length, requestColumns: LEGACY_REQUEST_HEADERS.length + ANONYMOUS_REQUEST_HEADERS.length };
+}
+
+function migrateStagingAnonymousSchema() {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
-  try { migrateV2ParticipantColumns(SpreadsheetApp.getActive(), true); }
+  try {
+    if (!isStagingDeployment()) throw new Error("WRONG_MIGRATION_ENVIRONMENT");
+    migrateAnonymousSubmissionSchema(SpreadsheetApp.getActive(), true);
+  }
   finally { lock.releaseLock(); }
 }
-// Do not run until formal approval; this only appends metadata headers, never stock.
-function migrateProductionV2() {
+// Manual-only. Confirm the active spreadsheet is the backed-up Production file first.
+function migrateProductionAnonymousSchema() {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
-  try { migrateV2ParticipantColumns(SpreadsheetApp.getActive(), false); }
+  try {
+    if (isStagingDeployment()) throw new Error("WRONG_MIGRATION_ENVIRONMENT");
+    migrateAnonymousSubmissionSchema(SpreadsheetApp.getActive(), false);
+  }
   finally { lock.releaseLock(); }
 }

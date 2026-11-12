@@ -1,34 +1,32 @@
 function doGet(e) {
   var action = e && e.parameter ? e.parameter.action : "";
   try {
+    var demoMode = isStagingDeployment();
     if (action === "getExistingAllocation") {
       var requestId = String(e.parameter.requestId || "");
       var sessionId = String(e.parameter.sessionId || "");
       if (!requestId || !sessionId) return jsonResponse({ ok: false, code: "INVALID_RECOVERY_ID" });
-      var demoMode = String(e.parameter.demoMode || "false") === "true";
       var found = findRequest(requestId, demoMode);
-      if (!found || found.values[1] !== sessionId || found.values[3] !== "allocated") {
+      if (!found || found.values[1] !== sessionId || ["allocated", "paused"].indexOf(found.values[3]) < 0) {
         return jsonResponse({ ok: true, found: false, demoMode: demoMode });
       }
       var result = JSON.parse(found.values[4]);
-      delete result.name;
-      delete result.email;
       return jsonResponse({ ok: true, found: true, demoMode: demoMode, allocation: result });
     }
     if (action === "getPublicCampaignStatus") {
-      var demoMode = String(e.parameter.demoMode || "false") === "true";
       return jsonResponse({
         ok: true,
         quizVersion: 2,
+        submissionVersion: 1,
         demoMode: demoMode,
         allocationEnabled: demoMode || getSettingValue("allocationEnabled") === "true",
-        raffleEnabled: demoMode || getSettingValue("raffleEnabled") === "true",
-        campaignName: demoMode ? "Garmin Run 2026 Mock" : getSettingValue("campaignName")
+        campaignName: demoMode ? "Garmin Run 2026 Staging" : getSettingValue("campaignName")
       });
     }
     return jsonResponse({ ok: false, code: "UNKNOWN_ACTION" });
   } catch (error) {
-    return jsonResponse({ ok: false, retryable: false, code: "BAD_REQUEST" });
+    var getCode = String(error && error.message || "");
+    return jsonResponse({ ok: false, retryable: false, code: getCode === "API_ENVIRONMENT_NOT_CONFIGURED" ? getCode : "BAD_REQUEST" });
   }
 }
 
@@ -37,7 +35,9 @@ function doPost(e) {
     var rawText = e && e.postData ? e.postData.contents : "";
     if (!rawText) return jsonResponse({ ok: false, code: "INVALID_PAYLOAD" });
     var raw = JSON.parse(rawText);
-    var payload = validateParticipationPayload(raw);
+    if (Object.prototype.hasOwnProperty.call(raw, "demoMode")) throw new Error("ENVIRONMENT_OVERRIDE_NOT_ALLOWED");
+    var demoMode = isStagingDeployment();
+    var payload = validateAnonymousSubmission(raw, demoMode);
 
     var lock = LockService.getScriptLock();
     if (!lock.tryLock(30000)) {
@@ -54,7 +54,7 @@ function doPost(e) {
     }
 
     try {
-      var result = submitParticipation(payload);
+      var result = submitAnonymousResult(payload);
       return jsonResponse(result);
     } finally {
       lock.releaseLock();
@@ -62,18 +62,25 @@ function doPost(e) {
   } catch (error) {
     var code = String(error && error.message ? error.message : "INTERNAL_ERROR");
     var validationCodes = [
-      "INVALID_PAYLOAD","INVALID_REQUEST_ID","INVALID_SESSION_ID","INVALID_RUNNER_TYPE",
-      "INVALID_HYDRATION_COMMITMENT","INVALID_EXISTING_SELF_HYDRATION","INVALID_ANSWERS",
-      "INVALID_ANSWER","ELIGIBILITY_MISMATCH","INVALID_RAFFLE_OPTION","INVALID_RAFFLE_NAME",
-      "INVALID_RAFFLE_EMAIL","INVALID_PRIVACY_ACKNOWLEDGEMENT","PRIVACY_NOTICE_NOT_APPROVED",
-      "SHEET_SETUP_REQUIRED","UNSUPPORTED_QUIZ_VERSION","TEST_DATA_REQUIRED","V2_MIGRATION_REQUIRED"
+      "INVALID_PAYLOAD","INVALID_REQUEST_ID","INVALID_SESSION_ID","INVALID_ANSWERS",
+      "INVALID_ANSWER","ELIGIBILITY_MISMATCH","INVALID_HYDRATION_COMMITMENT",
+      "PERSONAL_DATA_NOT_ALLOWED","ENVIRONMENT_OVERRIDE_NOT_ALLOWED","REQUEST_ID_CONFLICT",
+      "SHEET_SETUP_REQUIRED","UNSUPPORTED_SUBMISSION_VERSION","V2_MIGRATION_REQUIRED",
+      "ANONYMOUS_SCHEMA_MIGRATION_REQUIRED"
     ];
     return jsonResponse({
       ok: false,
       retryable: code === "REQUEST_PENDING_RETRY",
-      code: validationCodes.indexOf(code) >= 0 ? code : "INTERNAL_ERROR"
+      code: validationCodes.indexOf(code) >= 0 || code === "API_ENVIRONMENT_NOT_CONFIGURED" ? code : "INTERNAL_ERROR"
     });
   }
+}
+
+function isStagingDeployment() {
+  var environment = PropertiesService.getScriptProperties().getProperty("APP_ENVIRONMENT");
+  if (environment === "staging") return true;
+  if (environment === "production") return false;
+  throw new Error("API_ENVIRONMENT_NOT_CONFIGURED");
 }
 
 function jsonResponse(payload) {

@@ -11,8 +11,8 @@
     <header class="site-header">
       <a class="brand" href="#start" data-action="home" data-i18n-aria="brand.home"><span class="brand-prefix" data-i18n="brand.headerPrefix"></span> <span data-i18n="brand.headerRun"></span></a>
       <div class="header-actions">
-        <span class="mock-mode-badge" data-i18n="v2.mockBadge"></span>
-        <button class="mock-tools-button" type="button" data-action="mock-tools" data-i18n="v2.mockTools"></button>
+        <span class="mock-mode-badge" data-i18n="v2.mockBadge" hidden></span>
+        <button class="mock-tools-button" type="button" data-action="mock-tools" data-i18n="v2.mockTools" hidden></button>
         <button class="language-toggle" type="button" data-action="toggle-language" data-i18n-aria="language.toggle">
           <span data-language-label></span>
         </button>
@@ -136,24 +136,6 @@
           <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue"></button>
         </section>
         <button class="button button-secondary button-wide v2-retry" type="button" data-action="retry" data-i18n="v2.retry"></button>
-      </section>
-
-      <section class="screen screen-participation" id="participation" aria-labelledby="contact-title" hidden>
-        <header class="participation-header">
-          <p class="demo-badge" data-mode-notice data-i18n="v2.mode"></p>
-          <h2 id="contact-title" data-i18n="v2.contactTitle"></h2>
-        </header>
-        <form class="participation-form" data-participation-form novalidate>
-          <div class="v2-contact-fields">
-            <label><span data-i18n="v2.name"></span><input type="text" maxlength="80" autocomplete="off" name="name" data-name required /></label>
-            <label><span data-i18n="v2.email"></span><input type="email" maxlength="254" autocomplete="off" name="email" data-email required /></label>
-          </div>
-          <div class="privacy-copy" id="privacy-copy" data-i18n="v2.privacy"></div>
-          <label class="toggle-row"><input type="checkbox" data-privacy-check aria-describedby="privacy-copy" required /><span data-i18n="v2.privacyConfirm"></span></label>
-          <p class="form-error" data-form-error role="alert" hidden></p>
-          <button class="button button-primary button-wide" type="submit" data-submit data-i18n="v2.submit"></button>
-          <button class="text-button" type="button" data-action="back-result" data-i18n="v2.backResult"></button>
-        </form>
       </section>
 
       <section class="screen screen-redemption" id="redemption" aria-labelledby="redemption-title" hidden>
