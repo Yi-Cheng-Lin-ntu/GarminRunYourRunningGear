@@ -2,6 +2,21 @@
 
 主網站入口是 `index.html`，互動由 `js/appV2.js` 控制，樣式集中在 `style.css`。主站供跑者閱讀的中英文文案集中在 `content.csv`；依畫面 key 編輯 `type=ui` 的 `id` 與 `zh`／`en` 欄位。Cute 原型已封存於 `_archive/cute-prototype/`，不會由主網站載入。
 
+## Color Design System
+
+主站顏色分成兩層，集中在 `style.css` 的 `:root`。調整品牌色請改 Brand Palette；Semantic Colors 以用途引用品牌色，介面樣式使用語意 token。`--color-*` 別名已移除，改用下表對應 token。
+
+| 類別 | 保留／使用中的 tokens | 原 `--color-*` 別名取代方式 |
+|---|---|---|
+| 品牌色盤（調色請改此處） | `--brand-black`、`--brand-surface`、`--brand-white`、`--brand-muted`、`--brand-blue`、`--brand-blue-mid`、`--brand-green` | — |
+| 背景 | `--bg-primary`、`--bg-surface` | `--color-bg` → `--bg-primary`；`--color-bg-soft` → `--bg-surface` |
+| 文字 | `--text-primary`、`--text-secondary`、`--text-highlight` | `--color-text` → `--text-primary`；`--color-muted` → `--text-secondary`；`--color-blue` → `--text-highlight` |
+| 操作、狀態、主題 | `--action-primary`、`--action-primary-text`、`--action-secondary`、`--state-selected`、`--state-complete`、`--theme-general`、`--theme-sustainability` | `--color-accent` → `--action-primary` |
+| 邊框與錯誤 | `--border-default`、`--border-strong`、`--error-border`、`--error-text`、`--error-bg` | `--color-line` → `--border-default` |
+| 品牌輔色 | `--brand-blue-mid` | `--color-blue-mid` → `--brand-blue-mid` |
+
+`js/shareCard.js` 透過 `getComputedStyle()` 讀取 `--brand-black`、`--brand-white`、`--brand-blue`、`--brand-green`；這些品牌 tokens 保留原名與色值。封存原型 CSS 不屬於主站重構範圍。
+
 ## Typography Design System
 
 全站字體變數集中在 `style.css` 的 `:root` 區塊 `TYPOGRAPHY SYSTEM — QUICK TUNING`。以下是初始設計值；手機以 390px 為主要參考，桌面值從既有的 `@media (min-width: 720px)` 套用。

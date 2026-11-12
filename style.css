@@ -2,6 +2,7 @@
 /* Tokens → foundations → components → results → contact → prizes → tools → responsive. */
 
 :root {
+  /* 品牌色盤：實際 HEX 僅在此定義，調整品牌色請改這一區 */
   --brand-black: #080b0d;
   --brand-surface: #11171a;
   --brand-white: #f7faf8;
@@ -9,23 +10,37 @@
   --brand-blue: #7bccff;
   --brand-blue-mid: #a9def2;
   --brand-green: #00ff19;
+
+  /* 語意色：背景 */
   --bg-primary: var(--brand-black);
   --bg-surface: var(--brand-surface);
+
+  /* 語意色：文字 */
   --text-primary: var(--brand-white);
   --text-secondary: var(--brand-muted);
   --text-highlight: var(--brand-blue);
+
+  /* 語意色：操作 */
   --action-primary: var(--brand-green);
   --action-primary-text: var(--brand-black);
   --action-secondary: var(--brand-blue);
+
+  /* 語意色：狀態與主題 */
   --state-selected: var(--brand-green);
   --state-complete: var(--brand-green);
   --theme-general: var(--brand-blue);
   --theme-sustainability: var(--brand-green);
+
+  /* 語意色：邊框與錯誤回饋 */
   --border-default: rgba(247,250,248,.22);
   --border-strong: rgba(247,250,248,.50);
   --error-border: #ffb3b3;
   --error-text: #ffdede;
   --error-bg: rgba(255,100,100,.10);
+
+  /* 裝飾色：地圖與速度線 */
+  --motion-blue: rgba(214,242,255,.12);
+
   --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   /* TYPOGRAPHY SYSTEM — QUICK TUNING */
   /* 主視覺大標題 */
@@ -66,15 +81,6 @@
   --screen-inline-padding: 24px;
   --motion-duration: 160ms;
   --map-opacity: .2;
-  --motion-blue: rgba(214,242,255,.12);
-  --color-bg: var(--bg-primary);
-  --color-bg-soft: var(--bg-surface);
-  --color-text: var(--text-primary);
-  --color-muted: var(--text-secondary);
-  --color-blue: var(--text-highlight);
-  --color-blue-mid: var(--brand-blue-mid);
-  --color-accent: var(--action-primary);
-  --color-line: var(--border-default);
 }
 
 /* Foundations and Taipei map */
@@ -97,7 +103,7 @@ body {
   min-height: 100svh;
   margin: 0;
   overflow-x: hidden;
-  color: var(--color-text);
+  color: var(--text-primary);
   font-family: var(--font-family-primary);
   font-size: var(--font-body);
   font-weight: var(--weight-body);
@@ -267,7 +273,7 @@ label {
   font-size: var(--font-small);
   font-weight: var(--weight-body);
   margin: 14px 0 0;
-  color: var(--color-muted);
+  color: var(--text-secondary);
   text-align: center;
   letter-spacing: var(--letter-spacing-ui);
   text-transform: none;
@@ -276,7 +282,7 @@ label {
 .lead {
   max-width: 36rem;
   margin-bottom: 28px;
-  color: var(--color-blue);
+  color: var(--text-highlight);
   font-size: var(--font-body);
   line-height: var(--line-height-body);
 }
@@ -315,6 +321,10 @@ label {
   padding: 24px var(--screen-inline-padding);
   margin-bottom: 0;
   text-align: center;
+}
+
+.screen-start > [data-action="start"] {
+  align-self: center;
 }
 
 .start-heading {
@@ -385,19 +395,10 @@ label {
   line-height: var(--line-height-heading);
 }
 
-.screen-start > [data-action="start"] {
-  width: 100%;
-  min-height: 56px;
-  justify-self: center;
-  border-radius: 10px;
-  font-size: var(--font-h1);
-  font-weight: var(--weight-emphasis);
-}
-
 .screen-start .lead {
   max-width: none;
   margin: -10px 0 0;
-  color: var(--brand-white);
+  color: var(--brand-blue);
   font-size: var(--font-body);
   font-weight: var(--weight-emphasis);
   letter-spacing: var(--letter-spacing-ui);
@@ -417,7 +418,7 @@ label {
   font-weight: var(--weight-body);
   letter-spacing: var(--letter-spacing-brand);
   text-transform: uppercase;
-  color: var(--color-blue);
+  color: var(--text-highlight);
   margin-bottom: 20px;
 }
 
@@ -440,7 +441,7 @@ label {
   border: 0;
   border-bottom: 1px solid transparent;
   background: transparent;
-  color: var(--color-muted);
+  color: var(--text-secondary);
   padding: 8px 0;
 }
 
@@ -470,7 +471,7 @@ label {
 }
 
 .button-primary {
-  background: var(--color-accent);
+  background: var(--action-primary);
   color: var(--brand-black);
 }
 
@@ -480,9 +481,9 @@ label {
 }
 
 .button-secondary {
-  border: 1px solid var(--color-blue);
+  border: 1px solid var(--text-highlight);
   background: transparent;
-  color: var(--color-blue);
+  color: var(--text-highlight);
 }
 
 .button-secondary:hover:not(:disabled) {
@@ -490,8 +491,8 @@ label {
 }
 
 .text-button:hover {
-  border-bottom-color: var(--color-accent);
-  color: var(--color-text);
+  border-bottom-color: var(--action-primary);
+  color: var(--text-primary);
 }
 
 .choice-card {
@@ -522,20 +523,20 @@ label {
   top: 18px;
   width: 14px;
   height: 14px;
-  border: 2px solid var(--color-blue);
+  border: 2px solid var(--text-highlight);
   border-radius: 50%;
   content: "";
 }
 
 .choice-card.is-selected {
-  border-color: var(--color-accent);
-  box-shadow: inset 4px 0 var(--color-accent);
+  border-color: var(--action-primary);
+  box-shadow: inset 4px 0 var(--action-primary);
 }
 
 .choice-card.is-selected span::before {
-  border-color: var(--color-accent);
-  box-shadow: inset 0 0 0 3px var(--color-bg-soft);
-  background: var(--color-accent);
+  border-color: var(--action-primary);
+  box-shadow: inset 0 0 0 3px var(--bg-surface);
+  background: var(--action-primary);
 }
 
 .choice-card strong {
@@ -544,7 +545,7 @@ label {
 }
 
 .choice-card small {
-  color: var(--color-muted);
+  color: var(--text-secondary);
   font-size: var(--font-small);
   line-height: var(--line-height-small);
 }
@@ -598,7 +599,7 @@ label {
 }
 
 .progress-track span.is-complete {
-  border-color: var(--color-accent);
+  border-color: var(--action-primary);
   background: var(--brand-green);
 }
 
@@ -663,12 +664,12 @@ label {
 }
 
 .option-card:hover {
-  border-color: var(--color-blue);
+  border-color: var(--text-highlight);
   transform: translateY(-1px);
 }
 
 .option-card.is-selected {
-  box-shadow: inset 5px 0 var(--color-accent);
+  box-shadow: inset 5px 0 var(--action-primary);
   background: rgba(0,255,25,.06);
   border-color: var(--brand-green);
 }
@@ -688,7 +689,7 @@ label {
 }
 
 .option-index {
-  color: var(--color-blue);
+  color: var(--text-highlight);
   font-size: var(--font-small);
   font-style: normal;
   font-weight: var(--weight-emphasis);
@@ -733,19 +734,20 @@ label {
   /* QUICK TUNING (mobile defaults; desktop values below) */
   --result-title-slogan-gap: 8px;
   --result-identity-width: 100%;
-  --result-heading-frame-overlap: 36px;
+  --result-heading-height: 144px;
+  --result-heading-frame-overlap: 43px;
   --result-heading-image-pull: 7px;
-  --result-frame-top-rule-offset: clamp(23px, calc(12.47vw - 26.5px), 45px);
-  --result-frame-inline-padding: 2px;
+  --result-frame-inline-padding: 10px;
   --result-visual-ratio: 1.25 / 1;
   --result-section-gap: 16px;
-  --result-frame-bottom-padding: 2px;
+  --result-frame-bottom-padding: 10px;
   --result-tags-gap: 10px 12px;
   --result-tag-padding: 8px 12px;
   --recommendation-padding: 30px 20px 22px;
-  --sustainability-mark-size: 120px;
-  --sustainability-mark-offset: -12px;
-  --sustainability-mark-rotation: 30deg;
+  --sustainability-mark-size: 240px;
+  --sustainability-mark-offset-x: -80px;
+  --sustainability-mark-offset-y: -70px;
+  --sustainability-mark-rotation: 15deg;
   --hydration-image-size: clamp(150px, 48vw, 240px);
   --hydration-image-gap: 8px;
   --hydration-content-gap: 18px;
@@ -774,8 +776,9 @@ label {
 .v2-result-heading {
   position: relative;
   z-index: 1;
+  height: var(--result-heading-height);
   text-align: center;
-  margin-top: calc(0px - var(--result-heading-frame-overlap));
+  margin-top: calc(0px - var(--result-heading-frame-overlap) - 2px);
   margin-bottom: calc(0px - var(--result-heading-image-pull));
 }
 
@@ -810,52 +813,30 @@ label {
 
 .result-hero-frame {
   position: relative;
-  padding: 12px var(--result-frame-inline-padding) var(--result-frame-bottom-padding);
-  border: 2px solid transparent;
+  margin-top: var(--result-heading-frame-overlap);
+  padding: 0 var(--result-frame-inline-padding) var(--result-frame-bottom-padding);
+  border: 2px solid rgba(247,250,248,.88);
   border-radius: 10px;
   background: rgba(8,11,13,.22);
 }
 
-.result-hero-frame::before {
-  content: "";
-  position: absolute;
-  top: var(--result-frame-top-rule-offset);
-  right: 0;
-  left: 0;
-  border-top: 2px solid rgba(247,250,248,.88);
-  pointer-events: none;
-}
-
-.result-hero-frame::after {
-  content: "";
-  position: absolute;
-  inset: var(--result-frame-top-rule-offset) 0 0;
-  border: 2px solid rgba(247,250,248,.88);
-  border-top: 0;
-  border-radius: 0 0 10px 10px;
-  pointer-events: none;
-}
-
 .runner-visual {
-  display: grid;
-  place-items: center;
+  position: relative;
   width: 100%;
   aspect-ratio: var(--result-visual-ratio);
-  margin: 10px 0 0;
+  height: auto;
+  margin: 0;
   overflow: hidden;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
 }
 
 .runner-visual-image {
+  position: absolute;
+  inset: 0;
   display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: 4px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  object-position: center;
 }
 
 .runner-visual-image[hidden] {
@@ -864,26 +845,28 @@ label {
 
 .runner-tags {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   gap: var(--result-tags-gap);
+  width: 100%;
   margin: 4px 0 4px;
 }
 
 .runner-tag {
+  flex: 1 1 0;
   min-width: 0;
   background: var(--brand-green);
   color: var(--brand-black);
   border-radius: 0;
   clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
-  width: fit-content;
-  max-width: calc(100% - 16px);
+  width: auto;
+  max-width: none;
   min-height: 42px;
   padding: var(--result-tag-padding);
-  font-size: var(--font-small);
+  font-size: var(--font-h3);
   font-weight: var(--weight-emphasis);
-  line-height: var(--line-height-small);
+  line-height: var(--line-height-heading);
   text-align: center;
   display: grid;
   place-content: center;
@@ -915,7 +898,7 @@ label {
 
 .v2-recommendation h3 {
   color: var(--brand-white);
-  font-size: var(--font-h3);
+  font-size: var(--font-h2);
   font-weight: var(--weight-emphasis);
   line-height: var(--line-height-heading);
   margin-bottom: 8px;
@@ -924,7 +907,7 @@ label {
 .v2-recommendation [data-recommendation-description] {
   margin: 0;
   color: var(--brand-white);
-  font-size: var(--font-body);
+  font-size: var(--font-h3);
   line-height: var(--line-height-body);
 }
 
@@ -954,31 +937,96 @@ label {
   gap: var(--hydration-content-gap);
 }
 
+.screen-result {
+  /* 裝備展示區 */
+  --hydration-image-size: 184px;
+
+  /* 裝備圖片大小與位置 */
+  --hydration-equipment-scale: 90%;
+  --hydration-equipment-bottom: 10px;
+
+  /* 單張圖片旋轉 */
+  --hydration-single-rotation: -8deg;
+
+  /* 雙張圖片位置、旋轉 */
+  --hydration-pair-left-x: -78%;
+  --hydration-pair-right-x: -30%;
+  --hydration-pair-left-rotation: -10deg;
+  --hydration-pair-right-rotation: 5deg;
+
+  /* 圓盤底圖大小 */
+  --hydration-disc-width: 180px;
+  --hydration-disc-height: 55px;
+}
+
 .hydration-equipment {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--hydration-image-gap);
-  max-width: 100%;
+  display: block;
+  width: 100%;
+  height: var(--hydration-image-size);
+  min-height: 0;
   min-width: 0;
-  min-height: var(--hydration-image-size);
-  background: radial-gradient(ellipse, var(--brand-blue) 0 38%, transparent 40%) center bottom / 92% 42px no-repeat;
+
+  background:
+    radial-gradient(
+      ellipse,
+      var(--brand-blue) 0 68%,
+      transparent 72%
+    )
+    center bottom /
+    var(--hydration-disc-width)
+    var(--hydration-disc-height)
+    no-repeat;
+}
+
+.hydration-equipment-image {
+  position: absolute;
+  left: 50%;
+  bottom: var(--hydration-equipment-bottom);
+
+  width: var(--hydration-equipment-scale);
+  height: 88%;
+
+  max-width: none;
+  min-width: 0;
+  object-fit: contain;
+  object-position: center bottom;
+
+  border: 0;
+  border-radius: 0;
+  pointer-events: none;
+
+  transform:
+    translateX(-50%)
+    rotate(var(--hydration-single-rotation));
+}
+
+/* 只有軟水杯縮小 */
+.hydration-equipment-image[src*="Garmin軟水杯"] {
+  scale: 0.8;
+  transform-origin: center bottom;
+}
+
+/* 雙張圖片：第一張 */
+.hydration-equipment:has(.hydration-equipment-image:nth-child(2))
+.hydration-equipment-image:first-child {
+  z-index: 2;
+  transform:
+    translateX(var(--hydration-pair-left-x))
+    rotate(var(--hydration-pair-left-rotation));
+}
+
+/* 雙張圖片：第二張 */
+.hydration-equipment:has(.hydration-equipment-image:nth-child(2))
+.hydration-equipment-image:nth-child(2) {
+  z-index: 1;
+  transform:
+    translateX(var(--hydration-pair-right-x))
+    rotate(var(--hydration-pair-right-rotation));
 }
 
 .hydration-equipment[hidden] {
   display: none;
-}
-
-.hydration-equipment-image {
-  flex: 1 1 0;
-  width: 100%;
-  height: var(--hydration-image-size);
-  min-width: 0;
-  max-width: 100%;
-  border: 0;
-  border-radius: 0;
-  object-fit: contain;
 }
 
 .hydration-copy {
@@ -994,14 +1042,13 @@ label {
 
 .sustainability-result-mark {
   position: absolute;
-  right: var(--sustainability-mark-offset);
-  bottom: var(--sustainability-mark-offset);
+  right: var(--sustainability-mark-offset-x);
+  bottom: var(--sustainability-mark-offset-y);
   z-index: 2;
   display: block;
   width: var(--sustainability-mark-size);
   height: var(--sustainability-mark-size);
   border-radius: 50%;
-  box-shadow: 0 3px 12px rgba(0,0,0,.32);
   transform: rotate(var(--sustainability-mark-rotation));
   object-fit: contain;
 }
@@ -1124,8 +1171,8 @@ label {
 .demo-badge {
   margin: 0 0 16px;
   padding: 8px 10px;
-  border: 1px solid var(--color-blue-mid);
-  color: var(--color-blue);
+  border: 1px solid var(--brand-blue-mid);
+  color: var(--text-highlight);
   font-size: var(--font-small);
   font-weight: var(--weight-body);
   letter-spacing: var(--letter-spacing-ui);
@@ -1149,13 +1196,13 @@ label {
 .toggle-row input {
   width: 20px;
   height: 20px;
-  accent-color: var(--color-accent);
+  accent-color: var(--action-primary);
   flex: 0 0 20px;
   margin: 0;
 }
 
 .privacy-copy {
-  border-left: 3px solid var(--color-blue);
+  border-left: 3px solid var(--text-highlight);
   padding: 10px 12px;
   font-size: var(--font-small);
   line-height: var(--line-height-small);
@@ -1668,7 +1715,7 @@ label {
 }
 
 .mock-tools-note {
-  color: var(--color-blue);
+  color: var(--text-highlight);
 }
 
 .mock-scenarios {
@@ -1693,14 +1740,14 @@ label {
 .mock-stock-editor label {
   display: grid;
   gap: 4px;
-  color: var(--color-blue);
+  color: var(--text-highlight);
   font-size: var(--font-small);
 }
 
 .mock-stock-editor input {
   min-height: 44px;
-  border: 1px solid var(--color-line);
-  background: var(--color-bg-soft);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
   color: white;
   padding: 8px;
 }
@@ -1726,14 +1773,14 @@ label {
 }
 
 .mock-table th {
-  border: 1px solid var(--color-line);
+  border: 1px solid var(--border-default);
   padding: 6px;
   text-align: left;
   vertical-align: top;
 }
 
 .mock-table td {
-  border: 1px solid var(--color-line);
+  border: 1px solid var(--border-default);
   padding: 6px;
   text-align: left;
   vertical-align: top;
@@ -1747,19 +1794,19 @@ input {
 }
 
 button:focus-visible {
-  outline: 2px solid var(--color-blue);
+  outline: 2px solid var(--text-highlight);
   outline-offset: 3px;
   outline-color: var(--brand-blue);
 }
 
 a:focus-visible {
-  outline: 2px solid var(--color-blue);
+  outline: 2px solid var(--text-highlight);
   outline-offset: 3px;
   outline-color: var(--brand-blue);
 }
 
 input:focus-visible {
-  outline: 2px solid var(--color-blue);
+  outline: 2px solid var(--text-highlight);
   outline-offset: 3px;
   outline-color: var(--brand-blue);
 }
@@ -1825,17 +1872,12 @@ input::placeholder {
 
   #result {
     --result-identity-width: 100%;
-    --result-heading-frame-overlap: 48px;
+    --result-heading-height: 128px;
+    --result-heading-frame-overlap: 51px;
     --result-heading-image-pull: 12px;
-    --result-frame-top-rule-offset: clamp(43px, calc(3.05vw + 13.7px), 53px);
     --result-visual-ratio: 1.25 / 1;
-    --result-frame-bottom-padding: 2px;
     --hydration-image-size: 240px;
     --recommendation-padding: 36px 30px 28px;
-  }
-
-  #result .result-hero-frame {
-    padding: 18px var(--result-frame-inline-padding) var(--result-frame-bottom-padding);
   }
 }
 

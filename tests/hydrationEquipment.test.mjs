@@ -21,7 +21,10 @@ test("the homepage uses its hero artwork and localized campaign line", () => {
   assert.match(css, /\.start-visual\s*\{[^}]*width:\s*100%;[^}]*margin:\s*0 auto/s);
   assert.match(css, /\.screen\.screen-start:not\(\[hidden\]\)\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);[^}]*padding:\s*24px var\(--screen-inline-padding\)/s);
   assert.match(css, /\.start-manifesto\s*\{[^}]*width:\s*100%;[^}]*justify-self:\s*start;[^}]*text-align:\s*left/s);
-  assert.match(css, /\.screen-start > \[data-action="start"\]\s*\{[^}]*width:\s*100%;[^}]*font-size:\s*var\(--font-h1\)/s);
+  assert.match(html, /class="button button-primary button-wide"[^>]*data-action="start"/);
+  assert.match(html, /class="button button-primary button-wide"[^>]*data-action="next"/);
+  assert.match(css, /\.button\s*\{[^}]*min-height:\s*52px;[^}]*font-size:\s*var\(--font-body\)/s);
+  assert.match(css, /\.screen-start > \[data-action="start"\]\s*\{\s*align-self:\s*center;/s);
   assert.match(css, /\.start-manifesto span:last-child\s*\{[^}]*color:\s*var\(--brand-green\)/s);
   assert.match(css, /\.start-manifesto span:last-child\s*\{[^}]*font-size:\s*var\(--font-display\)/s);
 });
@@ -55,6 +58,51 @@ test("all screens share one header and footer with the homepage layout", () => {
   assert.match(css, /\.app-shell\s*\{[^}]*display:\s*flex;[^}]*flex:\s*1;[^}]*flex-direction:\s*column/s);
   assert.doesNotMatch(css, /body:has\(#start\.is-active\)\s+\.(?:site-header|site-footer)/);
   assert.doesNotMatch(app, /createElement\(["'](?:header|footer)["']\)|(?:insertAdjacentHTML|innerHTML)[\s\S]{0,100}(?:site-header|site-footer)/);
+});
+
+test("the main stylesheet uses brand and semantic color tokens without color aliases", () => {
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+  const shareCard = readFileSync(new URL("../js/shareCard.js", import.meta.url), "utf8");
+  const brandColors = {
+    black: "#080b0d",
+    surface: "#11171a",
+    white: "#f7faf8",
+    muted: "#8e9ba0",
+    blue: "#7bccff",
+    "blue-mid": "#a9def2",
+    green: "#00ff19"
+  };
+  const semanticColors = {
+    "bg-primary": "var(--brand-black)",
+    "bg-surface": "var(--brand-surface)",
+    "text-primary": "var(--brand-white)",
+    "text-secondary": "var(--brand-muted)",
+    "text-highlight": "var(--brand-blue)",
+    "action-primary": "var(--brand-green)",
+    "action-primary-text": "var(--brand-black)",
+    "action-secondary": "var(--brand-blue)",
+    "state-selected": "var(--brand-green)",
+    "state-complete": "var(--brand-green)",
+    "theme-general": "var(--brand-blue)",
+    "theme-sustainability": "var(--brand-green)"
+  };
+
+  for (const [name, hex] of Object.entries(brandColors)) {
+    assert.match(css, new RegExp(`--brand-${name}: ${hex};`));
+  }
+  for (const [name, value] of Object.entries(semanticColors)) {
+    assert.match(css, new RegExp(`--${name}: ${value.replace(/[()]/g, "\\$&")};`));
+  }
+  assert.doesNotMatch(css, /--color-[\w-]+|var\(--color-[\w-]+\)/);
+  assert.match(css, /--border-default:\s*rgba\(247,250,248,\.22\)/);
+  assert.match(css, /--border-strong:\s*rgba\(247,250,248,\.50\)/);
+  assert.match(css, /--error-border:\s*#ffb3b3/);
+  assert.match(css, /--error-text:\s*#ffdede/);
+  assert.match(css, /--error-bg:\s*rgba\(255,100,100,\.10\)/);
+  for (const token of ["black", "white", "blue", "green"]) {
+    assert.match(shareCard, new RegExp(`getPropertyValue\\("--brand-${token}"\\)`));
+  }
+  assert.doesNotMatch(shareCard, /getPropertyValue\("--color-/);
 });
 
 test("the six-level typography system drives all page text and stays responsive", () => {
@@ -93,6 +141,9 @@ test("the six-level typography system drives all page text and stays responsive"
   assert.match(css, /\.redemption-prize-title\s*\{[^}]*font-size:\s*var\(--font-h1\)/s);
   assert.doesNotMatch(css, /--type-(?:display|h1|h2|h3|body|label|caption)\b/);
   assert.doesNotMatch(css, /--(?:result-title-size|result-slogan-size|result-tag-font-size|recommendation-heading-size|recommendation-copy-size|hydration-choice-font-size|redemption-cta-font-size)\b/);
+  const declaredFontSizes = [...css.matchAll(/font-size\s*:\s*([^;]+);/g)].map(([, size]) => size.trim());
+  assert.ok(declaredFontSizes.length > 0);
+  assert.ok(declaredFontSizes.every((size) => /^var\(--font-(?:display|h1|h2|h3|body|small)\)$/.test(size)));
   assert.match(shareCard, /const SHARE_CARD_TYPE = \{/);
   assert.match(shareCard, /const SHARE_CARD_LINE_HEIGHT = \{/);
 });
@@ -143,6 +194,12 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.match(app, /performance:\s*"\.\/assets\/result\/配速計算機\.png"/);
   assert.ok(existsSync(new URL("../assets/result/配速計算機.png", import.meta.url)));
   assert.match(app, /tag\.textContent = value \? `# \$\{value\}` : "";/);
+  assert.match(app, /tag\.hidden = !value;/);
+  assert.equal(html.match(/data-result-tag="/g)?.length, 4);
+  for (const [runnerType, result] of Object.entries(content.resultData)) {
+    const tagCount = result.tags.filter((tag) => tag?.zh || tag?.en).length;
+    assert.ok(tagCount >= 2 && tagCount <= 4, `${runnerType} should have between 2 and 4 configured tags`);
+  }
   assert.match(html, /<section class="v2-recommendation"[\s\S]*?data-hydration-equipment/);
   assert.match(html, /class="runner-visual" data-runner-visual/);
   assert.match(html, /class="result-hero-frame"/);
@@ -170,7 +227,7 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.match(css, /\.result-download-card\s*\{[^}]*padding:\s*0/s);
   assert.match(css, /\.ig-placeholder-card\s*\{[^}]*padding:\s*0/s);
   const tuningVariables = [
-    "result-title-slogan-gap", "result-visual-ratio",
+    "result-title-slogan-gap", "result-heading-height", "result-visual-ratio",
     "result-section-gap", "result-tags-gap", "result-tag-padding",
     "recommendation-padding",
     "hydration-image-size", "hydration-image-gap", "hydration-content-gap",
@@ -183,14 +240,22 @@ test("hydration images and result layout are isolated from prize inventory and r
   for (const variable of ["redemption-prize-max-width", "redemption-prize-padding", "redemption-title-width", "redemption-title-height", "redemption-prize-image-height", "redemption-base-width", "redemption-base-height", "redemption-action-gap", "redemption-extras-max-width", "redemption-cta-height", "redemption-cta-radius", "redemption-preview-aspect-ratio"]) {
     assert.match(css, new RegExp(`var\\(--${variable}\\)`), `Unused redemption tuning variable --${variable}`);
   }
-  assert.match(css, /\.runner-tags\s*\{[^}]*flex-wrap:\s*wrap/s);
+  assert.match(css, /\.runner-tags\s*\{[^}]*flex-wrap:\s*nowrap;[^}]*width:\s*100%/s);
+  assert.match(css, /\.runner-tag\s*\{[^}]*flex:\s*1 1 0;[^}]*font-size:\s*var\(--font-h2\)/s);
   assert.match(css, /\.result-identity\s*\{[^}]*width:\s*var\(--result-identity-width\)/s);
-  assert.match(css, /\.v2-result-heading\s*\{[^}]*margin-top:\s*calc\(0px - var\(--result-heading-frame-overlap\)\)/s);
+  assert.match(css, /\.v2-result-heading\s*\{[^}]*height:\s*var\(--result-heading-height\)/s);
+  assert.match(css, /--result-heading-height:\s*144px;/);
+  assert.match(css, /--result-heading-height:\s*128px;/);
+  assert.match(css, /\.v2-result-heading\s*\{[^}]*margin-top:\s*calc\(0px - var\(--result-heading-frame-overlap\) - 2px\)/s);
   assert.match(css, /\.v2-result-heading\s*\{[^}]*margin-bottom:\s*calc\(0px - var\(--result-heading-image-pull\)\)/s);
+  assert.match(css, /\.result-hero-frame\s*\{[^}]*margin-top:\s*var\(--result-heading-frame-overlap\);[^}]*padding:\s*0 var\(--result-frame-inline-padding\) var\(--result-frame-bottom-padding\);[^}]*border:\s*2px solid rgba\(247,250,248,\.88\);[^}]*border-radius:\s*10px/s);
+  assert.doesNotMatch(css, /\.result-hero-frame::(?:before|after)/);
+  assert.match(css, /--result-frame-inline-padding:\s*10px;/);
+  assert.match(css, /--result-frame-bottom-padding:\s*10px;/);
   assert.match(css, /\.hydration-recommendation-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*34%\)/s);
   assert.match(css, /\.v2-recommendation\.is-pioneer \.hydration-recommendation-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
   assert.match(css, /\.runner-visual\s*\{[^}]*aspect-ratio:\s*var\(--result-visual-ratio\)/s);
-  assert.match(css, /\.runner-visual-image\s*\{[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain/s);
+  assert.match(css, /\.runner-visual-image\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain/s);
   assert.match(css, /--share-card-aspect-ratio:\s*9\s*\/\s*16/);
   assert.match(css, /\.result-download-preview\s*\{[^}]*aspect-ratio:\s*var\(--redemption-preview-aspect-ratio\)/s);
   assert.match(css, /\.ig-placeholder-thumbnail\s*\{[^}]*aspect-ratio:\s*var\(--redemption-preview-aspect-ratio\)/s);
