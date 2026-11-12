@@ -595,7 +595,8 @@ label {
 }
 
 .progress-track span.is-current {
-  background: radial-gradient(ellipse, var(--brand-blue) 0 68%, transparent 72%);
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
 }
 
 .progress-track span.is-complete {
