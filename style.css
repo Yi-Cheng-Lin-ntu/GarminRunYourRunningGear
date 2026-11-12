@@ -763,6 +763,107 @@ label {
   gap: var(--result-section-gap);
 }
 
+.result-share-card {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.share-render-stage {
+  /* 輸出固定 1080 × 1920；卡片會等比縮放並置中，不裁切內容。 */
+  --share-render-inline-inset: 108px;
+  position: fixed;
+  left: -12000px;
+  top: 0;
+  z-index: -1;
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--brand-black);
+  pointer-events: none;
+}
+
+.share-render-header,
+.share-render-footer {
+  position: absolute;
+  z-index: 2;
+  color: var(--brand-white);
+  font-size: 28px;
+  font-weight: var(--weight-emphasis);
+  line-height: 1.2;
+}
+
+.share-render-header {
+  top: 16px;
+  right: var(--share-render-inline-inset);
+  left: var(--share-render-inline-inset);
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.share-render-header [data-i18n="brand.headerRun"] {
+  color: var(--brand-green);
+}
+
+.share-render-header-rule,
+.share-render-footer-rule {
+  position: absolute;
+  left: var(--share-render-inline-inset);
+  z-index: 2;
+  width: calc(100% - var(--share-render-inline-inset) * 2);
+  border-top: 1px solid rgba(247,250,248,.5);
+}
+
+.share-render-header-rule {
+  top: 60px;
+}
+
+.share-render-footer-rule {
+  top: 1832px;
+}
+
+.share-render-footer {
+  bottom: 32px;
+  right: var(--share-render-inline-inset);
+  left: auto;
+  text-align: right;
+}
+
+.share-render-map {
+  position: absolute;
+  inset: -4% -18%;
+  background-color: #85fdd3;
+  mask-image: url("./taipei.svg");
+  mask-repeat: no-repeat;
+  mask-position: 58% 72%;
+  mask-size: 190% auto;
+  opacity: var(--map-opacity);
+  mix-blend-mode: screen;
+}
+
+.share-render-context {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+}
+
+.share-render-root {
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
 .result-identity,
 .result-details {
   min-width: 0;
@@ -1087,6 +1188,7 @@ label {
 .v2-invitation {
   border-top: 1px solid var(--border-default);
   padding-top: 24px;
+  margin-top: var(--result-section-gap);
 }
 
 .v2-invitation fieldset {
@@ -1285,7 +1387,7 @@ label {
   padding-bottom: 36px;
   margin-inline: calc(-1 * var(--gutter));
   padding-inline: calc(var(--gutter) + var(--screen-inline-padding));
-  background: rgba(8,11,13,.72);
+  background: rgba(8,11,13,.4);
   color: var(--brand-white);
   border-radius: 0;
 }
@@ -1410,33 +1512,40 @@ label {
   color: var(--brand-white);
 }
 
-.sustainability-message {
-  max-width: var(--redemption-prize-max-width);
-  margin: 0 auto 12px;
-  border-left: 4px solid var(--brand-green);
-  padding: 10px 12px;
-  font-size: var(--font-body);
-  font-weight: var(--weight-emphasis);
-}
-
+.sustainability-message,
 .redemption-instruction {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
   gap: .6em;
   max-width: var(--redemption-prize-max-width);
   margin: 12px auto 0;
-  font-size: var(--font-body);
+  padding: 10px 12px;
+  font-size: var(--font-h3);
   font-weight: var(--weight-emphasis);
   text-align: left;
 }
 
+.sustainability-message {
+  --redemption-indicator-color: var(--brand-green);
+  white-space: pre-line;
+}
+
+.redemption-instruction {
+  --redemption-indicator-color: var(--brand-blue);
+}
+
+.sustainability-message::before,
 .redemption-instruction::before {
   content: "";
   flex: 0 0 3px;
   width: 3px;
   height: 1.1em;
-  background: var(--brand-blue);
+  background: var(--redemption-indicator-color);
+}
+
+.sustainability-message::before {
+  align-self: stretch;
+  height: auto;
 }
 
 .redemption-restart {
@@ -1605,15 +1714,7 @@ label {
   }
 }
 
-/* SHARE CARD 9:16 — canvas output is 1080 × 1920 and feeds both preview and download. */
-.share-card-renderer {
-  position: fixed;
-  left: -10000px;
-  top: 0;
-  width: 1080px;
-  height: 1920px;
-  pointer-events: none;
-}
+/* SHARE CARD 9:16 — hidden DOM stage renders the same result-card HTML as the page. */
 
 /* Mock development tools */
 
@@ -1832,12 +1933,12 @@ input::placeholder {
 }
 
 @media (min-width: 900px) {
-  #result .result-layout {
+  .screen-result .result-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 22px;
   }
 
-  #result {
+  .screen-result {
     --result-identity-width: 100%;
     --result-heading-height: 128px;
     --result-heading-frame-overlap: 51px;

@@ -99,10 +99,8 @@ test("the main stylesheet uses brand and semantic color tokens without color ali
   assert.match(css, /--error-border:\s*#ffb3b3/);
   assert.match(css, /--error-text:\s*#ffdede/);
   assert.match(css, /--error-bg:\s*rgba\(255,100,100,\.10\)/);
-  for (const token of ["black", "white", "blue", "green"]) {
-    assert.match(shareCard, new RegExp(`getPropertyValue\\("--brand-${token}"\\)`));
-  }
-  assert.doesNotMatch(shareCard, /getPropertyValue\("--color-/);
+  assert.match(shareCard, /domToImage\.toBlob\(stage/);
+  assert.match(css, /\.result-share-card\s*\{/);
 });
 
 test("the six-level typography system drives all page text and stays responsive", () => {
@@ -144,8 +142,8 @@ test("the six-level typography system drives all page text and stays responsive"
   const declaredFontSizes = [...css.matchAll(/font-size\s*:\s*([^;]+);/g)].map(([, size]) => size.trim());
   assert.ok(declaredFontSizes.length > 0);
   assert.ok(declaredFontSizes.every((size) => /^var\(--font-(?:display|h1|h2|h3|body|small)\)$/.test(size)));
-  assert.match(shareCard, /const SHARE_CARD_TYPE = \{/);
-  assert.match(shareCard, /const SHARE_CARD_LINE_HEIGHT = \{/);
+  assert.doesNotMatch(shareCard, /fillText|drawImage|SHARE_CARD_TYPE/);
+  assert.match(shareCard, /document\.fonts\?\.ready/);
 });
 
 test("redemption title color reflects sustainability eligibility", () => {
@@ -160,9 +158,17 @@ test("redemption title color reflects sustainability eligibility", () => {
 
 test("redemption removes the green prize-image oval and left-aligns the instruction", () => {
   const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const redemptionView = readFileSync(new URL("../js/redemptionView.js", import.meta.url), "utf8");
 
   assert.doesNotMatch(css, /\.prize-image::before/);
-  assert.match(css, /\.redemption-instruction\s*\{[^}]*justify-content:\s*flex-start/s);
+  assert.match(css, /\.sustainability-message,\s*\.redemption-instruction\s*\{[^}]*display:\s*flex;[^}]*padding:\s*10px 12px;/s);
+  assert.match(css, /\.sustainability-message\s*\{[^}]*--redemption-indicator-color:\s*var\(--brand-green\)/s);
+  assert.match(css, /\.redemption-instruction\s*\{[^}]*--redemption-indicator-color:\s*var\(--brand-blue\)/s);
+  assert.match(css, /\.sustainability-message::before,\s*\.redemption-instruction::before\s*\{[^}]*background:\s*var\(--redemption-indicator-color\)/s);
+  assert.match(css, /\.sustainability-message\s*\{[^}]*white-space:\s*pre-line/s);
+  assert.match(redemptionView, /\.replace\(\/\\s\*\[｜\|\]\\s\*\/,\s*"\\n"\)/);
+  assert.match(html, /class="redemption-instruction"[^]*?class="sustainability-message"[^]*?class="redemption-extras"/);
 });
 
 test("downloaded result follows the result layout and the Instagram card contains only its image", () => {
@@ -179,16 +185,13 @@ test("downloaded result follows the result layout and the Instagram card contain
   assert.match(app, /headerRun: copy\("brand\.headerRun"\)/);
   assert.match(app, /headerSuffix: copy\("v2\.shareCardHeaderSuffix"\)/);
   assert.match(app, /footer: copy\("v2\.startFooter"\)/);
-  assert.match(shareCard, /fillText\(model\.headerPrefix, headerX, 54\)/);
-  assert.match(shareCard, /fillText\(model\.footer, frame\.x, 1874\)/);
-  assert.match(shareCard, /const frame = \{ x: 108, y: 220, width: 864, height: 810 \}/);
-  assert.match(shareCard, /roundedRect\(context, \(CARD_WIDTH - titleWidth\) \/ 2, frame\.y - 66, titleWidth, 132, 36\)/);
-  assert.match(shareCard, /fillText\(model\.title, CARD_WIDTH \/ 2, frame\.y, titleWidth - 42\)/);
-  assert.match(shareCard, /drawContained\(context, runnerImage, 125, frame\.y \+ 138, 830, 664\)/);
-  assert.match(shareCard, /frame\.x \+ index \* \(tagWidth \+ tagGap\), frame\.y \+ 822/);
-  assert.match(shareCard, /const panel = \{ x: frame\.x, y: frame\.y \+ 944, width: frame\.width/);
-  assert.doesNotMatch(shareCard, /panel\.x \+ 320/);
-  assert.match(shareCard, /const copyWidth = panel\.x \+ panel\.width - contentPadding - copyX/);
+  assert.match(shareCard, /card\.cloneNode\(true\)/);
+  assert.match(shareCard, /CARD_WIDTH = 1080/);
+  assert.match(shareCard, /CARD_HEIGHT = 1920/);
+  assert.match(shareCard, /domToImage\.toBlob\(stage/);
+  assert.match(html, /<article class="result-share-card" data-result-card>/);
+  assert.match(html, /<article class="result-share-card" data-share-root>/);
+  assert.match(html, /js\/vendor\/html-to-image\.js/);
   assert.doesNotMatch(html, /ig-placeholder-copy|更多永續故事|查看 Instagram 貼文/i);
   assert.doesNotMatch(css, /\.ig-placeholder-copy/);
 });
@@ -251,13 +254,12 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.match(html, /data-runner-image[^>]*hidden/);
   assert.match(html, /data-sustainability-result-mark/);
   assert.match(html, /class="runner-tags"[\s\S]*data-result-tag/);
-  assert.match(html, /data-share-canvas/);
+  assert.match(html, /data-share-stage/);
   assert.match(html, /data-share-preview/);
   assert.match(html, /data-ig-placeholder/);
   assert.match(css, /\.hydration-equipment-image\s*\{[^}]*object-fit:\s*contain/s);
   assert.match(css, /\.runner-visual-image\s*\{[^}]*object-fit:\s*contain/s);
-  assert.match(css, /\.runner-visual-image\s*\{[^}]*border-radius:\s*4px/s);
-  assert.match(css, /\.screen-redemption\s*\{[^}]*background:\s*rgba\(8,11,13,\.72\);[^}]*color:\s*var\(--brand-white\)/s);
+  assert.match(css, /\.screen-redemption\s*\{[^}]*background:\s*rgba\(8,11,13,\.4\);[^}]*color:\s*var\(--brand-white\)/s);
   assert.match(css, /\.prize-card\s*\{[^}]*border:\s*1px solid rgba\(247,250,248,\.82\)/s);
   assert.match(html, /class="redemption-action-card result-download-card"[^>]*aria-labelledby="share-save-label"[^>]*data-action="download-result"/);
   assert.doesNotMatch(html, /class="result-download-copy"/);
@@ -265,7 +267,7 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.match(html, /class="redemption-action-card ig-placeholder-card"[^>]*aria-labelledby="ig-story-label"[^>]*href="https:\/\/www\.instagram\.com/);
   assert.match(html, /class="redemption-cta" id="ig-story-label" href="https:\/\/www\.instagram\.com/);
   assert.match(css, /\.prize-card\s*\{[^}]*width:\s*min\(100%,\s*var\(--redemption-extras-max-width\)\)/s);
-  assert.match(css, /\.redemption-instruction::before\s*\{[^}]*background:\s*var\(--brand-blue\)/s);
+  assert.match(css, /\.redemption-instruction\s*\{[^}]*--redemption-indicator-color:\s*var\(--brand-blue\)/s);
   assert.match(css, /\.redemption-cta\s*\{[^}]*border-radius:\s*var\(--redemption-cta-radius\)/s);
   assert.match(css, /--redemption-cta-radius:\s*var\(--radius-control\)/);
   assert.match(css, /\.result-download-card\s*\{[^}]*padding:\s*0/s);
@@ -274,7 +276,7 @@ test("hydration images and result layout are isolated from prize inventory and r
     "result-title-slogan-gap", "result-heading-height", "result-visual-ratio",
     "result-section-gap", "result-tags-gap", "result-tag-padding",
     "recommendation-padding",
-    "hydration-image-size", "hydration-image-gap", "hydration-content-gap",
+    "hydration-image-size", "hydration-content-gap",
     "hydration-choice-gap", "hydration-choice-height",
     "result-continue-margin-top", "result-continue-margin-bottom"
   ];
@@ -285,7 +287,7 @@ test("hydration images and result layout are isolated from prize inventory and r
     assert.match(css, new RegExp(`var\\(--${variable}\\)`), `Unused redemption tuning variable --${variable}`);
   }
   assert.match(css, /\.runner-tags\s*\{[^}]*flex-wrap:\s*nowrap;[^}]*width:\s*100%/s);
-  assert.match(css, /\.runner-tag\s*\{[^}]*flex:\s*1 1 0;[^}]*font-size:\s*var\(--font-h2\)/s);
+  assert.match(css, /\.runner-tag\s*\{[^}]*flex:\s*1 1 0;[^}]*font-size:\s*var\(--font-h3\)/s);
   assert.match(css, /\.result-identity\s*\{[^}]*width:\s*var\(--result-identity-width\)/s);
   assert.match(css, /\.v2-result-heading\s*\{[^}]*height:\s*var\(--result-heading-height\)/s);
   assert.match(css, /--result-heading-height:\s*144px;/);
@@ -301,11 +303,12 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.doesNotMatch(css.match(/\.v2-recommendation\.is-pioneer \.hydration-recommendation-row\s*\{[^}]*\}/s)?.[0] ?? "", /padding-right/);
   assert.match(css, /\.hydration-copy\s*\{[^}]*width:\s*100%/s);
   assert.match(css, /\.runner-visual\s*\{[^}]*aspect-ratio:\s*var\(--result-visual-ratio\)/s);
-  assert.match(css, /\.runner-visual-image\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain/s);
+  assert.match(css, /\.runner-visual-image\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;[^}]*object-fit:\s*contain/s);
   assert.match(css, /--share-card-aspect-ratio:\s*9\s*\/\s*16/);
   assert.match(css, /\.result-download-preview\s*\{[^}]*aspect-ratio:\s*var\(--redemption-preview-aspect-ratio\)/s);
   assert.match(css, /\.ig-placeholder-thumbnail\s*\{[^}]*aspect-ratio:\s*var\(--redemption-preview-aspect-ratio\)/s);
-  assert.match(html, /data-share-canvas width="1080" height="1920"/);
+  assert.match(html, /data-share-stage/);
+  assert.doesNotMatch(html, /data-share-canvas|<canvas/);
   assert.match(readFileSync(new URL("../js/shareCard.js", import.meta.url), "utf8"), /CARD_WIDTH = 1080;[\s\S]*CARD_HEIGHT = 1920;/);
   assert.match(css, /\.result-hero-frame\s*\{[^}]*border:\s*2px solid/s);
   assert.match(css, /\.runner-tag\s*\{[^}]*background:\s*var\(--brand-green\)/s);

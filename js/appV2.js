@@ -22,7 +22,8 @@ const elements = {
   start: $("#start"), quiz: $("#quiz"), result: $("#result"), participation: $("#participation"), redemption: $("#redemption"),
   redemptionRunner: $("[data-redemption-runner]"), redemptionTitle: $("[data-redemption-title]"),
   prizeImage: $("[data-prize-image]"), prizeName: $("[data-prize-name]"), sustainabilityMessage: $("[data-sustainability-message]"),
-  shareCanvas: $("[data-share-canvas]"), sharePreview: $("[data-share-preview]"), shareStatus: $("[data-share-status]"),
+  shareStage: $("[data-share-stage]"), shareContext: $("[data-share-context]"), shareRoot: $("[data-share-root]"),
+  sharePreview: $("[data-share-preview]"), shareStatus: $("[data-share-status]"),
   sustainabilityResultMark: $("[data-sustainability-result-mark]"),
   igImage: $("[data-ig-image]")
 };
@@ -83,6 +84,8 @@ function reset() {
   elements.sustainabilityMessage.textContent = "";
   elements.sharePreview.removeAttribute("src");
   elements.sharePreview.hidden = true;
+  elements.shareRoot.replaceChildren();
+  elements.shareContext.removeAttribute("style");
   elements.shareStatus.textContent = copy("v2.sharePreparing");
   setDownloadButtonsDisabled(true);
   elements.sustainabilityResultMark.removeAttribute("src");
@@ -176,7 +179,12 @@ function prepareShareCard(model) {
   elements.sharePreview.hidden = true;
   setDownloadButtonsDisabled(true);
   elements.shareStatus.textContent = copy("v2.sharePreparing");
-  state.shareCardPromise = renderResultSharePng(elements.shareCanvas, model).then((blob) => {
+  state.shareCardPromise = renderResultSharePng({
+    card: $("[data-result-card]"),
+    stage: elements.shareStage,
+    context: elements.shareContext,
+    root: elements.shareRoot
+  }).then((blob) => {
     if (generation !== shareRenderGeneration) return null;
     state.shareCardBlob = blob;
     state.shareCardUrl = URL.createObjectURL(blob);
@@ -186,8 +194,9 @@ function prepareShareCard(model) {
     elements.shareStatus.textContent = copy("v2.shareReady");
     setDownloadButtonsDisabled(false);
     return blob;
-  }).catch(() => {
+  }).catch((error) => {
     if (generation !== shareRenderGeneration) return null;
+    console.error("Result share PNG generation failed.", error?.name, error?.message, error);
     elements.shareStatus.textContent = copy("v2.shareError");
     setDownloadButtonsDisabled(true);
     return null;

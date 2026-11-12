@@ -1,255 +1,96 @@
 const CARD_WIDTH = 1080;
 const CARD_HEIGHT = 1920;
-const SHARE_CARD_TYPE = {
-  header: "700 28px",
-  footer: "700 28px",
-  eyebrow: "800 36px",
-  display: "900 82px",
-  slogan: "700 43px",
-  tag: "700 23px",
-  sectionLabel: "800 29px",
-  recommendationHeading: "800 35px",
-  recommendationBody: "700 30px"
-};
-const SHARE_CARD_LINE_HEIGHT = {
-  tag: 26,
-  slogan: 58,
-  recommendationHeading: 52,
-  recommendationBody: 48
-};
+const SAFE_PADDING = 32;
 
-function roundedRect(context, x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, height / 2);
-  context.beginPath();
-  context.moveTo(x + r, y);
-  context.arcTo(x + width, y, x + width, y + height, r);
-  context.arcTo(x + width, y + height, x, y + height, r);
-  context.arcTo(x, y + height, x, y, r);
-  context.arcTo(x, y, x + width, y, r);
-  context.closePath();
+function waitForFrame() {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
 
-function imageFrom(src) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error(`Unable to load share image: ${src}`));
-    image.src = src;
-    if (image.complete && image.naturalWidth) resolve(image);
-  });
-}
-
-function drawContained(context, image, x, y, width, height) {
-  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
-  const drawWidth = image.naturalWidth * scale;
-  const drawHeight = image.naturalHeight * scale;
-  context.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
-}
-
-function wrapText(context, value, maxWidth) {
-  const text = String(value || "");
-  const segments = typeof Intl.Segmenter === "function"
-    ? [...new Intl.Segmenter(undefined, { granularity: "word" }).segment(text)].map((entry) => entry.segment)
-    : Array.from(text);
-  const lines = [];
-  let line = "";
-  for (const segment of segments) {
-    const candidate = line + segment;
-    if (line && context.measureText(candidate).width > maxWidth) {
-      lines.push(line.trimEnd());
-      line = segment.trimStart();
-    } else line = candidate;
-  }
-  if (line) lines.push(line.trimEnd());
-  return lines.length ? lines : [""];
-}
-
-function drawTextBlock(context, value, x, y, maxWidth, lineHeight, maxLines = 8) {
-  const lines = wrapText(context, value, maxWidth).slice(0, maxLines);
-  lines.forEach((line, index) => context.fillText(line, x, y + index * lineHeight));
-  return y + lines.length * lineHeight;
-}
-
-function drawTag(context, text, x, y, width, colors) {
-  const height = 62;
-  context.beginPath();
-  context.moveTo(x + 18, y);
-  context.lineTo(x + width, y);
-  context.lineTo(x + width - 18, y + height);
-  context.lineTo(x, y + height);
-  context.closePath();
-  context.fillStyle = colors.green;
-  context.fill();
-  context.fillStyle = colors.black;
-  context.font = `${SHARE_CARD_TYPE.tag} ${colors.fontFamily}`;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  const lines = wrapText(context, `# ${text}`, width - 32).slice(0, 2);
-  lines.forEach((line, index) => context.fillText(line, x + width / 2, y + height / 2 + (index - (lines.length - 1) / 2) * SHARE_CARD_LINE_HEIGHT.tag));
-  context.textAlign = "left";
-  context.textBaseline = "alphabetic";
-}
-
-export async function renderResultSharePng(canvas, model) {
-  const [runnerImage, equipmentImages, sustainabilityImage, mapImage] = await Promise.all([
-    imageFrom(model.image.src),
-    Promise.all(model.equipment.map((item) => imageFrom(item.src))),
-    model.isPioneer ? imageFrom(model.sustainabilityImage.src) : Promise.resolve(null),
-    imageFrom(new URL("../taipei.svg", import.meta.url).href)
-  ]);
-  canvas.width = CARD_WIDTH;
-  canvas.height = CARD_HEIGHT;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Canvas rendering is unavailable.");
-
-  const root = getComputedStyle(document.documentElement);
-  const colors = {
-    black: root.getPropertyValue("--brand-black").trim() || "#080b0d",
-    white: root.getPropertyValue("--brand-white").trim() || "#f7faf8",
-    blue: root.getPropertyValue("--brand-blue").trim() || "#d6f2ff",
-    green: root.getPropertyValue("--brand-green").trim() || "#00ff19",
-    fontFamily: getComputedStyle(document.body).fontFamily || "Arial, sans-serif"
-  };
-
-  // 直式結果卡：沿用結果頁的內容順序與區塊框架。
-  context.fillStyle = colors.black;
-  context.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-  context.globalAlpha = .2;
-  context.drawImage(mapImage, 0, 0, CARD_WIDTH, CARD_HEIGHT);
-  context.globalAlpha = 1;
-
-  const frame = { x: 108, y: 220, width: 864, height: 810 };
-
-  context.textAlign = "left";
-  context.textBaseline = "alphabetic";
-  context.font = `${SHARE_CARD_TYPE.header} ${colors.fontFamily}`;
-  let headerX = frame.x;
-  context.fillStyle = colors.white;
-  context.fillText(model.headerPrefix, headerX, 54);
-  headerX += context.measureText(`${model.headerPrefix} `).width;
-  context.fillStyle = colors.green;
-  context.fillText(model.headerRun, headerX, 54);
-  headerX += context.measureText(`${model.headerRun} `).width;
-  context.fillStyle = colors.white;
-  context.fillText(model.headerSuffix, headerX, 54);
-
-  context.beginPath();
-  context.moveTo(frame.x, 80);
-  context.lineTo(frame.x + frame.width, 80);
-  context.strokeStyle = "rgba(247,250,248,.5)";
-  context.lineWidth = 2;
-  context.stroke();
-
-  context.beginPath();
-  context.moveTo(frame.x, 1832);
-  context.lineTo(frame.x + frame.width, 1832);
-  context.stroke();
-  context.fillStyle = colors.white;
-  context.font = `${SHARE_CARD_TYPE.footer} ${colors.fontFamily}`;
-  context.fillText(model.footer, frame.x, 1874);
-
-  roundedRect(context, frame.x, frame.y, frame.width, frame.height, 18);
-  context.strokeStyle = colors.white;
-  context.lineWidth = 4;
-  context.stroke();
-  drawContained(context, runnerImage, 125, frame.y + 138, 830, 664);
-
-  context.textAlign = "center";
-  context.fillStyle = colors.white;
-  context.textBaseline = "alphabetic";
-  context.font = `${SHARE_CARD_TYPE.eyebrow} ${colors.fontFamily}`;
-  context.fillText(model.eyebrow, CARD_WIDTH / 2, frame.y - 100);
-  context.font = `${SHARE_CARD_TYPE.display} ${colors.fontFamily}`;
-  const titleWidth = Math.min(820, context.measureText(model.title).width + 90);
-  roundedRect(context, (CARD_WIDTH - titleWidth) / 2, frame.y - 66, titleWidth, 132, 36);
-  context.fillStyle = colors.black;
-  context.fill();
-  context.fillStyle = colors.white;
-  context.textBaseline = "middle";
-  context.fillText(model.title, CARD_WIDTH / 2, frame.y, titleWidth - 42);
-  context.font = `${SHARE_CARD_TYPE.slogan} ${colors.fontFamily}`;
-  const sloganLines = wrapText(context, model.slogan, 790).slice(0, 2);
-  sloganLines.forEach((line, index) => context.fillText(line, CARD_WIDTH / 2, frame.y + 126 + index * SHARE_CARD_LINE_HEIGHT.slogan));
-  context.textAlign = "left";
-
-  const visibleTags = model.tags.filter(Boolean).slice(0, 4);
-  const tagGap = 14;
-  const tagWidth = (frame.width - tagGap * Math.max(0, visibleTags.length - 1)) / Math.max(1, visibleTags.length);
-  visibleTags.forEach((tag, index) => {
-    drawTag(context, tag, frame.x + index * (tagWidth + tagGap), frame.y + 822, tagWidth, colors);
-  });
-
-  const panel = { x: frame.x, y: frame.y + 944, width: frame.width, height: 530 };
-  roundedRect(context, panel.x, panel.y, panel.width, panel.height, 18);
-  context.strokeStyle = colors.white;
-  context.lineWidth = 4;
-  context.stroke();
-
-  const labelText = model.isPioneer ? model.pioneerBanner : model.recommendationLabel;
-  context.font = `${SHARE_CARD_TYPE.sectionLabel} ${colors.fontFamily}`;
-  const label = {
-    x: panel.x + 20,
-    y: panel.y - 25,
-    width: Math.min(panel.width - 40, context.measureText(labelText).width + 72),
-    height: 72
-  };
-  context.save();
-  context.translate(label.x, label.y);
-  context.rotate(-3 * Math.PI / 180);
-  context.transform(1, 0, Math.tan(-5 * Math.PI / 180), 1, 0, 0);
-  context.beginPath();
-  context.moveTo(18, 0);
-  context.lineTo(label.width, 0);
-  context.lineTo(label.width - 18, label.height);
-  context.lineTo(0, label.height);
-  context.closePath();
-  context.fillStyle = model.isPioneer ? colors.green : colors.blue;
-  context.fill();
-  context.fillStyle = colors.black;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(labelText, label.width / 2, label.height / 2, label.width - 48);
-  context.restore();
-  context.textAlign = "left";
-  context.textBaseline = "alphabetic";
-
-  const contentPadding = 30;
-  const leftX = panel.x + contentPadding;
-  const imageColumnWidth = 270;
-  const copyX = model.isPioneer ? leftX : leftX + imageColumnWidth + 30;
-  const copyWidth = panel.x + panel.width - contentPadding - copyX;
-  if (!model.isPioneer) {
-    const slotGap = 8;
-    const slotWidth = (imageColumnWidth - slotGap * Math.max(0, equipmentImages.length - 1)) / Math.max(1, equipmentImages.length);
-    equipmentImages.forEach((image, index) => {
-      const slotX = leftX + index * (slotWidth + slotGap);
-      context.fillStyle = colors.blue;
-      context.beginPath();
-      context.ellipse(slotX + slotWidth / 2, panel.y + 362, slotWidth * .45, 28, 0, 0, Math.PI * 2);
-      context.fill();
-      drawContained(context, image, slotX, panel.y + 90, slotWidth, 310);
+async function waitForImage(image) {
+  if (image.hidden || !(image.currentSrc || image.src)) return;
+  if (image.loading === "lazy") image.loading = "eager";
+  if (!image.complete) {
+    await new Promise((resolve, reject) => {
+      image.addEventListener("load", resolve, { once: true });
+      image.addEventListener("error", () => reject(new Error(`Unable to load result image: ${image.currentSrc || image.src}`)), { once: true });
     });
   }
+  if (!image.naturalWidth) throw new Error(`Result image is unavailable: ${image.currentSrc || image.src}`);
+  if (typeof image.decode === "function") await image.decode();
+}
 
-  context.fillStyle = colors.white;
-  context.font = `${SHARE_CARD_TYPE.recommendationHeading} ${colors.fontFamily}`;
-  const headingBottom = drawTextBlock(context, model.recommendationHeading, copyX, panel.y + 190, copyWidth, SHARE_CARD_LINE_HEIGHT.recommendationHeading, 4);
-  context.font = `${SHARE_CARD_TYPE.recommendationBody} ${colors.fontFamily}`;
-  drawTextBlock(context, model.recommendationDescription, copyX, headingBottom + 36, copyWidth, SHARE_CARD_LINE_HEIGHT.recommendationBody, 5);
+function removeDuplicateIds(card) {
+  card.removeAttribute("id");
+  card.removeAttribute("aria-labelledby");
+  card.querySelectorAll("[id]").forEach((element) => element.removeAttribute("id"));
+  card.querySelectorAll("[aria-labelledby]").forEach((element) => element.removeAttribute("aria-labelledby"));
+}
 
-  if (model.isPioneer && sustainabilityImage) {
-    const markSize = 336;
-    const imageX = panel.x + panel.width - markSize + 112;
-    const imageY = panel.y + panel.height - markSize + 98;
-    context.save();
-    context.beginPath();
-    context.arc(imageX + markSize / 2, imageY + markSize / 2, markSize / 2, 0, Math.PI * 2);
-    context.clip();
-    drawContained(context, sustainabilityImage, imageX, imageY, markSize, markSize);
-    context.restore();
-  }
+async function waitForAssets(card) {
+  if (document.fonts?.ready) await document.fonts.ready;
+  await Promise.all([...card.querySelectorAll("img")].map(waitForImage));
 
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("PNG encoding failed.")), "image/png");
+  // 等待結果卡使用的台北 SVG 遮罩可讀，DOM-to-image 才能內嵌背景資源。
+  const map = new Image();
+  map.src = new URL("../taipei.svg", import.meta.url).href;
+  await waitForImage(map);
+  await waitForFrame();
+  await waitForFrame();
+}
+
+export async function renderResultSharePng({ card, stage, context, root }) {
+  if (!card || !stage || !context || !root) throw new Error("The shared result-card elements are missing.");
+  const domToImage = globalThis.htmlToImage;
+  if (!domToImage?.toBlob) throw new Error("The local DOM-to-image renderer is unavailable.");
+
+  // renderResult() runs just before showScreen(); wait for the result screen to become measurable.
+  await waitForFrame();
+  // 複製的是網站正在顯示的共用結果卡，內容和文案不另行組裝。
+  root.replaceChildren(card.cloneNode(true));
+  // 避免 DOM-to-image 將無來源的隱藏圖片當成目前頁面 URL 載入。
+  root.querySelectorAll("img[hidden]").forEach((image) => {
+    if (!image.hasAttribute("src") && !image.hasAttribute("srcset")) image.remove();
   });
+  removeDuplicateIds(root.firstElementChild);
+  const sourceWidth = card.getBoundingClientRect().width;
+  if (!sourceWidth) throw new Error("The visible result card has no measurable width.");
+  context.style.width = `${sourceWidth}px`;
+  context.style.height = "auto";
+  context.style.transform = "none";
+  root.style.width = "100%";
+  await waitForAssets(root);
+
+  const cardHeight = root.firstElementChild.getBoundingClientRect().height;
+  if (!cardHeight) throw new Error("The shared result card has no measurable height.");
+  const scale = Math.min(
+    (CARD_WIDTH - SAFE_PADDING * 2) / sourceWidth,
+    (CARD_HEIGHT - SAFE_PADDING * 2) / cardHeight
+  );
+  context.style.height = `${cardHeight}px`;
+  context.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  context.style.transformOrigin = "center center";
+  await waitForFrame();
+  await waitForFrame();
+
+  const blob = await domToImage.toBlob(stage, {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    pixelRatio: 1,
+    cacheBust: true,
+    backgroundColor: "#080b0d",
+    // 舞台在頁面上位於螢幕外；只覆寫匯出複製品，避免內容也被畫到 PNG 邊界外。
+    style: {
+      position: "relative",
+      inset: "auto",
+      left: "0px",
+      top: "0px",
+      right: "auto",
+      bottom: "auto",
+      zIndex: "auto",
+      transform: "none"
+    },
+    skipAutoScale: true
+  });
+  if (!blob || blob.type !== "image/png") throw new Error("PNG generation failed.");
+  return blob;
 }

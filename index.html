@@ -87,26 +87,26 @@
       </section>
 
       <section class="screen screen-result" id="result" aria-labelledby="result-title" hidden>
-        <div class="result-layout">
-          <section class="result-identity">
-            <div class="result-hero-frame">
-              <header class="v2-result-heading">
-                <p class="eyebrow" data-i18n="v2.youAre"></p>
-                <h2 id="result-title" data-result-title></h2>
-                <p class="v2-slogan" data-result-slogan></p>
-              </header>
-              <div class="runner-visual" data-runner-visual>
-                <img class="runner-visual-image" data-runner-image alt="" hidden />
+        <article class="result-share-card" data-result-card>
+          <div class="result-layout">
+            <section class="result-identity">
+              <div class="result-hero-frame">
+                <header class="v2-result-heading">
+                  <p class="eyebrow" data-i18n="v2.youAre"></p>
+                  <h2 id="result-title" data-result-title></h2>
+                  <p class="v2-slogan" data-result-slogan></p>
+                </header>
+                <div class="runner-visual" data-runner-visual>
+                  <img class="runner-visual-image" data-runner-image alt="" hidden />
+                </div>
               </div>
-            </div>
-            <div class="runner-tags" data-runner-tags>
-              <div class="runner-tag" data-result-tag="0"></div>
-              <div class="runner-tag tag-2" data-result-tag="1"></div>
-              <div class="runner-tag tag-3" data-result-tag="2"></div>
-              <div class="runner-tag tag-4" data-result-tag="3"></div>
-            </div>
-          </section>
-          <div class="result-details">
+              <div class="runner-tags" data-runner-tags>
+                <div class="runner-tag" data-result-tag="0"></div>
+                <div class="runner-tag tag-2" data-result-tag="1"></div>
+                <div class="runner-tag tag-3" data-result-tag="2"></div>
+                <div class="runner-tag tag-4" data-result-tag="3"></div>
+              </div>
+            </section>
             <section class="v2-recommendation" aria-labelledby="recommendation-title" data-recommendation-section>
               <div class="pioneer-result-banner" data-existing-hydration hidden>
                 <h3 data-i18n="v2.pioneerThanks"></h3>
@@ -121,20 +121,20 @@
                 </div>
               </div>
             </section>
-            <section class="v2-invitation" aria-labelledby="invitation-title">
-              <fieldset data-hydration-options>
-                <legend id="invitation-title" data-i18n="v2.invitation"></legend>
-                <p data-i18n="v2.invitationNote"></p>
-                <div class="hydration-choices">
-                  <label class="choice-card"><input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice /><span><strong data-i18n="v2.joined"></strong></span></label>
-                  <label class="choice-card"><input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice /><span><strong data-i18n="v2.considering"></strong></span></label>
-                </div>
-              </fieldset>
-              <p class="form-error" data-result-error role="alert" hidden></p>
-              <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue"></button>
-            </section>
           </div>
-        </div>
+        </article>
+        <section class="v2-invitation" aria-labelledby="invitation-title">
+          <fieldset data-hydration-options>
+            <legend id="invitation-title" data-i18n="v2.invitation"></legend>
+            <p data-i18n="v2.invitationNote"></p>
+            <div class="hydration-choices">
+              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="joined" data-hydration-choice /><span><strong data-i18n="v2.joined"></strong></span></label>
+              <label class="choice-card"><input type="radio" name="hydrationCommitment" value="considering" data-hydration-choice /><span><strong data-i18n="v2.considering"></strong></span></label>
+            </div>
+          </fieldset>
+          <p class="form-error" data-result-error role="alert" hidden></p>
+          <button class="button button-primary button-wide" type="button" data-action="continue" data-i18n="v2.continue"></button>
+        </section>
         <button class="button button-secondary button-wide v2-retry" type="button" data-action="retry" data-i18n="v2.retry"></button>
       </section>
 
@@ -168,8 +168,8 @@
           </div>
           <p class="prize-name" data-prize-name></p>
         </div>
-        <p class="sustainability-message" data-sustainability-message hidden></p>
         <p class="redemption-instruction" data-i18n="v2.redemptionInstruction"></p>
+        <p class="sustainability-message" data-sustainability-message hidden></p>
         <div class="redemption-extras">
           <div class="redemption-action-column">
             <button class="redemption-action-card result-download-card" type="button" aria-labelledby="share-save-label" data-action="download-result" disabled>
@@ -188,11 +188,27 @@
       </section>
     </main>
 
-    <canvas class="share-card-renderer" data-share-canvas width="1080" height="1920" hidden aria-hidden="true"></canvas>
+    <div class="share-render-stage" data-share-stage aria-hidden="true" inert>
+      <div class="share-render-map"></div>
+      <div class="share-render-header" aria-hidden="true">
+        <span data-i18n="brand.headerPrefix"></span>
+        <span data-i18n="brand.headerRun"></span>
+        <span data-i18n="v2.shareCardHeaderSuffix"></span>
+      </div>
+      <div class="share-render-header-rule" aria-hidden="true"></div>
+      <div class="share-render-context" data-share-context>
+        <section class="screen-result share-render-root">
+          <article class="result-share-card" data-share-root></article>
+        </section>
+      </div>
+      <div class="share-render-footer-rule" aria-hidden="true"></div>
+      <div class="share-render-footer" data-i18n="v2.shareCardFooter"></div>
+    </div>
 
     <footer class="site-footer">
       <span class="site-footer-tagline" data-i18n="v2.startFooter"></span>
     </footer>
+    <script src="js/vendor/html-to-image.js"></script>
     <script type="module" src="js/appV2.js"></script>
   </body>
 </html>

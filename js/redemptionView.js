@@ -62,7 +62,8 @@ export function renderRedemptionView(allocation, { state, elements, resultData, 
     elements.sustainabilityMessage.hidden = false;
     elements.sustainabilityMessage.textContent = copyOr("v2.sustainabilityMessage", state.language === "zh"
       ? "謝謝你一起響應自帶補水行動｜另可領取永續行動貼紙與飄帶"
-      : "Thank you for supporting reusable hydration | You may also receive a sustainability sticker and ribbon");
+      : "Thank you for supporting reusable hydration | You may also receive a sustainability sticker and ribbon")
+      .replace(/\s*[｜|]\s*/, "\n");
   } else {
     elements.sustainabilityMessage.hidden = true;
     elements.sustainabilityMessage.textContent = "";
