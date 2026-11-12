@@ -917,8 +917,6 @@ label {
   left: 14px;
   max-width: calc(100% - 28px);
   margin: 0;
-  padding: 9px 24px;
-  clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%);
   background: var(--brand-blue);
   color: var(--brand-black);
   font-size: var(--font-h2);
@@ -955,8 +953,8 @@ label {
   --hydration-pair-right-rotation: 5deg;
 
   /* 圓盤底圖大小 */
-  --hydration-disc-width: 180px;
-  --hydration-disc-height: 55px;
+  --hydration-disc-width: 140px;
+  --hydration-disc-height: 40px;
 }
 
 .hydration-equipment {
@@ -1001,12 +999,6 @@ label {
     rotate(var(--hydration-single-rotation));
 }
 
-/* 只有軟水杯縮小 */
-.hydration-equipment-image[src*="Garmin軟水杯"] {
-  scale: 0.8;
-  transform-origin: center bottom;
-}
-
 /* 雙張圖片：第一張 */
 .hydration-equipment:has(.hydration-equipment-image:nth-child(2))
 .hydration-equipment-image:first-child {
@@ -1030,6 +1022,7 @@ label {
 }
 
 .hydration-copy {
+  width: 100%;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -1037,7 +1030,6 @@ label {
 .v2-recommendation.is-pioneer .hydration-recommendation-row {
   grid-template-columns: minmax(0, 1fr);
   min-height: var(--hydration-image-size);
-  padding-right: calc(var(--sustainability-mark-size) - 10px);
 }
 
 .sustainability-result-mark {
@@ -1057,17 +1049,22 @@ label {
   display: none;
 }
 
+.screen-result .v2-recommendation > .section-label,
+.pioneer-result-banner {
+  padding: 9px 24px;
+  transform: rotate(-3deg) skewX(-5deg);
+  clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%);
+  box-shadow: 0 3px 10px rgba(0,0,0,.26);
+}
+
 .pioneer-result-banner {
   position: absolute;
   top: -20px;
-  left: 18px;
+  left: 14px;
   z-index: 2;
-  max-width: calc(100% - 36px);
-  padding: 6px 16px;
-  transform: rotate(-3deg) skewX(-5deg);
+  max-width: calc(100% - 28px);
   background: var(--brand-green);
   color: var(--brand-black);
-  box-shadow: 0 3px 10px rgba(0,0,0,.26);
 }
 
 .pioneer-result-banner h3 {
@@ -1080,10 +1077,6 @@ label {
 
 .v2-recommendation.is-pioneer {
   padding-top: 42px;
-}
-
-.v2-recommendation.is-pioneer .hydration-copy {
-  padding-right: 0;
 }
 
 .hydration-choices .choice-card strong {
@@ -1275,8 +1268,6 @@ label {
   --redemption-title-width: min(74%, 440px);
   --redemption-title-height: 58px;
   --redemption-prize-image-height: clamp(180px, 48vw, 360px);
-  --redemption-base-width: 58%;
-  --redemption-base-height: 22px;
   --redemption-action-gap: 16px;
   --redemption-extras-max-width: 920px;
   --redemption-action-radius: 12px;
@@ -1284,7 +1275,7 @@ label {
   --redemption-cta-height: 52px;
   --redemption-cta-radius: var(--radius-control);
   --share-card-aspect-ratio: 9 / 16;
-  --redemption-preview-aspect-ratio: 456 / 702;
+  --redemption-preview-aspect-ratio: var(--share-card-aspect-ratio);
   --redemption-extra-margin: 28px;
   --share-card-padding-block: 12px;
   --share-copy-gap: 10px;
@@ -1366,6 +1357,14 @@ label {
   text-align: center;
 }
 
+.screen-redemption.is-sustainable .redemption-prize-title {
+  background: var(--theme-sustainability);
+}
+
+.screen-redemption.is-non-sustainable .redemption-prize-title {
+  background: var(--theme-general);
+}
+
 .prize-image {
   position: relative;
   isolation: isolate;
@@ -1376,21 +1375,6 @@ label {
   padding: 18px 16px 30px;
   color: var(--brand-white);
   text-align: center;
-}
-
-.prize-image::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  bottom: 30px;
-  width: var(--redemption-base-width);
-  height: var(--redemption-base-height);
-  border-radius: 50%;
-  transform: translateX(-50%);
-  background: var(--brand-green);
-  opacity: .72;
-  filter: blur(5px);
 }
 
 .prize-image.has-image {
@@ -1438,7 +1422,7 @@ label {
 .redemption-instruction {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: .6em;
   max-width: var(--redemption-prize-max-width);
   margin: 12px auto 0;
@@ -1543,25 +1527,8 @@ label {
   display: none;
 }
 
-.ig-placeholder-copy {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.ig-placeholder-copy strong {
-  font-size: var(--font-body);
-  font-weight: var(--weight-emphasis);
-}
-
-.ig-placeholder-copy span {
-  font-size: var(--font-small);
-}
-
 .ig-placeholder-card {
   gap: 0;
-  grid-template-rows: auto 1fr;
   padding: 0;
 }
 

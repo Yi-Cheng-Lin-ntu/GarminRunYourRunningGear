@@ -32,7 +32,7 @@
 
 字重、行高與字距也有共用變數：`--weight-body`、`--weight-emphasis`、`--weight-heading`、`--weight-display`、`--line-height-heading`、`--line-height-body`、`--line-height-small`、`--letter-spacing-brand` 與 `--letter-spacing-ui`。選取頁面元素後，可在 DevTools 的 `:root` 規則調整字級 token，立即檢視全站對應層級；若只在某頁測試，可在該頁容器暫時覆寫同名變數。
 
-Canvas 下載圖不繼承 CSS，字級集中在 `js/shareCard.js` 的 `SHARE_CARD_TYPE` 與 `SHARE_CARD_LINE_HEIGHT`；數值以 1080×1920 PNG 輸出尺寸為準，位置與下載內容保持獨立。
+Canvas 下載圖不繼承 CSS，字級集中在 `js/shareCard.js` 的 `SHARE_CARD_TYPE` 與 `SHARE_CARD_LINE_HEIGHT`；數值以 1080×1920 PNG 輸出尺寸為準。下載圖沿用結果頁的內容順序與區塊框架，頁首／頁尾文案使用 `brand.headerPrefix`、`brand.headerRun`、`v2.shareCardHeaderSuffix` 與 `v2.startFooter`，並以獨立像素尺寸繪製。
 
 ## A. CSS 微調
 

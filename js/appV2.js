@@ -145,6 +145,10 @@ function buildResultViewModel() {
   const recommendation = content.recommendations[`${state.result.runnerType}:${state.result.hydrationStyle}`];
   return {
     runnerType: state.result.runnerType,
+    headerPrefix: copy("brand.headerPrefix"),
+    headerRun: copy("brand.headerRun"),
+    headerSuffix: copy("v2.shareCardHeaderSuffix"),
+    footer: copy("v2.startFooter"),
     eyebrow: copy("v2.youAre"),
     title: text(result.title),
     slogan: text(result.slogan),

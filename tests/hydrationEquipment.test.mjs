@@ -148,6 +148,51 @@ test("the six-level typography system drives all page text and stays responsive"
   assert.match(shareCard, /const SHARE_CARD_LINE_HEIGHT = \{/);
 });
 
+test("redemption title color reflects sustainability eligibility", () => {
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+  const redemptionView = readFileSync(new URL("../js/redemptionView.js", import.meta.url), "utf8");
+
+  assert.match(css, /\.screen-redemption\.is-sustainable \.redemption-prize-title\s*\{[^}]*background:\s*var\(--theme-sustainability\)/s);
+  assert.match(css, /\.screen-redemption\.is-non-sustainable \.redemption-prize-title\s*\{[^}]*background:\s*var\(--theme-general\)/s);
+  assert.match(redemptionView, /classList\.toggle\("is-sustainable",\s*greenVersion\)/);
+  assert.match(redemptionView, /classList\.toggle\("is-non-sustainable",\s*!greenVersion\)/);
+});
+
+test("redemption removes the green prize-image oval and left-aligns the instruction", () => {
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+
+  assert.doesNotMatch(css, /\.prize-image::before/);
+  assert.match(css, /\.redemption-instruction\s*\{[^}]*justify-content:\s*flex-start/s);
+});
+
+test("downloaded result follows the result layout and the Instagram card contains only its image", () => {
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const shareCard = readFileSync(new URL("../js/shareCard.js", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../js/appV2.js", import.meta.url), "utf8");
+
+  assert.equal(content.ui["v2.shareCardHeaderSuffix"]?.zh, "跑者風格測驗");
+  assert.equal(content.ui["v2.shareCardHeaderSuffix"]?.en, "Runner Style Quiz");
+  assert.match(css, /--share-card-aspect-ratio:\s*9\s*\/\s*16;/);
+  assert.match(css, /--redemption-preview-aspect-ratio:\s*var\(--share-card-aspect-ratio\)/);
+  assert.match(app, /headerPrefix: copy\("brand\.headerPrefix"\)/);
+  assert.match(app, /headerRun: copy\("brand\.headerRun"\)/);
+  assert.match(app, /headerSuffix: copy\("v2\.shareCardHeaderSuffix"\)/);
+  assert.match(app, /footer: copy\("v2\.startFooter"\)/);
+  assert.match(shareCard, /fillText\(model\.headerPrefix, headerX, 54\)/);
+  assert.match(shareCard, /fillText\(model\.footer, frame\.x, 1874\)/);
+  assert.match(shareCard, /const frame = \{ x: 108, y: 220, width: 864, height: 810 \}/);
+  assert.match(shareCard, /roundedRect\(context, \(CARD_WIDTH - titleWidth\) \/ 2, frame\.y - 66, titleWidth, 132, 36\)/);
+  assert.match(shareCard, /fillText\(model\.title, CARD_WIDTH \/ 2, frame\.y, titleWidth - 42\)/);
+  assert.match(shareCard, /drawContained\(context, runnerImage, 125, frame\.y \+ 138, 830, 664\)/);
+  assert.match(shareCard, /frame\.x \+ index \* \(tagWidth \+ tagGap\), frame\.y \+ 822/);
+  assert.match(shareCard, /const panel = \{ x: frame\.x, y: frame\.y \+ 944, width: frame\.width/);
+  assert.doesNotMatch(shareCard, /panel\.x \+ 320/);
+  assert.match(shareCard, /const copyWidth = panel\.x \+ panel\.width - contentPadding - copyX/);
+  assert.doesNotMatch(html, /ig-placeholder-copy|更多永續故事|查看 Instagram 貼文/i);
+  assert.doesNotMatch(css, /\.ig-placeholder-copy/);
+});
+
 test("all nine stable recommendations map to their intended hydration images", () => {
   const expected = {
     "experience:precision": ["hydrationVest"],
@@ -214,7 +259,6 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.match(css, /\.runner-visual-image\s*\{[^}]*border-radius:\s*4px/s);
   assert.match(css, /\.screen-redemption\s*\{[^}]*background:\s*rgba\(8,11,13,\.72\);[^}]*color:\s*var\(--brand-white\)/s);
   assert.match(css, /\.prize-card\s*\{[^}]*border:\s*1px solid rgba\(247,250,248,\.82\)/s);
-  assert.match(css, /\.prize-image::before\s*\{[^}]*background:\s*var\(--brand-green\)/s);
   assert.match(html, /class="redemption-action-card result-download-card"[^>]*aria-labelledby="share-save-label"[^>]*data-action="download-result"/);
   assert.doesNotMatch(html, /class="result-download-copy"/);
   assert.match(html, /class="redemption-cta" id="share-save-label"[^>]*data-action="download-result"/);
@@ -237,7 +281,7 @@ test("hydration images and result layout are isolated from prize inventory and r
   for (const variable of tuningVariables) {
     assert.match(css, new RegExp(`var\\(--${variable}\\)`), `Unused tuning variable --${variable}`);
   }
-  for (const variable of ["redemption-prize-max-width", "redemption-prize-padding", "redemption-title-width", "redemption-title-height", "redemption-prize-image-height", "redemption-base-width", "redemption-base-height", "redemption-action-gap", "redemption-extras-max-width", "redemption-cta-height", "redemption-cta-radius", "redemption-preview-aspect-ratio"]) {
+  for (const variable of ["redemption-prize-max-width", "redemption-prize-padding", "redemption-title-width", "redemption-title-height", "redemption-prize-image-height", "redemption-action-gap", "redemption-extras-max-width", "redemption-cta-height", "redemption-cta-radius", "redemption-preview-aspect-ratio"]) {
     assert.match(css, new RegExp(`var\\(--${variable}\\)`), `Unused redemption tuning variable --${variable}`);
   }
   assert.match(css, /\.runner-tags\s*\{[^}]*flex-wrap:\s*nowrap;[^}]*width:\s*100%/s);
@@ -254,6 +298,8 @@ test("hydration images and result layout are isolated from prize inventory and r
   assert.match(css, /--result-frame-bottom-padding:\s*10px;/);
   assert.match(css, /\.hydration-recommendation-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*34%\)/s);
   assert.match(css, /\.v2-recommendation\.is-pioneer \.hydration-recommendation-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
+  assert.doesNotMatch(css.match(/\.v2-recommendation\.is-pioneer \.hydration-recommendation-row\s*\{[^}]*\}/s)?.[0] ?? "", /padding-right/);
+  assert.match(css, /\.hydration-copy\s*\{[^}]*width:\s*100%/s);
   assert.match(css, /\.runner-visual\s*\{[^}]*aspect-ratio:\s*var\(--result-visual-ratio\)/s);
   assert.match(css, /\.runner-visual-image\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain/s);
   assert.match(css, /--share-card-aspect-ratio:\s*9\s*\/\s*16/);
