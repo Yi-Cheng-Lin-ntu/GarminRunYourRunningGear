@@ -44,7 +44,7 @@ test("all screens share one header and footer with the homepage layout", () => {
   assert.equal(content.ui["brand.headerRun"]?.zh, "Run");
   assert.match(css, /\.site-header\s*\{[^}]*border-bottom:\s*1px solid var\(--border-strong\)/s);
   assert.match(css, /--screen-inline-padding:\s*24px;/);
-  assert.match(css, /\.site-header\s*\{[^}]*width:\s*min\(100% - 2 \* var\(--gutter\) - 2 \* var\(--screen-inline-padding\), calc\(var\(--content-width\) - 2 \* var\(--screen-inline-padding\)\)\)/s);
+  assert.match(css, /\.site-header\s*\{[^}]*width:\s*var\(--app-shell-width\)/s);
   assert.match(css, /\.site-header\s*\{[^}]*grid-template-columns:\s*max-content minmax\(0,\s*1fr\)/s);
   assert.match(css, /\.header-actions\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/s);
   assert.match(css, /\.mock-mode-badge\s*\{[^}]*width:\s*100%;/s);
@@ -58,6 +58,24 @@ test("all screens share one header and footer with the homepage layout", () => {
   assert.match(css, /\.app-shell\s*\{[^}]*display:\s*flex;[^}]*flex:\s*1;[^}]*flex-direction:\s*column/s);
   assert.doesNotMatch(css, /body:has\(#start\.is-active\)\s+\.(?:site-header|site-footer)/);
   assert.doesNotMatch(app, /createElement\(["'](?:header|footer)["']\)|(?:insertAdjacentHTML|innerHTML)[\s\S]{0,100}(?:site-header|site-footer)/);
+});
+
+test("mobile shell edges align and hydration artwork stays within the copy gutter", () => {
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+
+  assert.match(css, /--app-shell-width:\s*min\(100% - 2 \* var\(--gutter\), var\(--content-width\)\)/);
+  for (const selector of [".site-header", ".app-shell", ".site-footer"]) {
+    assert.match(css, new RegExp(`${selector.replace(".", "\\.")}\\s*\\{[^}]*width:\\s*var\\(--app-shell-width\\)`, "s"));
+  }
+  assert.doesNotMatch(css, /body\s*\{[^}]*overflow-x:\s*hidden/s);
+  assert.match(css, /\.hydration-equipment\s*\{[^}]*height:\s*var\(--hydration-image-size\)/s);
+  assert.match(css, /\.hydration-equipment::before\s*\{[^}]*width:\s*min\(var\(--hydration-disc-width\), calc\(100% \+ var\(--hydration-content-gap\) - 8px\)\)/s);
+  assert.doesNotMatch(css, /\.hydration-equipment\s*\{[^}]*background:\s*radial-gradient/s);
+  assert.match(css, /\.hydration-equipment-image\s*\{[^}]*z-index:\s*1/s);
+  assert.match(css, /\.hydration-copy\s*\{[^}]*z-index:\s*1/s);
+  assert.match(css, /@media \(max-width: 430px\)/);
+  assert.match(css, /\.screen-result\s*\{[^}]*--sustainability-mark-size:\s*min\(156px,\s*42vw\);[^}]*--sustainability-mark-offset-x:\s*-8px;/s);
+  assert.match(css, /\.sustainability-result-mark\s*\{[^}]*z-index:\s*0/s);
 });
 
 test("the main stylesheet uses brand and semantic color tokens without color aliases", () => {
@@ -139,9 +157,11 @@ test("the six-level typography system drives all page text and stays responsive"
   assert.match(css, /\.redemption-prize-title\s*\{[^}]*font-size:\s*var\(--font-h1\)/s);
   assert.doesNotMatch(css, /--type-(?:display|h1|h2|h3|body|label|caption)\b/);
   assert.doesNotMatch(css, /--(?:result-title-size|result-slogan-size|result-tag-font-size|recommendation-heading-size|recommendation-copy-size|hydration-choice-font-size|redemption-cta-font-size)\b/);
-  const declaredFontSizes = [...css.matchAll(/font-size\s*:\s*([^;]+);/g)].map(([, size]) => size.trim());
+  const pageCss = css.replace(/\.share-render-header,\s*\.share-render-footer\s*\{[^}]*\}/s, "");
+  const declaredFontSizes = [...pageCss.matchAll(/font-size\s*:\s*([^;]+);/g)].map(([, size]) => size.trim());
   assert.ok(declaredFontSizes.length > 0);
   assert.ok(declaredFontSizes.every((size) => /^var\(--font-(?:display|h1|h2|h3|body|small)\)$/.test(size)));
+  assert.match(css, /\.share-render-header,\s*\.share-render-footer\s*\{[^}]*font-size:\s*28px/s);
   assert.doesNotMatch(shareCard, /fillText|drawImage|SHARE_CARD_TYPE/);
   assert.match(shareCard, /document\.fonts\?\.ready/);
 });

@@ -79,6 +79,7 @@
   --content-width: 620px;
   --gutter: 20px;
   --screen-inline-padding: 24px;
+  --app-shell-width: min(100% - 2 * var(--gutter), var(--content-width));
   --motion-duration: 160ms;
   --map-opacity: .2;
 }
@@ -102,7 +103,6 @@ body {
   min-height: 100vh;
   min-height: 100svh;
   margin: 0;
-  overflow-x: hidden;
   color: var(--text-primary);
   font-family: var(--font-family-primary);
   font-size: var(--font-body);
@@ -194,7 +194,7 @@ label {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
-  width: min(100% - 2 * var(--gutter) - 2 * var(--screen-inline-padding), calc(var(--content-width) - 2 * var(--screen-inline-padding)));
+  width: var(--app-shell-width);
   min-height: 76px;
   gap: var(--space-sm);
   padding-block: var(--space-sm);
@@ -208,14 +208,14 @@ label {
   display: flex;
   flex: 1;
   flex-direction: column;
-  width: min(100% - 2 * var(--gutter), var(--content-width));
+  width: var(--app-shell-width);
   margin: 0 auto;
 }
 
 .site-footer {
   position: relative;
   z-index: 1;
-  width: min(100% - 2 * var(--gutter) - 2 * var(--screen-inline-padding), calc(var(--content-width) - 2 * var(--screen-inline-padding)));
+  width: var(--app-shell-width);
   margin: 0 auto;
   padding: 12px 0 16px;
   border-top: 1px solid var(--border-strong);
@@ -595,7 +595,7 @@ label {
 }
 
 .progress-track span.is-current {
-  background: var(--brand-blue);
+  background: radial-gradient(ellipse, var(--brand-blue) 0 68%, transparent 72%);
 }
 
 .progress-track span.is-complete {
@@ -1065,21 +1065,25 @@ label {
   height: var(--hydration-image-size);
   min-height: 0;
   min-width: 0;
+}
 
-  background:
-    radial-gradient(
-      ellipse,
-      var(--brand-blue) 0 68%,
-      transparent 72%
-    )
-    center bottom /
-    var(--hydration-disc-width)
-    var(--hydration-disc-height)
-    no-repeat;
+.hydration-equipment::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: 0;
+  width: min(var(--hydration-disc-width), calc(100% + var(--hydration-content-gap) - 8px));
+  height: var(--hydration-disc-height);
+  border-radius: 50%;
+  background: var(--brand-blue);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .hydration-equipment-image {
   position: absolute;
+  z-index: 1;
   left: 50%;
   bottom: var(--hydration-equipment-bottom);
 
@@ -1123,6 +1127,8 @@ label {
 }
 
 .hydration-copy {
+  position: relative;
+  z-index: 1;
   width: 100%;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -1137,7 +1143,7 @@ label {
   position: absolute;
   right: var(--sustainability-mark-offset-x);
   bottom: var(--sustainability-mark-offset-y);
-  z-index: 2;
+  z-index: 0;
   display: block;
   width: var(--sustainability-mark-size);
   height: var(--sustainability-mark-size);
@@ -2021,6 +2027,9 @@ input::placeholder {
   .screen-result {
     --hydration-choice-gap: 8px;
     --hydration-image-size: 184px;
+    --sustainability-mark-size: min(156px, 42vw);
+    --sustainability-mark-offset-x: -8px;
+    --sustainability-mark-offset-y: -24px;
   }
 
 }
