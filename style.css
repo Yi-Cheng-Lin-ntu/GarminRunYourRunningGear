@@ -63,6 +63,7 @@
   --radius-control: 4px;
   --content-width: 620px;
   --gutter: 20px;
+  --screen-inline-padding: 24px;
   --motion-duration: 160ms;
   --map-opacity: .2;
   --motion-blue: rgba(214,242,255,.12);
@@ -184,13 +185,12 @@ label {
 .site-header {
   position: relative;
   z-index: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  width: min(100% - 2 * var(--gutter), var(--content-width));
+  width: min(100% - 2 * var(--gutter) - 2 * var(--screen-inline-padding), calc(var(--content-width) - 2 * var(--screen-inline-padding)));
   min-height: 76px;
   gap: var(--space-sm);
-  flex-wrap: wrap;
   padding-block: var(--space-sm);
   margin: 0 auto;
   border-bottom: 1px solid var(--border-strong);
@@ -209,7 +209,7 @@ label {
 .site-footer {
   position: relative;
   z-index: 1;
-  width: min(100% - 2 * var(--gutter), var(--content-width));
+  width: min(100% - 2 * var(--gutter) - 2 * var(--screen-inline-padding), calc(var(--content-width) - 2 * var(--screen-inline-padding)));
   margin: 0 auto;
   padding: 12px 0 16px;
   border-top: 1px solid var(--border-strong);
@@ -221,6 +221,7 @@ label {
 }
 
 .brand {
+  white-space: nowrap;
   font-size: var(--font-small);
   font-weight: var(--weight-emphasis);
   letter-spacing: var(--letter-spacing-brand);
@@ -232,8 +233,13 @@ label {
   color: var(--brand-green);
 }
 
+.brand .brand-prefix {
+  color: var(--text-primary);
+}
+
 .language-toggle {
-  min-width: 44px;
+  width: 100%;
+  min-width: 0;
   height: 44px;
   border: 0;
   background: transparent;
@@ -287,7 +293,7 @@ label {
   background: transparent;
   border-radius: 0;
   min-height: auto;
-  padding: 24px;
+  padding: var(--screen-inline-padding);
   margin-bottom: 24px;
 }
 
@@ -301,11 +307,12 @@ label {
 
 .screen.screen-start:not([hidden]) {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto auto auto;
   gap: clamp(14px, 2vh, 22px);
   flex: 1;
   min-height: calc(100svh - 144px);
-  padding: 24px 0;
+  padding: 24px var(--screen-inline-padding);
   margin-bottom: 0;
   text-align: center;
 }
@@ -340,19 +347,22 @@ label {
   width: 100%;
   height: auto;
   aspect-ratio: 1915 / 821;
-  max-height: 300px;
-  margin: 0;
+  max-height: none;
+  margin: 0 auto;
   overflow: visible;
 }
 
 .start-visual img {
   display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: auto;
   object-fit: contain;
 }
 
 .start-manifesto {
+  width: 100%;
   justify-self: start;
   margin-block: auto;
   color: var(--brand-white);
@@ -376,11 +386,11 @@ label {
 }
 
 .screen-start > [data-action="start"] {
-  width: min(100%, 460px);
-  min-height: 60px;
+  width: 100%;
+  min-height: 56px;
   justify-self: center;
   border-radius: 10px;
-  font-size: var(--font-body);
+  font-size: var(--font-h1);
   font-weight: var(--weight-emphasis);
 }
 
@@ -1236,7 +1246,7 @@ label {
   min-height: calc(100vh - 124px);
   padding-bottom: 36px;
   margin-inline: calc(-1 * var(--gutter));
-  padding-inline: var(--gutter);
+  padding-inline: calc(var(--gutter) + var(--screen-inline-padding));
   background: rgba(8,11,13,.72);
   color: var(--brand-white);
   border-radius: 0;
@@ -1594,12 +1604,20 @@ label {
 /* Mock development tools */
 
 .header-actions {
-  display: flex;
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .mock-mode-badge {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-control);
   padding: 4px 8px;
@@ -1611,6 +1629,9 @@ label {
 }
 
 .mock-tools-button {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 4px;
   border: 0;
   background: transparent;
   font-size: var(--font-small);
@@ -1797,14 +1818,6 @@ input::placeholder {
 }
 
 @media (min-width: 900px) {
-  .app-shell:has(#redemption:not([hidden])) {
-    width: min(100% - 2 * var(--gutter), 900px);
-  }
-
-  .app-shell:has(#result:not([hidden])) {
-    width: min(100% - 2 * var(--gutter), 760px);
-  }
-
   #result .result-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 22px;
@@ -1833,6 +1846,10 @@ input::placeholder {
 
   .header-actions {
     gap: 4px;
+  }
+
+  .site-header {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .mock-mode-badge {
