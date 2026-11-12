@@ -1191,6 +1191,17 @@ label {
   font-weight: var(--weight-emphasis);
 }
 
+.hydration-choices .choice-label-text {
+  position: relative;
+  display: inline-block;
+}
+
+.hydration-choices .choice-label-punctuation {
+  position: absolute;
+  inset-inline-start: 100%;
+  top: 0;
+}
+
 .v2-invitation {
   border-top: 1px solid var(--border-default);
   padding-top: 24px;
