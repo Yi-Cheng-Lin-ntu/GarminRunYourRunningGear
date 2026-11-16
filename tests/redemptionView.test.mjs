@@ -21,7 +21,7 @@ function element() {
   };
 }
 
-function render(allocation) {
+function render(allocation, hydrationStyle = "rest") {
   const instruction = element();
   const elements = {
     redemption: element(),
@@ -41,7 +41,7 @@ function render(allocation) {
 
   try {
     renderRedemptionView(allocation, {
-      state: { language: "zh", result: { runnerType: "experience" } },
+      state: { language: "zh", result: { runnerType: "experience", hydrationStyle } },
       elements,
       resultData: { experience: { title: { zh: "賽事收藏家" } } },
       text: (value) => value?.zh || value?.en || "",
@@ -66,19 +66,29 @@ function render(allocation) {
 
 const prize = { prizeId: "cap", nameZh: "牛仔帽", imagePath: "" };
 
-test("existing and joined sustainability allocations retain the green exclusive label", () => {
-  for (const allocationMethod of ["premium_priority", "general_weighted"]) {
-    const { elements } = render({
-      allocationStatus: "allocated",
-      allocationMethod,
-      sustainabilityRewardEligible: true,
-      prize,
-      runnerType: "experience"
-    });
-    assert.equal(elements.redemptionTitle.textContent, "永續先鋒隊專屬");
-    assert.equal(elements.redemption.classList.contains("is-sustainable"), true);
-    assert.equal(elements.redemptionTitle.hidden, false);
-  }
+test("Q4 pioneer allocations retain the green exclusive label while the bag is awarded", () => {
+  const { elements } = render({
+    allocationStatus: "allocated",
+    allocationMethod: "premium_priority",
+    sustainabilityRewardEligible: true,
+    prize,
+    runnerType: "experience"
+  }, "pioneer");
+  assert.equal(elements.redemptionTitle.textContent, "永續先鋒隊專屬");
+  assert.equal(elements.redemption.classList.contains("is-sustainable"), true);
+  assert.equal(elements.redemptionTitle.hidden, false);
+});
+
+test("joined runners get the ordinary congratulation label with the green theme", () => {
+  const { elements } = render({
+    allocationStatus: "allocated",
+    allocationMethod: "general_weighted",
+    sustainabilityRewardEligible: true,
+    prize,
+    runnerType: "experience"
+  }, "rest");
+  assert.equal(elements.redemptionTitle.textContent, "恭喜你抽中！");
+  assert.equal(elements.redemption.classList.contains("is-sustainable"), true);
 });
 
 test("premium fallback changes the title while keeping the sustainable green theme", () => {
@@ -88,7 +98,7 @@ test("premium fallback changes the title while keeping the sustainable green the
     sustainabilityRewardEligible: true,
     prize,
     runnerType: "experience"
-  });
+  }, "pioneer");
   assert.equal(elements.redemptionTitle.textContent, "恭喜你抽中！");
   assert.equal(elements.redemption.classList.contains("is-sustainable"), true);
 });

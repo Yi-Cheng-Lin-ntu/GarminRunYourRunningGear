@@ -63,8 +63,7 @@ export function renderRedemptionView(allocation, { state, elements, resultData, 
     elements.redemptionTitle.hidden = true;
   } else {
     elements.redemptionTitle.hidden = false;
-    const premiumFallback = allocation.allocationMethod === "premium_fallback";
-    const sustainabilityTitle = greenVersion && !premiumFallback;
+    const sustainabilityTitle = state.result?.hydrationStyle === "pioneer" && allocation.allocationMethod !== "premium_fallback";
     const titleKey = sustainabilityTitle ? "v2.sustainabilityRedemptionTitle" : "v2.redemptionTitle";
     elements.redemptionTitle.textContent = copyOr(titleKey,
       state.language === "zh" ? (sustainabilityTitle ? "永續先鋒隊專屬" : "恭喜你抽中！")
