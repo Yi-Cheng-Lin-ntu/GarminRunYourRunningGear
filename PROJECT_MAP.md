@@ -1,104 +1,100 @@
-# Garmin Run 2026 Project Map
+# Garmin Run 2026｜專案地圖
 
-此文件描述目前匿名測驗提交版本。前端為 HTML/CSS/Vanilla JS ES Modules，部署目標為 GitHub Pages；獎項分配由 Apps Script + Google Sheets 執行。
+本文件只描述目前主網站與仍在使用的測試／後端程式。Cute、V1、舊版 UI 截圖與版面參考已移入 `/_archive/`，不屬於主站執行路徑。
 
-## 使用者流程與資料流
+## 使用者流程
 
-測驗 → 結果＋永續倡議 → 匿名提交 → 後端分配 → 領獎結果。
+```text
+首頁 → Q1–Q5 → 結果卡＋補水推薦 → 永續選擇（pioneer 除外）
+     → 匿名提交 → Apps Script 驗證與分配 → 兌獎頁／獎品暫停頁
+```
 
-1. js/contentData.js 載入 content.csv，提供中英文題目、跑者結果、九種補水內容與介面文案。
-2. js/classificationEngine.js 按 Q1、Q2、Q3、Q5 分類，最高分平手採 Q2 的答案；Q4 獨立產生 hydrationStyle、q4Answer 和 existingSelfHydration。
-3. js/prizeEligibility.js 根據 existingSelfHydration 和結果頁的 joined／considering 選擇產生兩種獎項資格。只有 existing 有購物袋優先資格。
-4. js/appV2.js 在結果頁完成匿名 payload，保留相同 requestId 重試；成功或 paused 回應才交給 js/redemptionView.js。
-5. js/apiClient.js 依 js/environment.js 的 hostname 環境使用 Development Mock、已設定的 Staging API 或 Production API。Production 沒有 API URL 時提交停用，沒有 Mock fallback。
-6. Apps Script Validation.gs 依伺服器答案重算 runnerType 和 Q4，核對前端分類及資格。Code.gs 依請求 `mode=apps-script-demo` 選擇 Demo 系列工作表；一般請求選 Production 系列工作表。Allocation.gs 在 LockService 下分配，寫入匿名答案與庫存異動。
+分類只看 Q1、Q2、Q3、Q5；四題最高分平手時依 Q2 答案所屬類型決勝。Q4 是獨立補水答案：`precision`／`rest` 表示尚未自帶補水，`pioneer` 表示既有自帶補水。九種補水建議以 `runnerType × hydrationStyle` 對應。
 
-網站沒有聯絡資料頁。紙本抽獎獨立運作，不由網站收集或匯出紙本名單。
+三種 runner ID 固定為 `experience`、`lifestyle`、`performance`，目前顯示名稱依序為「賽事收藏家」、「自在巡航員」、「配速計算機」。內容由 `content.csv` 提供，結果圖位於 `assets/result/`。
 
-## 主站入口與重點檔案
+## 主站檔案與責任
 
-| 檔案 | 用途 |
+| 路徑 | 責任 |
 |---|---|
-| index.html | 首頁、五題、結果、領獎畫面；不含姓名／Email表單 |
-| style.css | 主網站唯一 CSS；保留既有主題與結果／領獎版面 |
-| content.csv | 執行期雙語內容、結果名稱、Slogan、tag、九種推薦與 UI 文案 |
-| js/appV2.js | 畫面狀態、題目呈現、結果資料、補水選擇、匿名提交、重試與刷新恢復 |
-| js/contentData.js | CSV 解析與資料映射 |
-| js/classificationEngine.js | 前端分類；Q1/Q2/Q3/Q5 計分、Q2 tie-break、Q4獨立 |
-| js/classificationRules.js | 版本與計分題設定 |
-| js/prizeEligibility.js | existing／joined／considering 的資格映射 |
-| js/participationValidation.js | 前端匿名提交契約檢查；拒絕姓名、Email等個資欄位 |
-| js/apiClient.js | 本機 Mock、Apps Script API、分配恢復與 Mock 資料最小化 |
-| js/environment.js | Development／Staging／Production 路由及 API URL 設定 |
-| js/sessionRecovery.js | 以 sessionStorage 暫存匿名待重試 payload、requestId、sessionId |
-| js/redemptionView.js | 顯示已確認的獎品或 paused 畫面 |
-| js/shareCard.js | 結果 PNG 輸出，不參與資料提交 |
-| js/hydrationEquipment.js | 九種結果所用補水裝備圖片映射 |
-| apps-script/Code.gs | 匿名 API、部署環境、status、既有分配恢復 |
-| apps-script/Validation.gs | 伺服器驗證、重算分類、拒絕個資欄位 |
-| apps-script/Allocation.gs | request 冪等、獎品分配、Participants／Requests／Allocations／InventoryLog寫入 |
-| apps-script/Setup.gs | 空白活動表安裝及 append-only 匿名 schema migration |
-| apps-script/Inventory.gs | 管理員庫存調整、暫停與一致性檢查；不再匯出抽獎名單 |
-| tests/v2.contract.test.mjs | 五題、分類、九種結果及前後端契約 |
-| tests/v2.backend.test.mjs | 記憶體 Sheets、匿名寫入、migration、冪等與獎品分配 |
-| tests/v2.mock.test.mjs | Development Mock、重播與舊本機資料清理 |
-| tests/environment.test.mjs | Production query 隔離與 fail-closed |
-| tests/mockBackend.test.mjs | 獎品資格、Mock分配及防重 |
-| tests/v2UiRegression.cjs | 可選的本機瀏覽器流程測試 |
-| apps-script/README.md | 分環境部署、migration、測試與回滾手冊 |
+| `index.html` | 主站 screen 結構、共用結果卡、兌獎互動區和分享卡舞台；無姓名／Email表單 |
+| `style.css` | 主站唯一 stylesheet，含首頁、測驗、結果、分享輸出和兌獎版面 |
+| `content.csv` | 中英文題目、選項、跑者名稱／slogan／標籤、九種補水文案及 UI 文字 |
+| `js/appV2.js` | 畫面流程、CSV 文案套用、結果 render、永續選擇、匿名提交與結果 PNG UI |
+| `js/contentData.js` | 讀取及解析 CSV、建立內容資料映射 |
+| `js/classificationEngine.js` | 前端計分、Q2 平手、Q4 hydrationStyle 判定 |
+| `js/classificationRules.js` | 測驗版本和分類設定 |
+| `js/prizeEligibility.js` | existing／joined／considering 獎品資格映射 |
+| `js/participationValidation.js` | 匿名 payload 驗證及拒絕個資欄位 |
+| `js/apiClient.js` | 本機 Mock、Apps Script 請求、同 request 恢復和 Mock localStorage 清理 |
+| `js/environment.js` | Development、Demo、Production 入口判定和共用 `/exec` URL |
+| `js/sessionRecovery.js` | sessionStorage 保存待重試 payload、requestId 與 sessionId |
+| `js/redemptionView.js` | 已分配／暫停領獎畫面；含 Pioneer 專屬標籤判定 |
+| `js/shareCard.js` | 複製網站共用結果卡 DOM，DOM-to-image 產生 1080×1920 PNG |
+| `js/hydrationEquipment.js` | 九種結果對應的補水裝備圖片 |
+| `js/projectAssets.js` | GitHub Pages 子路徑下解析本地資產 |
+| `js/vendor/html-to-image.js` | 隨 repo 提供的 DOM-to-image 函式庫；含 license 檔 |
+| `assets/`、`taipei.svg` | 主站結果、補水、獎品、永續及背景視覺資產 |
 
-歷史 Cute 原型及 V1 controller 保存在封存目錄，不由主站載入。圖片資產與原版結果視覺未因匿名流程改版而重做。
+主站沒有 `/cute/` 執行入口。舊 Cute 原型封存在 `_archive/cute-prototype/`；不可把該處歷史程式當現行主站來源。
 
-## 分類與補水契約
+## API 與資料流
 
-- 計分只看 Q1、Q2、Q3、Q5；答題選項隨機顯示不影響答案 ID。
-- 平手必須採 Q2 選項所屬類型。
-- Q4 precision/rest → existingSelfHydration=false；pioneer → true。
-- hydrationCommitment：pioneer 必須 existing；其他 Q4 必須 joined 或 considering。
-- sustainabilityRewardEligible = existingSelfHydration || joined。
-- premiumPrizeEligible = existingSelfHydration。
-- 九種推薦依 runnerType × hydrationStyle；推薦與分類結果名稱不反向影響資格。
+1. `appV2.js` 用 CSV 問題資料蒐集五個原始 answer ID，呼叫 `classificationEngine.js` 建立結果。
+2. 使用者完成必要的永續響應選擇後，產生匿名 payload：`submissionVersion: 1`、`quizVersion: 2`、答案、分類／補水狀態、隨機 `requestId` 和 `sessionId`。
+3. `participationValidation.js` 檢查 payload；禁止姓名、Email、電話、地址、抽獎和個資同意欄位。
+4. `apiClient.js` 根據 `environment.js` 走 local Mock 或 `/exec`。前端核對公開狀態版本和 Demo 標記；Production 失敗時不會退回 Mock。
+5. Apps Script `Validation.gs` 重新驗證答案、重算分類與資格；`Allocation.gs` 執行冪等檢查、分配及寫表。
+6. 只有後端成功回覆後才進入兌獎畫面；paused 回應隱藏獎品卡，顯示「獎品已發放完畢，謝謝參與」。
 
-## 匿名 API 契約
+Pioneer 標籤只由原始 Q4 `pioneer` 判斷，且只在購物袋優先分配成功時顯示「先鋒隊專屬」。有永續獎勵資格但不是優先購物袋的跑者仍顯示綠色「恭喜你抽中！」。這與是否採綠色兌獎主題是不同判斷。
 
-前端 request 版本為 submissionVersion 1、quizVersion 2。環境由部署端決定，不允許 request 指定 demoMode。
+## API 環境
 
-匿名 request 欄位：
+`js/environment.js` 目前只設定一個 Apps Script Web App URL：
 
-- requestId、sessionId：每輪／每次提交的隨機技術識別碼。
-- answers：q1–q5 原始答案 ID。
-- runnerType、hydrationStyle、q4Answer。
-- existingSelfHydration、hydrationCommitment、sustainabilityRewardEligible、premiumPrizeEligible。
-- submissionVersion、quizVersion。
+- `localhost`、Codespaces host 且無 Demo query：Development localStorage Mock。
+- 任一 host 加 `?mode=apps-script-demo`：同一 `/exec` 帶 Demo mode，Apps Script 寫入 `Demo*` 工作表。
+- GitHub Pages 一般網址：同一 `/exec` 不帶 mode，Apps Script 寫入 Production 工作表。
+- `STAGING_HOSTS` 中的 `.invalid` host 是未部署的 placeholder，不構成可用的獨立 Staging 環境。
 
-不允許 name、email、phone、address、raffleOptIn、privacyConfirmed 或個資告知版本欄位。伺服器重算答案和資格後才寫表或分配。
+Demo mode 是工作表路由，不是認證或 API 存取控制。正式入口會使用正式庫存，不得用一般公開網址做測試提交。
 
-成功 response 含 ok、allocationStatus、runnerType、prize（或 null）、requestId/sessionId、匿名 participantId、分配方式與 sustainabilityRewardEligible。paused 回應不含獎品，不可顯示恭喜得獎。
+## Apps Script 檔案
 
-Apps Script 目前由單一 Web App 依請求 mode 路由至同一 Spreadsheet 內不同的 Demo／Production 工作表。前端 `?mode=apps-script-demo` 會把 mode 帶到 `/exec`；一般 GitHub Pages 入口不帶 mode，使用 Production 工作表。兩組庫存仍由不同工作表隔離。
+| 路徑 | 責任 |
+|---|---|
+| `apps-script/Code.gs` | GET status／request recovery、POST 匿名提交、Demo／Production tab routing |
+| `apps-script/Validation.gs` | payload 驗證、伺服器重算分類與資格、個資欄位拒絕 |
+| `apps-script/Allocation.gs` | requestId＋fingerprint 冪等、LockService 分配、Participants／Requests／Allocations／InventoryLog 寫入 |
+| `apps-script/Inventory.gs` | 管理員庫存調整、分配暫停／恢復、一致性檢查 |
+| `apps-script/Setup.gs` | 空白 Sheet 安裝、中文化與 schema migrations；`setupActivitySheets()` 可能初始化獎品，只適用全新空白資料庫 |
+| `apps-script/README.md` | API 契約、schema、操作風險及人工部署程序 |
 
-## Sheets schema 與 migration
+### 現行匿名 API 欄位
 
-舊 Participants 18 欄原樣保留，已存在的 V2 尾欄為 quizVersion、hydrationStyle、q4Answer。匿名 migration 再 append：
+Request 的必要欄位包括 `submissionVersion`、`quizVersion`、`requestId`、`sessionId`、`answers.q1–q5`、`runnerType`、`hydrationStyle`、`q4Answer`、`existingSelfHydration`、`hydrationCommitment`、`sustainabilityRewardEligible`、`premiumPrizeEligible`。不接受任何姓名、Email、聯絡方式或隱私告知欄位。
 
-1. Participants：submissionVersion、q1Answer、q2Answer、q3Answer、q5Answer。
-2. Requests：submissionVersion、submissionFingerprint。
+Response 會含 `allocationStatus`（`allocated`／`paused`）、runnerType、獎品（paused 時為 null）、requestId/sessionId 等技術資料。`requestId` 只保護同一提交重播，不限制每人施測次數。
 
-因此由 18 欄 legacy Participants 最終追加 8 欄；由既有 21 欄 V2 Participants 只追加 5 欄。Q4 已由 q4Answer 保存，不重複。舊姓名／Email／告知欄位不刪除，但所有匿名新列留空；舊列保留不回填。Requests 保留原 7 欄並追加 2 欄。Migration 檢查已知表頭、只 append、重跑安全、未知結構時停止，不碰獎品或庫存。
+## Sheets 欄位與 Migration
 
-現有工作表禁止直接執行 setupActivitySheets()；它是全新空白試算表安裝流程，可能初始化獎品。
+`Setup.gs` 的 Production `Participants` 允許精簡 13 欄摘要 schema：participantId、createdAt、runnerType、existingSelfHydration、sustainabilityRewardEligible、premiumPrizeEligible、hydrationStyle、q1Answer–q5Answer、nameZh（獎品中文名稱）。匿名完整 schema 則是舊 18 欄＋V2 三欄＋匿名五欄，共 26 欄；新匿名列的 legacy raffle/name/email/privacy 欄位留空。Demo `DemoParticipants` 使用 26 欄。`Requests`／`DemoRequests` 是舊 7 欄＋`submissionVersion`、`submissionFingerprint`，共 9 欄。
 
-## 環境與安全限制
+- `migrateStagingAnonymousSchema()`：處理 DemoParticipants／DemoRequests，只追加已知缺少欄位。
+- `migrateProductionAnonymousSchema()`：處理 Participants／Requests；可支援精簡 13 欄 Participants，不再追加參與者欄，只檢查／追加 Requests 欄位；舊完整 schema 則 append-only 追加。
+- `migrateProductionParticipantSummary()`：把已知完整 Participants schema 轉為 13 欄，會覆寫參與者範圍並刪除額外欄位，屬破壞性 migration。未經備份、試算表副本演練及授權，不可執行。
 
-- Development 僅在 localhost／Codespaces 使用 localStorage Mock。舊 Mock participant 個資欄位會在啟動時清除；新 Mock 不存個資。
-- Staging 需專用 Spreadsheet、Apps Script 專案與測試庫存。未設定 API URL / hostname 前不連線。
-- Production GitHub Pages 不顯示 Mock badge、Mock 工具，也不能從 query string 啟用 Mock。未配置 Production URL 時安全停用提交。
-- GAS 只接受 `mode=apps-script-demo` 或預設 Production；未知 mode 會拒絕。Mode 用於路由工作表，不是存取控制。
-- requestId 只防同一提交重播，不限制同一自然人多次施測。公開匿名 API 仍可能被濫用而消耗庫存；正式開放前需核准伺服器端 CAPTCHA／節流或現場通路控制方案。
-- Spreadsheet 採最小權限分享；原始答案及 allocation/InventoryLog 需制定活動結束後保留與刪除時程。暫定提案：原始答案在活動結束後 90 日彙總後刪除；庫存／操作稽核資料保留 12 個月，需由資料負責人核定。本程式不自動刪除資料。
+Migration 不應由此 Repository 自動觸發。不要在既有 Spreadsheet 執行 `setupActivitySheets()`，不要重設 Prizes 或庫存。詳見 [Apps Script 手冊](apps-script/README.md)。
 
-## 測試與部署界線
+## 測試索引
 
-node --test tests/*.test.mjs 只應使用本機瀏覽器 Mock 和記憶體 Spreadsheet fixture。不可在測試中呼叫真實 Apps Script、正式 Sheet 或正式庫存。
+- `tests/v2.contract.test.mjs`：答案、分類／Q2 平手、九種推薦及匿名資料契約。
+- `tests/v2.backend.test.mjs`：記憶體 Sheets、migration、分配、fallback、paused、冪等及庫存。
+- `tests/v2.mock.test.mjs`、`tests/mockBackend.test.mjs`：local Mock、資格、重播與庫存行為。
+- `tests/prizeEligibility.test.mjs`：existing／joined／considering 資格。
+- `tests/environment.test.mjs`：Mock／Demo／Production 路由與 fail-closed。
+- `tests/mainRunnerNames.test.mjs`、`tests/hydrationEquipment.test.mjs`、`tests/redemptionView.test.mjs`：顯示名稱、裝備資產及兌獎呈現。
+- `tests/v2UiRegression.cjs`：選用 Playwright 瀏覽器流程測試；需本機安裝 Chromium／Playwright，與 Node 單元測試分開。
 
-此 Repository 的 .gs 尚需人工同步到 Staging Apps Script、執行 staging migration 並驗收。Production migration、部署和 GitHub Pages 發布未執行，亦不可由測試自動觸發。
+預設快速驗證採與變更範圍相稱的測試；核心契約、後端資料或正式流程變更需跑相關測試。測試只能使用 fixture／Mock，不得呼叫正式 API 或操作真實庫存。

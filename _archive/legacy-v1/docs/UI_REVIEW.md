@@ -23,10 +23,10 @@
 
 | 畫面 | 手機 Before / After | 桌機 Before / After |
 |---|---|---|
-| 首頁 | [Before](docs/visual-review/before-390-landing.png) / [After](docs/visual-review/after-390-landing.png) | [Before](docs/visual-review/before-1280-landing.png) / [After](docs/visual-review/after-1280-landing.png) |
-| 結果 | [Before](docs/visual-review/before-390-result.png) / [After](docs/visual-review/after-390-result.png) | [Before](docs/visual-review/before-1280-result.png) / [After](docs/visual-review/after-1280-result.png) |
-| 一般領獎 | [Before](docs/visual-review/before-390-general.png) / [After](docs/visual-review/after-390-general.png) | [Before](docs/visual-review/before-1280-general.png) / [After](docs/visual-review/after-1280-general.png) |
-| 永續領獎 | [Before](docs/visual-review/before-390-green.png) / [After](docs/visual-review/after-390-green.png) | [Before](docs/visual-review/before-1280-green.png) / [After](docs/visual-review/after-1280-green.png) |
+| 首頁 | [Before](visual-review/before-390-landing.png) / [After](visual-review/after-390-landing.png) | [Before](visual-review/before-1280-landing.png) / [After](visual-review/after-1280-landing.png) |
+| 結果 | [Before](visual-review/before-390-result.png) / [After](visual-review/after-390-result.png) | [Before](visual-review/before-1280-result.png) / [After](visual-review/after-1280-result.png) |
+| 一般領獎 | [Before](visual-review/before-390-general.png) / [After](visual-review/after-390-general.png) | [Before](visual-review/before-1280-general.png) / [After](visual-review/after-1280-general.png) |
+| 永續領獎 | [Before](visual-review/before-390-green.png) / [After](visual-review/after-390-green.png) | [Before](visual-review/before-1280-green.png) / [After](visual-review/after-1280-green.png) |
 
 ## 驗證範圍
 
@@ -44,7 +44,7 @@
 - Mock 工具開關與頁面無水平捲動、無 pageerror。
 - 390px 另驗證五款圖片 decode 成功、all_empty 時顯示送完且隱藏產品圖。
 
-機器結果見 [results.json](docs/visual-review/results.json)。這是指定場景的自動化驗證，不代表完整跨瀏覽器或無障礙認證。
+機器結果見 [results.json](visual-review/results.json)。這是指定場景的自動化驗證，不代表完整跨瀏覽器或無障礙認證。
 
 ## 對比計算
 

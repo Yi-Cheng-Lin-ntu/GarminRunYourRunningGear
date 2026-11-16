@@ -6,7 +6,7 @@
 
 柔和、可愛、活潑、有一點幽默感的 Garmin Run 跑步社群測驗。關鍵字：Cute、Friendly、Soft、Playful、Cheerful、Minimal、Illustration-driven、Running Community。
 
-此為獨立視覺 prototype，不取代 [Urban Athletic Minimalism](DESIGN_SYSTEM.md)。三隻角色目前為本專案製作的簡化 SVG **概念稿**，用於確認角色、配色與構圖，不代表已完成正式專業插畫或品牌核定。英文名稱亦為候選文案。既有測驗描述及建議未改寫。
+此為獨立視覺 prototype，不取代現行主站 [Urban Athletic Minimalism](../../../DESIGN_SYSTEM.md)。三隻角色目前為本專案製作的簡化 SVG **概念稿**，用於確認角色、配色與構圖，不代表已完成正式專業插畫或品牌核定。英文名稱亦為候選文案。既有測驗描述及建議未改寫。
 
 ## 雙版本架構
 

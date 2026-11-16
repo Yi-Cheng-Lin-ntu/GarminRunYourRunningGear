@@ -1,10 +1,10 @@
-> 本文件保留 2026-11-09 的 V2 實作與驗收摘要。2026-11-11 起 Cute 原型已移出發佈目錄，文中 `/cute/` 測試紀錄僅代表當時狀態。現行入口與模組以 [PROJECT_MAP.md](PROJECT_MAP.md) 為準；結果頁人工微調請參考 [UI_TUNING_GUIDE.md](UI_TUNING_GUIDE.md)。
+> 本文件保留 2026-11-09 的 V2 實作與驗收摘要。2026-11-11 起 Cute 原型已移出發佈目錄，文中 `/cute/` 測試紀錄僅代表當時狀態。現行入口與模組以 [PROJECT_MAP.md](../../../PROJECT_MAP.md) 為準；結果頁人工微調請參考 [UI_TUNING_GUIDE.md](../../../UI_TUNING_GUIDE.md)。
 
 > 2026-11-11 素材更新：本文件後段的狗狗素材名稱與截圖描述是較早版本紀錄，已由目前三張跑者結果圖取代。現行名稱、圖片映射及尺寸以本文「目前結果圖片」表格和 `content.csv`／`js/appV2.js` 為準。
 
 # Garmin Run 2026 V2 — 實作與驗收紀錄
 
-日期：2026-11-09（歷史實作紀錄）。基準 `f0f5ff7`，維持 main 工作區，依當時指示不建分支，以 [V2_CHECKPOINT.md](V2_CHECKPOINT.md) 記錄檢查點。該次沒有 commit、push、merge、改 Pages 設定、部署 Apps Script 或操作遠端 Sheets／庫存；當時的圖片與後續圖片更新分開記錄。
+日期：2026-11-09（歷史實作紀錄）。基準 `f0f5ff7`，維持 main 工作區，依當時指示不建分支，以 [V2_CHECKPOINT.md](../V2_CHECKPOINT.md) 記錄檢查點。該次沒有 commit、push、merge、改 Pages 設定、部署 Apps Script 或操作遠端 Sheets／庫存；當時的圖片與後續圖片更新分開記錄。
 
 ## 已實作
 
@@ -13,9 +13,9 @@
 - `index.html`／`style.css`／`appV2.js`：主入口V2，結果＋永續邀請→獨立必填聯絡→既有領獎；precision/rest未選不能前進，pioneer直接繼續。
 - `participationValidation.js`／`apiClient.js`：V2 Mock重新驗證答案與資格，全員聯絡／確認／自動抽獎；Mock participant追加三個追溯欄位；分配權重、數量、防重、paused不改。
 - `redemptionView.js`：原領獎renderer抽為共用模組，保留markup行為與產品圖，主V2／舊Cute共用。
-- `app.js`／`legacyClassificationRules.js`／`archive/v1/`：V1參考入口使用凍結的CSV與規則；`cute/`所有原始檔無差異。舊JS資料加歷史標記，非V2來源。
+- `app.js`／`legacyClassificationRules.js`／`_archive/legacy-v1/reference-v1/`：V1參考入口使用凍結的CSV與規則；`cute/`所有原始檔無差異。舊JS資料加歷史標記，非V2來源。
 - `.gs`更新：Validation、Code、Setup、Allocation；Inventory無修改。只在記憶體模擬中驗證，未對Google服務執行任何函式。
-- README、Project Map、Design System、Apps Script操作文件與測試同步更新。舊文件保存在archive/v1。
+- README、Project Map、Design System、Apps Script操作文件與測試同步更新。V1 歷史文件目前封存於 `_archive/legacy-v1/reference-v1/`。
 
 ## 圖片與版面
 
@@ -73,7 +73,7 @@ V2固定七色；舊base CSS的歷史值不回寫Cute。淺底深字、CTA綠底
 
 ## 手動更新與相容性
 
-完整操作見 [apps-script/README.md](apps-script/README.md)。必要順序：四個.gs更新→手動`migrateDemoV2()`→核對DemoParticipants新增第19–21欄→更新Demo Web App版本→確認GET quizVersion=2→另行授權測試。既有Demo不執行整套setup，不改正式表或庫存。
+完整操作見 [Apps Script 手冊](../../../apps-script/README.md)。必要順序：四個.gs更新→手動`migrateDemoV2()`→核對DemoParticipants新增第19–21欄→更新Demo Web App版本→確認GET quizVersion=2→另行授權測試。既有Demo不執行整套setup，不改正式表或庫存。
 
 - **舊 `/exec` 未更新**：主V2無法Demo提交，前端會提示，不是只push前端即可完成。
 - **V2後端／V1客戶端**：未帶quizVersion=2會拒絕；Cute不是本輪Demo相容目標。

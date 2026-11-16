@@ -27,16 +27,16 @@
 
 | 畫面 | 390px 手機 | 1280px 桌機 |
 |---|---|---|
-| 首頁 | [手機](docs/cute-review/cute-390-landing.png) | [桌機](docs/cute-review/cute-1280-landing.png) |
-| 題目與選取 | [手機](docs/cute-review/cute-390-quiz.png) | [桌機](docs/cute-review/cute-1280-quiz.png) |
-| 柴犬結果 | [手機](docs/cute-review/cute-390-result-experience.png) | [桌機](docs/cute-review/cute-1280-result-experience.png) |
-| 臘腸結果 | [手機](docs/cute-review/cute-390-result-lifestyle.png) | [桌機](docs/cute-review/cute-1280-result-lifestyle.png) |
-| 杜賓結果 | [手機](docs/cute-review/cute-390-result-performance.png) | [桌機](docs/cute-review/cute-1280-result-performance.png) |
-| Participation | [手機](docs/cute-review/cute-390-participation.png) | [桌機](docs/cute-review/cute-1280-participation.png) |
-| 一般領獎 | [手機](docs/cute-review/cute-390-general.png) | [桌機](docs/cute-review/cute-1280-general.png) |
-| 永續領獎 | [手機](docs/cute-review/cute-390-green.png) | [桌機](docs/cute-review/cute-1280-green.png) |
+| 首頁 | [手機](cute-review/cute-390-landing.png) | [桌機](cute-review/cute-1280-landing.png) |
+| 題目與選取 | [手機](cute-review/cute-390-quiz.png) | [桌機](cute-review/cute-1280-quiz.png) |
+| 柴犬結果 | [手機](cute-review/cute-390-result-experience.png) | [桌機](cute-review/cute-1280-result-experience.png) |
+| 臘腸結果 | [手機](cute-review/cute-390-result-lifestyle.png) | [桌機](cute-review/cute-1280-result-lifestyle.png) |
+| 杜賓結果 | [手機](cute-review/cute-390-result-performance.png) | [桌機](cute-review/cute-1280-result-performance.png) |
+| Participation | [手機](cute-review/cute-390-participation.png) | [桌機](cute-review/cute-1280-participation.png) |
+| 一般領獎 | [手機](cute-review/cute-390-general.png) | [桌機](cute-review/cute-1280-general.png) |
+| 永續領獎 | [手機](cute-review/cute-390-green.png) | [桌機](cute-review/cute-1280-green.png) |
 
-375px、430px 同畫面也保存在該目錄。原版歷史截圖見 [UI_REVIEW.md](UI_REVIEW.md)；本輪另以 checkpoint app 與新 app 做原版同場景像素比較。
+375px、430px 同畫面也保存在該目錄。原版歷史截圖見 [V1 UI review](../../legacy-v1/docs/UI_REVIEW.md)；本輪另以 checkpoint app 與新 app 做原版同場景像素比較。
 
 ## 驗收結果
 
@@ -105,7 +105,7 @@ PYTHON
 
 外部流量全部封鎖；Demo POST 由本機測試 fixture 攔截回應，沒有實際寫入或扣遠端庫存。這驗證路徑與前端契約，不代表已驗收目前遠端部署版本、權限或 CORS。
 
-機器結果：[雙版本 matrix](docs/cute-review/results.json)、[原版完整 UI 回歸](docs/cute-review/urban-regression-results.json)。既有原版 UI 測試另覆蓋768px、鍵盤焦點、200%根字級、五款圖片及耗盡狀態。
+機器結果：[雙版本 matrix](cute-review/results.json)、[原版完整 UI 回歸](cute-review/urban-regression-results.json)。既有原版 UI 測試另覆蓋768px、鍵盤焦點、200%根字級、五款圖片及耗盡狀態。
 
 ## 剩餘確認
 

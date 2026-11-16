@@ -1,198 +1,128 @@
-## 正式參與者表精簡（目前版本）
+# Apps Script｜API、Sheets 與部署手冊
 
-`Participants` 現在只保留以下 13 欄，順序固定：
+本手冊對應 Repository 目前的匿名 `submissionVersion: 1`／`quizVersion: 2` 程式。`.gs` 檔案只存在 GitHub Repository，不代表遠端 Apps Script 已更新。是否部署、遠端 Sheet 是否已 migration，必須在 Google 端確認。
 
-1. 參與者代號
-2. 建立時間
-3. 跑者風格
-4. 自備補水裝備
-5. 永續獎勵資格
-6. 優先獎品資格
-7. 補水風格
-8. 第1題答案
-9. 第2題答案
-10. 第3題答案
-11. 第4題答案
-12. 第5題答案
-13. 獎品中文名稱
+## 使用者流程與 API
 
-本節取代下方舊版文件對「正式 Participants 26 欄、保留姓名／郵件等欄位」的描述；DemoParticipants 仍維持 26 欄。Requests、Allocations、InventoryLog、Prizes、Settings 與 API 契約不變，本地 JS 不需修改。兌獎代碼仍保留於 API 結果／Requests，以維持原有前端流程；僅從正式參與者表移除。這不是跨工作表的歷史個資全面清除。
+前端收集 Q1–Q5 答案；Q1、Q2、Q3、Q5 分類，Q2 決定最高分平手；Q4 獨立決定 hydrationStyle。使用者在結果頁完成永續選擇後一次匿名提交。伺服器再次驗證答案與資格，再分配周邊。
 
-### 既有正式表轉換
+### Request 範例
 
-1. 在儲存庫之外備份試算表，確認綁定檔案及正式 `Participants`。轉換會永久移除未列出的欄位及其內容，不會另外建立含舊個資的備份工作表。
-2. 同步 `Setup.gs` 與 `Allocation.gs` 至 Apps Script，兩份必須一起更新。新版在轉換前仍可寫入原有完整 26 欄表。
-3. 暫停現場提交、等待進行中的提交完成後，將 Web App 更新至新版，再於編輯器執行 `migrateProductionParticipantSummary()`；也可重新開啟試算表使用「Garmin Run 管理 → 精簡正式參與者欄位」。不要用初始化函式轉換既有表。
-4. 核對 13 欄順序、原參與者筆數、五題答案及中文獎品名稱。此函式只寫入 `Participants`，不初始化獎品、不改庫存、不處理 Demo 或其他紀錄。先在試算表副本確認。
-5. 確認新提交與相同提交重試正常後恢復現場操作。轉換後若回滾舊程式，須配合還原舊表結構，否則舊版 schema 檢查會拒絕提交。
+```json
+{
+  "submissionVersion": 1,
+  "quizVersion": 2,
+  "requestId": "random-request-id",
+  "sessionId": "random-session-id",
+  "answers": {
+    "q1": "q1_experience",
+    "q2": "q2_experience",
+    "q3": "q3_experience",
+    "q4": "q4_rest",
+    "q5": "q5_experience"
+  },
+  "runnerType": "experience",
+  "hydrationStyle": "rest",
+  "q4Answer": "q4_rest",
+  "existingSelfHydration": false,
+  "hydrationCommitment": "joined",
+  "sustainabilityRewardEligible": true,
+  "premiumPrizeEligible": false
+}
+```
 
-轉換接受既有英文或中文的已知 18／21／26 欄格式與新版 13 欄格式，可重跑。舊格式原先未紀錄的答案／補水風格保留空白，不推測補值。舊獎品代碼依正式 `Prizes` 中文名稱回填；未知獎品代碼或未知表頭會在寫入前停止。未分配獎品時中文名稱留空。
+禁止欄位包括姓名、Email、電話、地址、`raffleOptIn`、個資告知及測試確認欄位。`Validation.gs` 會拒絕這些欄位，並在伺服器端重算 runnerType、hydrationStyle、existing／joined／considering 資格。Pioneer 必須由 Q4 `pioneer` 推導；只有 existingSelfHydration 可得購物袋優先資格。
 
-本次僅在記憶體試算表測試，未修改遠端正式資料、未部署。若外部報表依舊欄位位置讀取 Participants，需配合更新。
+成功 response 會提供 `allocationStatus: "allocated"`、prize、runnerType、requestId/sessionId、participantId、兌獎代碼、allocationMethod 與永續資格。若停用或無可用獎品，回覆 `allocationStatus: "paused"` 且 `prize: null`；不可顯示已得獎品。
 
-## 中文表單資訊
+## Apps Script 檔案
 
-新建工作表使用中文表頭；參與者紀錄的跑者風格、補水風格、承諾、資格、分配／兌獎狀態與五題答案以中文儲存。API、提交指紋、結果 JSON、技術識別碼，以及 Requests／Allocations／InventoryLog／Settings 的機器判斷值仍保留原始格式，避免影響重試與庫存處理。工作表名稱維持原名。
+此次匿名提交與 migration 需要同步的程式：
 
-既有表格：同步本次 Setup.gs、Allocation.gs、Inventory.gs 後，重新開啟試算表，使用「Garmin Run 管理 → 將既有表單資訊轉為中文」，或在編輯器執行 `localizeActivitySheets()`。先於試算表副本確認；此函式會轉換同一試算表內正式與 Demo 的已知表頭及參與者顯示欄位，可重跑，不變更庫存、設定值、識別碼或技術紀錄。舊版與中文表頭均可通過 schema 檢查；若缺少匿名版本欄位，仍須先執行原有 migration。請勿為了中文化執行初始化。
+- `Code.gs`：`doGet`／`doPost`、公開狀態、提交恢復、Demo／Production 工作表路由。
+- `Validation.gs`：答案 ID、分類、資格與禁止個資欄位驗證。
+- `Allocation.gs`：冪等、LockService、獎品選取與各表寫入。
+- `Inventory.gs`：庫存調整、暫停／恢復、庫存一致性檢查。
+- `Setup.gs`：空白試算表建置、append-only migration、中文表頭及明確標示的正式摘要轉換。
 
-本次未連線修改遠端試算表或部署 Apps Script。更新 Web App 版本後，新提交才會使用新版寫入方式。若有外部報表直接依英文表頭或參與者英文值取資料，需同步調整。
+同步前先檢查遠端專案是否有 repository 未包含的修改。不可用初始化腳本覆蓋既有專案，也不可假設 GitHub push 會更新 Web App。
 
-# Apps Script｜匿名提交、Sheets Migration 與部署手冊
+## 環境路由
 
-此手冊對應目前 Repository 中的匿名 submissionVersion 1。Repository 的 .gs 修改不會自動更新任何已部署 Web App。本次沒有連線、寫入或修改任何遠端 Spreadsheet，也未部署 Apps Script／GitHub Pages。
+`js/environment.js` 目前設定共用的一個 `/exec`：
 
-## 資料契約
+- localhost／Codespaces 一般入口 → 前端 Development localStorage Mock，不呼叫 Apps Script。
+- 任一 host 的 `?mode=apps-script-demo` → `/exec?mode=apps-script-demo`，Apps Script 使用 `DemoParticipants`、`DemoPrizes`、`DemoRequests`、`DemoAllocations`、`DemoInventoryLog`。
+- GitHub Pages 一般入口不帶 mode → 同一 `/exec` 使用 Production 對應工作表。
 
-前端只提交答案、分類、補水狀態和技術識別碼。紙本抽獎由活動現場獨立處理，網站不建立紙本名單。
+這裡沒有已設定的獨立 Staging host、Apps Script 或 Spreadsheet；Demo tabs 是同一 Spreadsheet 中的測試資料，不是獨立部署環境。`mode` 只負責選擇工作表，不是認證或授權。Production 一般網址會使用正式資料，切勿以測試答案提交。
 
-Request 範例（所有識別碼皆為每輪隨機技術值，不是使用者追蹤 ID）：
+唯讀 status GET 應分別檢查：
 
-    {
-      "submissionVersion": 1,
-      "quizVersion": 2,
-      "requestId": "random-request-id",
-      "sessionId": "random-session-id",
-      "answers": {
-        "q1": "q1_experience",
-        "q2": "q2_experience",
-        "q3": "q3_experience",
-        "q4": "q4_rest",
-        "q5": "q5_experience"
-      },
-      "runnerType": "experience",
-      "hydrationStyle": "rest",
-      "q4Answer": "q4_rest",
-      "existingSelfHydration": false,
-      "hydrationCommitment": "joined",
-      "sustainabilityRewardEligible": true,
-      "premiumPrizeEligible": false
-    }
+```text
+/exec?action=getPublicCampaignStatus&mode=apps-script-demo
+/exec?action=getPublicCampaignStatus
+```
 
-Response 範例：
+前者預期 `demoMode: true`，後者 `demoMode: false`，並應回報 `quizVersion: 2`、`submissionVersion: 1`。實際 `/exec` 狀態需在部署後查證；此處不代表遠端已同步。
 
-    {
-      "ok": true,
-      "demoMode": true,
-      "participantId": "staging-random-id",
-      "requestId": "random-request-id",
-      "sessionId": "random-session-id",
-      "allocationStatus": "allocated",
-      "runnerType": "experience",
-      "prize": {
-        "prizeId": "cap",
-        "nameZh": "Garmin 牛仔帽",
-        "nameEn": "Garmin Cap",
-        "imagePath": "./assets/prizes/Garmin漁夫帽.png"
-      },
-      "redemptionCode": "STG-REQUEST",
-      "allocationMethod": "general_weighted",
-      "sustainabilityRewardEligible": true
-    }
+## Sheets schema
 
-獎品完全耗盡或分配停用時回傳 allocationStatus paused、prize null。前端只能在取得後端回應後顯示領獎頁。Response 不含姓名、Email或抽獎登記欄位。
+### Production `Participants`
 
-Validation.gs 驗證五個答案 ID，重算 Q1/Q2/Q3/Q5 runnerType 和 Q2 平手，獨立重算 Q4 hydrationStyle。它逐一核對 runnerType、q4Answer、existingSelfHydration、hydrationCommitment、sustainabilityRewardEligible、premiumPrizeEligible；包含任何姓名、Email、電話、地址、抽獎或告知欄位均拒絕。伺服器不相信前端 qualification。
+現行程式支援兩種 schema：
 
-## 需同步更新的 .gs
+1. 精簡 13 欄摘要：`participantId`、`createdAt`、`runnerType`、`existingSelfHydration`、`sustainabilityRewardEligible`、`premiumPrizeEligible`、`hydrationStyle`、`q1Answer`、`q2Answer`、`q3Answer`、`q4Answer`、`q5Answer`、`nameZh`（獎品中文名稱）。
+2. 相容完整 26 欄：舊版 18 欄 + `quizVersion`、`hydrationStyle`、`q4Answer` + `submissionVersion`、`q1Answer`、`q2Answer`、`q3Answer`、`q5Answer`。
 
-請在目標 Apps Script 專案更新以下全部檔案：
+Production 若使用完整 schema，新的匿名列會把 legacy `raffleOptIn` 寫為 false，姓名、Email、告知欄位留空；不會蒐集個資。精簡 13 欄沒有聯絡欄位，也保留五題答案。
 
-- Code.gs：API、部署環境讀取、公開狀態與提交恢復。
-- Validation.gs：匿名契約、答案及資格驗證。
-- Allocation.gs：同一提交指紋、requestId 冪等、分配及匿名 Participants 寫入。
-- Setup.gs：新空白表頭及 append-only schema migration。
-- Inventory.gs：保留庫存管理與一致性檢查；移除線上抽獎名單匯出入口。
+### Demo `DemoParticipants`
 
-其他與本任務無關的 Apps Script 檔案可保持不變。更新前比對各檔案是否有遠端獨有修改，不要以整份 Repository 盲目覆蓋遠端版本。
+Demo schema 使用 26 欄相容格式。舊姓名／Email等欄位保留在表頭以避免欄位錯位；新版匿名列為 false／空白，不寫入個資。
 
-### 在 Apps Script 編輯器更新
+### Requests
 
-1. 更新前備份現有 Apps Script 專案與綁定 Spreadsheet，確認其中 Demo 與 Production 工作表都存在。
-2. 逐檔更新上述五份原始碼；若 GAS 編輯器將多個檔案合併在同一 .gs 檔，保留函式唯一定義並同步全部內容。
-3. 本版不使用 `APP_ENVIRONMENT` Script Property。單一 Apps Script Web App 依請求參數路由：`mode=apps-script-demo` 使用 Demo 系列工作表；無 mode 或 `mode=production` 使用 Production 系列工作表。綁定的 Spreadsheet 必須同時有兩組工作表。
-4. 確認 Web App 的 Execute as 設定與 Spreadsheet 權限符合組織政策。公開測驗若需匿名呼叫，Web App 存取權限可能設為 Anyone；這會增加濫用風險，需先採納下方防濫用措施。不要將 Spreadsheet 本身公開分享。
-5. Deploy → Manage deployments，確認實際 /exec 指向更新後的部署版本與正確 Script 專案。建立新版本後記錄 deployment ID、版本、環境與綁定 Spreadsheet。
-6. 以唯讀 GET 檢查 `action=getPublicCampaignStatus&mode=apps-script-demo`，預期 quizVersion=2、submissionVersion=1、demoMode=true；不帶 mode 再查一次，預期 demoMode=false。未知 mode 應回 `INVALID_API_MODE`。
+`Requests` 與 `DemoRequests` 使用原 7 欄，再追加 `submissionVersion`、`submissionFingerprint`，合計 9 欄。Fingerprint 綁定答案、runnerType、補水類型、承諾及資格。
 
-舊部署可能仍要求姓名／Email／同意，也可能忽略匿名契約。新前端要求狀態回應包含 submissionVersion=1；舊 /exec 缺少此欄時，前端不得 POST。若錯誤地把新前端指向舊 /exec，它應因狀態版本不相容而停止；舊後端即使收到匿名 POST，也應因缺少舊個資欄位而拒絕，不應分配。需先在 Staging 確認，不可將此推論當成已部署驗證。
+## Migration
 
-## Google Sheets 非破壞性 Migration
+### 安全的 append-only migration
 
-Migration 函式不執行 setupActivitySheets()，不建立表、不初始化或修改獎品、不刪除或重寫舊資料。既有表格不可為升級執行 setupActivitySheets()：該函式可能初始化空庫存。
+- `migrateStagingAnonymousSchema()`：操作目前綁定 Spreadsheet 的 DemoParticipants／DemoRequests。已知舊 18 欄格式會依序補上 V2 三欄及匿名五欄；已是 26 欄則不重複新增。Requests 補至 9 欄。
+- `migrateProductionAnonymousSchema()`：操作正式 Participants／Requests。完整舊 schema 僅追加缺少欄位；若 Participants 已是精簡 13 欄，保留其 schema，只檢查／補 Requests。遇到未知欄位或順序會停止。
 
-原 Participants 18 欄及 V2 的第 19–21 欄保留。migrateStagingAnonymousSchema() 在 DemoParticipants 表尾追加：
+這兩個 migration 不建立表、不初始化獎品、不重設庫存、不改舊資料列，可重複執行；但正式 migration 仍會修改正式表頭，只能由授權維護者在備份後執行。程式不會自動呼叫它們。
 
-    submissionVersion, q1Answer, q2Answer, q3Answer, q5Answer
+### 破壞性摘要轉換
 
-q4Answer 已存在，不重複。由原始 18 欄直接遷移時會先追加原先缺少的 V2 三欄，再追加匿名五欄。Requests／DemoRequests 原 7 欄保留，尾端追加：
+`migrateProductionParticipantSummary()` 會把已知完整 Participants schema 轉為 13 欄摘要，並刪除額外欄位。這會永久刪除那些欄中的歷史值，不是 append-only migration。執行前必須在 repository 之外備份整份 Spreadsheet，先在副本演練、核對外部報表相依性並取得資料負責人核准。不得為了匿名流程必要性而直接執行。它不初始化或改動庫存，但會改寫 Participants 表。
 
-    submissionVersion, submissionFingerprint
+既有資料表一律不可直接執行 `setupActivitySheets()`：它是新空白活動表建置工具，可能在空 Prizes／DemoPrizes 表初始化獎品數量。
 
-Migration 只接受已知表頭前綴，未知表頭、欄位順序或空白資料表會停止。可安全重跑。舊列欄位不回填；新增匿名列在舊欄位 raffleOptIn、name、email、privacyNoticeVersion、privacyAcknowledgedAt 留 false／空白。不要刪除歷史個資欄或歷史紀錄；其存取與清除需依組織資料政策另行安排。
+## 手動更新及部署程序
 
-### Demo 工作表操作順序
+1. 備份 Apps Script 專案和綁定 Spreadsheet；記錄 Spreadsheet ID、各表表頭、列數、Production／Demo 庫存及目前 Web App deployment version。
+2. 對照遠端獨有修改，再同步上述五個 `.gs` 檔；確認每個函式只有一份定義。
+3. 在 Spreadsheet 副本先驗證對應的 migration 和匿名測試，確認舊欄、舊資料與庫存不變；不要在正式表做試跑。
+4. Demo 環境的 migration 執行 `migrateStagingAnonymousSchema()`；正式資料需改版時才由授權者核准並執行 `migrateProductionAnonymousSchema()`。不要用 setup 代替。
+5. Apps Script 編輯器建立新 deployment version，記錄 Web App URL、deployment version、Execute as 身分及存取權限。測試前要確認 `/exec` 指向正確專案與 Spreadsheet。
+6. 先用唯讀 GET 驗證 Demo／Production 的 `demoMode` 和契約版本，再只在 Demo tabs 用明確虛構資料做端到端測試。
+7. 核對 Requests、Participants、Allocations、InventoryLog 與 DemoPrizes 彼此一致；確認 Production 庫存未動。
+8. 上線或調整 Production 前，先核准匿名 API 防濫用方式、公開存取權限、資料保留政策和暫停／回滾方式。
 
-1. 確認 Web App 綁定的 Spreadsheet 正確；先備份並記下正式與 Demo 系列的庫存及表頭。
-2. 確認 DemoParticipants、DemoPrizes、DemoAllocations、DemoInventoryLog、DemoRequests 與正式系列工作表分開存在。
-3. 在編輯器手動執行 migrateStagingAnonymousSchema()。它只處理 DemoParticipants 和 DemoRequests；不執行獎品初始化。
-4. 核對表頭最終為 Participants 26 欄與 Requests 9 欄（Staging 對應 DemoParticipants／DemoRequests）。重跑一次，確認沒有新增重複欄位。
-5. 比較舊欄、舊列、Prizes、DemoPrizes、Allocations 和 InventoryLog migration 前後內容。此函式不應改動任一獎品或紀錄。
-6. 部署新 Web App 版本，先查帶 `mode=apps-script-demo` 的 status，再用 Demo 入口及經核准的虛構答案做端到端驗收。清理 Demo 測試資料需由維護者人工確認。
+更新 Apps Script 編輯器程式碼不會更新已部署版本；必須建立新版本。若遠端仍是舊 `/exec`，可能回報舊契約、缺少 status 版本、拒絕匿名 payload 或 schema migration required。以前端部署或 README 更新不能取代遠端更新。
 
-### Production Migration（需授權維護者操作）
+## 分配安全與已知風險
 
-1. 建立唯讀備份／複本，確認 Spreadsheet ID、Participants、Requests 表頭、舊紀錄及目前各獎品庫存。
-2. 由資料負責人核准上線時段、資料保留、存取權限與回滾方式。
-3. 使用同一份 Apps Script 程式碼及 Web App；無 mode 的 Production 請求只使用正式系列工作表。
-4. 核對備份與欄位前綴後，才可由授權維護者手動執行 migrateProductionAnonymousSchema()。本函式只追加欄位，但仍會寫入正式表頭；本次沒有執行。
-5. 確認 Participants 原欄與舊資料逐項相同、Requests 原 7 欄相同、獎品庫存與 Allocation／InventoryLog 未變，並重跑唯讀一致性檢查。
+`Allocation.gs` 保留購物袋優先／既有 fallback、一般獎品按剩餘庫存加權、停用與零庫存排除、`LockService`、`requestId` 冪等、Request fingerprint、Allocations 與 InventoryLog。相同 requestId＋sessionId＋fingerprint 重播已完成結果，不再次扣庫存；同 requestId 不同內容會拒絕。
 
-## 即時分配、冪等及失敗檢查
+Google Sheets 不提供跨多工作表交易。若寫入中途失敗，Request 可能停在 processing；`verifyInventoryConsistency()` 用於檢查異常，必要時由授權維護者備份後對照 Requests／Participants／Allocations／InventoryLog 人工復原。不得建立新 requestId 重送來掩蓋不一致。
 
-Allocation.gs 保留既有獎品數量、購物袋資格優先與耗盡 fallback、一般庫存加權、enabled 檢查、LockService、Allocations、InventoryLog、管理員庫存調整與 paused 結果。分配被停用或獎品全數用完時不會回報獎品。
+公開匿名 API 無法用 requestId 證明每筆來自不同自然人；冪等只防同一請求重複扣庫存，不是限領一次或防濫用措施。公開 Production 前應由活動／安全負責人決定伺服器端限制或現場受控提交方式。不要把前端隱藏按鈕當安全邊界。
 
-Requests 新增的 submissionFingerprint 由五個答案 ID、runnerType、補水類型、承諾與資格組成。重試必須同時符合 requestId、sessionId 及指紋；完全相同時回放既有結果，不再扣庫存。相同 requestId 搭配不同資料回 REQUEST_ID_CONFLICT。
+## 測試界線與未確認事項
 
-Sheets 沒有跨工作表交易。若程式在 stock 更新後發生部分寫入失敗，Request 可能停留 processing。Inventory.gs 的 verifyInventoryConsistency() 會檢查 processing request、Prizes 初始／剩餘／已分配數及 Allocations 數量。發現異常時暫停公開分配，依 requestId 對照 Requests、Participants、Allocations 和 InventoryLog；先備份，再由授權維護者人工復原／對帳。不要用新 requestId 重送，也不要直接修改庫存以掩蓋差異。正式前應另做故障注入與恢復演練。
+Repository 測試使用 Node VM、記憶體 Spreadsheet、localStorage Mock；不得連真實 API 或 Production Sheets。Repository 本身無法確認遠端 Apps Script 是否已部署、migration 是否已執行、Web App 權限是否正確、或 Google Sheet 是否使用相同 schema。這些都需依實際 Google 帳戶手動確認。
 
-## 環境隔離與公開匿名 API 風險
-
-- Development：localhost/Codespaces 一般入口使用本機 Mock，僅本機 localStorage，不送 Apps Script。
-- Demo：任何入口加上 `?mode=apps-script-demo`，前端會對共用 `/exec` 傳遞相同 mode；後端必須回報 `demoMode=true` 才會繼續提交。
-- Production：一般入口不帶 mode，使用同一 `/exec` 並路由到正式系列工作表；正式分配仍受 Settings 的 allocationEnabled 控制。
-- `mode=mock` 不會在公開網域啟用 Mock。本機與 Codespaces 不帶參數仍使用 localStorage Mock。
-
-公開匿名 API 無法從 requestId 證明不同自然人，也不能可靠依 Apps Script Web App 取得使用者 IP。LockService 與冪等只避免併發超賣及相同請求重扣，不能防止攻擊者大量建立新 requestId 消耗獎品。正式開放前需由安全／活動負責人核准伺服器驗證 CAPTCHA／可信反向代理節流或現場受控 kiosk／分發方式；不可將前端隱藏按鈕或 sessionId 當防護。allocationEnabled 是緊急暫停開關，維護者也可在活動開始前暫停公開分配。
-
-建議以最小權限限縮 Spreadsheet 分享，只允許指定活動營運與資料管理者存取。建議保留原始答案至活動結束後 90 日供彙總，完成去除細項後刪除原始回答；分配與庫存稽核資料暫提保留 12 個月。以上是待資料負責人核准的提案，本程式沒有自動清除任務，不代表法遵判定。
-
-## 前端設定
-
-修改 js/environment.js 內共用的 Apps Script Web App URL：
-
-1. 前端兩種模式共用同一個 `/exec`；Demo 請求自動附加 `mode=apps-script-demo`，一般入口不附加 mode。
-2. Apps Script 依 `e.parameter.mode` 路由至 Demo 或 Production 工作表；mode 只選擇資料表，不是驗證身分或授權。
-3. 不要以 query string、瀏覽器旗標或 localStorage 在正式網域啟用 Mock。
-4. 不在前端加入 private key、管理員權限或 CAPTCHA secret。
-
-目前 Staging 與 Production 前端設定使用同一個使用者提供的 `/exec`。前端會核對後端狀態；若 Demo 請求回報 `demoMode=false`，不會送出分配請求。
-
-## Production 上線清單（僅人工執行）
-
-1. 備份 Production Spreadsheet，記錄庫存與 schema。
-2. 確認正式獎項數量／資格、存取權限和資料保留核准。
-3. 將更新後的 Apps Script 檔案同步至綁定正式 Spreadsheet 的 Apps Script 專案。
-4. 核准後執行 Production append-only migration；確認庫存及舊列不變。
-5. 部署新 Web App 版本並記錄版本／權限；一般入口不帶 mode 即路由至 Production 工作表。
-6. 更新前端 Production API URL；在部署前保持 Production API URL 空白或配置 allocationEnabled=false。
-7. 先在 Staging 驗收全部五題、三種補水承諾、獎品 fallback、paused、request replay、失敗重試與不同環境隔離。
-8. 正式驗收只用受控授權流程，不建立測試領獎或個資紀錄；確認庫存／Requests／InventoryLog。
-9. 由發布負責人明確啟用公開提交與 GitHub Pages。
-10. 保留上一版 Apps Script deployment、前端版本、表格備份及暫停分配回滾流程。
-
-## 測試與本次狀態
-
-Repository 測試以 Node VM、記憶體 Sheet 和 localStorage mock 運行，不需 Apps Script 登入。不得用真實參與者資料或 Production API。
-
-本次只修改 Repository 原始碼與文件；未執行 migration、遠端 GET/POST、正式庫存操作、Apps Script deployment、GitHub Pages 發布、commit 或 push。正式 Staging Spreadsheet、部署 URL、Production URL、Web App 權限、資料保留核准仍待維護者確認。
+本文件未執行任何 Google 遠端操作、Migration、庫存調整、Deployment 或 GitHub Pages 發布。

@@ -33,8 +33,8 @@ async function main() {
         await page.locator(`label[for="q${question}_${answer}"]`).click();
         await page.locator("[data-action=next]").click();
       }
-      assert.equal(await page.locator("[data-result-title]").innerText(), titles[type]);
-      assert.equal(await page.locator("[data-result-tag]").count(), 4);
+      assert.equal(await page.locator("#result [data-result-title]").innerText(), titles[type]);
+      assert.equal(await page.locator("#result [data-result-tag]").count(), 4);
       if (style === "pioneer") {
         assert.equal(await page.locator("[data-hydration-options]").isVisible(), false);
       } else {

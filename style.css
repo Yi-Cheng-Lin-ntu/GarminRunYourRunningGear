@@ -1,5 +1,5 @@
 /* Garmin Run main website. Edit this file only; archived prototypes live outside the site root. */
-/* Tokens → foundations → components → results → contact → prizes → tools → responsive. */
+/* Tokens → foundations → components → results → prizes → tools → responsive. */
 
 :root {
   /* 品牌色盤：實際 HEX 僅在此定義，調整品牌色請改這一區 */
@@ -1269,60 +1269,7 @@ label {
   margin-top: 12px;
 }
 
-/* Contact and validation */
-
-.participation-header {
-  margin-bottom: 24px;
-}
-
-.participation-header h2 {
-  margin: 0;
-  font-size: var(--font-h1);
-  font-weight: var(--weight-heading);
-  line-height: var(--line-height-heading);
-}
-
-.demo-badge {
-  margin: 0 0 16px;
-  padding: 8px 10px;
-  border: 1px solid var(--brand-blue-mid);
-  color: var(--text-highlight);
-  font-size: var(--font-small);
-  font-weight: var(--weight-body);
-  letter-spacing: var(--letter-spacing-ui);
-  line-height: var(--line-height-small);
-}
-
-.participation-form {
-  display: grid;
-  gap: 18px;
-}
-
-.toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 48px;
-  font-size: var(--font-body);
-  font-weight: var(--weight-emphasis);
-}
-
-.toggle-row input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--action-primary);
-  flex: 0 0 20px;
-  margin: 0;
-}
-
-.privacy-copy {
-  border-left: 3px solid var(--text-highlight);
-  padding: 10px 12px;
-  font-size: var(--font-small);
-  line-height: var(--line-height-small);
-  color: var(--brand-muted);
-  border-color: var(--brand-blue);
-}
+/* Submission errors */
 
 .form-error {
   margin: 0;
@@ -1339,38 +1286,9 @@ label {
   display: none;
 }
 
-.v2-contact-fields {
-  display: grid;
-  gap: 20px;
-}
-
-.v2-contact-fields label {
-  display: grid;
-  gap: 8px;
-  font-size: var(--font-body);
-  font-weight: var(--weight-emphasis);
-}
-
-.v2-contact-fields input {
-  min-width: 0;
-  width: 100%;
-  min-height: 52px;
-  padding: 12px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-control);
-  background: var(--brand-surface);
-  color: var(--brand-white);
-}
-
 .form-error::before {
   content: "! ";
   font-weight: var(--weight-emphasis);
-}
-
-.screen:not(.screen-redemption) .demo-badge {
-  color: var(--brand-blue);
-  border-color: var(--border-default);
-  font-size: var(--font-small);
 }
 
 /* Prize redemption */

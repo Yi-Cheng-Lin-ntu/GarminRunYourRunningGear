@@ -664,7 +664,7 @@ if (pendingRequest?.sessionId && pendingRequest?.requestId) {
     });
 }
 
-loadContent(new URL("../archive/v1/content.csv", import.meta.url)).then((content) => {
+loadContent(new URL("../../legacy-v1/reference-v1/content.csv", import.meta.url)).then((content) => {
   ({ quizData, runnerTypes, resultData, ui: uiContent } = content);
   resultData = presentResults(resultData, visualVariant);
   elements.startButton.disabled = false;
