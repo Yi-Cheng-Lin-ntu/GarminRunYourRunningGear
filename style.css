@@ -517,7 +517,7 @@ label {
   padding: 14px 16px 14px 44px;
 }
 
-.choice-card span::before {
+.choice-card > span::before {
   position: absolute;
   left: 16px;
   top: 18px;
@@ -533,7 +533,7 @@ label {
   box-shadow: inset 4px 0 var(--action-primary);
 }
 
-.choice-card.is-selected span::before {
+.choice-card.is-selected > span::before {
   border-color: var(--action-primary);
   box-shadow: inset 0 0 0 3px var(--bg-surface);
   background: var(--action-primary);
@@ -562,7 +562,7 @@ label {
   box-shadow: inset 4px 0 var(--state-selected);
 }
 
-.choice-card:has(input:checked) span::before {
+.choice-card:has(input:checked) > span::before {
   border-color: var(--state-selected);
   background: var(--state-selected);
   box-shadow: inset 0 0 0 3px var(--bg-primary);
@@ -878,17 +878,21 @@ label {
 .v2-result-heading {
   position: relative;
   z-index: 1;
-  height: var(--result-heading-height);
+  height: auto;
+  min-height: var(--result-heading-height);
+  max-width: 100%;
   text-align: center;
   margin-top: calc(0px - var(--result-heading-frame-overlap) - 2px);
   margin-bottom: calc(0px - var(--result-heading-image-pull));
 }
 
 .screen-result .v2-result-heading .eyebrow {
+  max-width: 100%;
   margin: 0 0 -8px;
   color: var(--brand-white);
   font-size: var(--font-h3);
   font-weight: var(--weight-emphasis);
+  overflow-wrap: anywhere;
 }
 
 .v2-result-heading h2 {
@@ -902,6 +906,7 @@ label {
   font-size: var(--font-display);
   font-weight: var(--weight-display);
   line-height: var(--line-height-heading);
+  overflow-wrap: anywhere;
 }
 
 .v2-slogan {
@@ -1247,10 +1252,26 @@ label {
   align-content: center;
 }
 
-.hydration-choices .choice-card span::before {
+.hydration-choices .choice-card > span::before {
   left: calc(50% - 7px);
   top: 16px;
   border-color: var(--brand-blue);
+}
+
+/* 中文標籤拆開標點後，只在文字中央保留一個選取點。 */
+.hydration-choices .choice-card:has(.choice-label-text) > span::before {
+  display: none;
+}
+
+.hydration-choices .choice-label-text::before {
+  position: absolute;
+  left: calc(50% - 7px);
+  top: 16px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--brand-blue);
+  border-radius: 50%;
+  content: "";
 }
 
 .hydration-choices .choice-card:has(input:checked) {
@@ -1258,7 +1279,13 @@ label {
   border-color: var(--brand-green);
 }
 
-.hydration-choices .choice-card:has(input:checked) span::before {
+.hydration-choices .choice-card:has(input:checked) > span::before {
+  border-color: var(--brand-green);
+  background: var(--brand-green);
+  box-shadow: inset 0 0 0 3px var(--brand-surface);
+}
+
+.hydration-choices .choice-card:has(input:checked) .choice-label-text::before {
   border-color: var(--brand-green);
   background: var(--brand-green);
   box-shadow: inset 0 0 0 3px var(--brand-surface);
@@ -1550,6 +1577,7 @@ label {
 
 .redemption-instruction {
   --redemption-indicator-color: var(--brand-blue);
+  align-items: stretch;
 }
 
 .sustainability-message::before,
@@ -1562,6 +1590,11 @@ label {
 }
 
 .sustainability-message::before {
+  align-self: stretch;
+  height: auto;
+}
+
+.redemption-instruction::before {
   align-self: stretch;
   height: auto;
 }
@@ -2042,6 +2075,14 @@ input::placeholder {
     --sustainability-mark-size: min(156px, 42vw);
     --sustainability-mark-offset-x: -8px;
     --sustainability-mark-offset-y: -24px;
+  }
+
+  .screen-result .v2-result-heading .eyebrow {
+    font-size: clamp(14px, 4.6vw, var(--font-h3));
+  }
+
+  .screen-result .v2-result-heading h2 {
+    font-size: clamp(22px, 7.8vw, var(--font-display));
   }
 
 }
