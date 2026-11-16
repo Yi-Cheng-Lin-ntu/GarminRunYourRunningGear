@@ -12,10 +12,19 @@ export function renderRedemptionView(allocation, { state, elements, resultData, 
   const prize = allocation.prize;
   const allocationPaused = allocation.allocationStatus === "paused";
   elements.prizeName.textContent = allocationPaused
-    ? copyOr("v2.pausedPrizes", text(allocation.message))
+    ? ""
     : prize
       ? copyOr(`prize.${prize.prizeId}`, text({ zh: prize.nameZh, en: prize.nameEn }))
       : copyOr("v2.prizeDetailsUnavailable", state.language === "zh" ? "獎品資料尚未確認" : "Prize details unavailable");
+  elements.prizeCard.hidden = allocationPaused;
+  elements.pausedMessage.hidden = !allocationPaused;
+  elements.pausedMessage.textContent = allocationPaused
+    ? copyOr("v2.pausedPrizes", state.language === "zh"
+      ? "獎品已發放完畢，謝謝參與"
+      : "All prizes have been distributed. Thank you for participating.")
+    : "";
+  elements.redemption.setAttribute("aria-labelledby", allocationPaused ? "allocation-paused-title" : "redemption-title");
+  elements.redemption.classList.toggle("is-allocation-paused", allocationPaused);
 
   elements.prizeImage.classList.remove("has-image");
   elements.prizeImage.replaceChildren();
@@ -45,21 +54,24 @@ export function renderRedemptionView(allocation, { state, elements, resultData, 
   }
 
   const greenVersion = allocation.sustainabilityRewardEligible === true;
-  elements.redemption.classList.toggle("is-sustainable", greenVersion);
-  elements.redemption.classList.toggle("is-non-sustainable", !greenVersion);
-  elements.prizeImage.classList.toggle("is-non-sustainable", !greenVersion);
+  const showSustainabilityTheme = greenVersion && !allocationPaused;
+  elements.redemption.classList.toggle("is-sustainable", showSustainabilityTheme);
+  elements.redemption.classList.toggle("is-non-sustainable", !greenVersion && !allocationPaused);
+  elements.prizeImage.classList.toggle("is-non-sustainable", !greenVersion && !allocationPaused);
   if (allocationPaused) {
     elements.redemptionTitle.textContent = "";
     elements.redemptionTitle.hidden = true;
   } else {
     elements.redemptionTitle.hidden = false;
-    const titleKey = greenVersion ? "v2.sustainabilityRedemptionTitle" : "v2.redemptionTitle";
+    const premiumFallback = allocation.allocationMethod === "premium_fallback";
+    const sustainabilityTitle = greenVersion && !premiumFallback;
+    const titleKey = sustainabilityTitle ? "v2.sustainabilityRedemptionTitle" : "v2.redemptionTitle";
     elements.redemptionTitle.textContent = copyOr(titleKey,
-      state.language === "zh" ? (greenVersion ? "先鋒隊專屬" : "恭喜你抽中！")
-        : (greenVersion ? "Pioneer Exclusive" : "You won!"));
+      state.language === "zh" ? (sustainabilityTitle ? "永續先鋒隊專屬" : "恭喜你抽中！")
+        : (sustainabilityTitle ? "Pioneer Exclusive" : "You won!"));
   }
 
-  if (greenVersion) {
+  if (greenVersion && !allocationPaused) {
     elements.sustainabilityMessage.hidden = false;
     elements.sustainabilityMessage.textContent = copyOr("v2.sustainabilityMessage", state.language === "zh"
       ? "謝謝你一起響應自帶補水行動｜另可領取永續行動貼紙與飄帶"

@@ -20,6 +20,7 @@ const RESULT_ILLUSTRATIONS = {
 const elements = {
   start: $("#start"), quiz: $("#quiz"), result: $("#result"), redemption: $("#redemption"),
   redemptionRunner: $("[data-redemption-runner]"), redemptionTitle: $("[data-redemption-title]"),
+  prizeCard: $(".prize-card"), pausedMessage: $("[data-paused-message]"),
   prizeImage: $("[data-prize-image]"), prizeName: $("[data-prize-name]"), sustainabilityMessage: $("[data-sustainability-message]"),
   shareStage: $("[data-share-stage]"), shareContext: $("[data-share-context]"), shareRoot: $("[data-share-root]"),
   sharePreview: $("[data-share-preview]"), shareStatus: $("[data-share-status]"),

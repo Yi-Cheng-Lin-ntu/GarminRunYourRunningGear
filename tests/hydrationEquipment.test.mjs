@@ -183,8 +183,9 @@ test("redemption title color reflects sustainability eligibility", () => {
 
   assert.match(css, /\.screen-redemption\.is-sustainable \.redemption-prize-title\s*\{[^}]*background:\s*var\(--theme-sustainability\)/s);
   assert.match(css, /\.screen-redemption\.is-non-sustainable \.redemption-prize-title\s*\{[^}]*background:\s*var\(--theme-general\)/s);
-  assert.match(redemptionView, /classList\.toggle\("is-sustainable",\s*greenVersion\)/);
-  assert.match(redemptionView, /classList\.toggle\("is-non-sustainable",\s*!greenVersion\)/);
+  assert.match(redemptionView, /const showSustainabilityTheme = greenVersion && !allocationPaused/);
+  assert.match(redemptionView, /classList\.toggle\("is-sustainable",\s*showSustainabilityTheme\)/);
+  assert.match(redemptionView, /classList\.toggle\("is-non-sustainable",\s*!greenVersion && !allocationPaused\)/);
 });
 
 test("redemption removes the green prize-image oval and left-aligns the instruction", () => {

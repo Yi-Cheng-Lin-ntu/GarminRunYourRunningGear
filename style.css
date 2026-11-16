@@ -1448,6 +1448,16 @@ label {
   font-weight: var(--weight-emphasis);
 }
 
+.allocation-paused-message {
+  max-width: var(--redemption-prize-max-width);
+  margin: 38px auto 24px;
+  color: var(--brand-white);
+  font-size: var(--font-h2);
+  font-weight: var(--weight-heading);
+  line-height: var(--line-height-heading);
+  text-align: center;
+}
+
 .prize-card {
   position: relative;
   width: min(100%, var(--redemption-extras-max-width));
