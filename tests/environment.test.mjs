@@ -6,7 +6,7 @@ test("production Pages host ignores Mock query flags, scrubs legacy Mock contact
     { participantId: "legacy", name: "legacy value", email: "legacy@example.invalid", raffleOptIn: true, runnerType: "experience" }
   ])]]);
   const session = new Map();
-  globalThis.location = { hostname: "yi-cheng-lin-ntu.github.io", search: "?mode=apps-script-demo&mode=mock" };
+  globalThis.location = { hostname: "yi-cheng-lin-ntu.github.io", search: "?mode=mock" };
   globalThis.localStorage = { getItem: (key) => local.get(key) ?? null, setItem: (key, value) => local.set(key, String(value)), removeItem: (key) => local.delete(key) };
   globalThis.sessionStorage = { getItem: (key) => session.get(key) ?? null, setItem: (key, value) => session.set(key, String(value)), removeItem: (key) => session.delete(key) };
   let fetchCalls = 0;
@@ -37,4 +37,11 @@ test("production Pages host ignores Mock query flags, scrubs legacy Mock contact
   assert.equal(result.code, "API_NOT_CONFIGURED");
   assert.equal(fetchCalls, 0);
   assert.equal(api.getMockSnapshot().requestCount, 0);
+});
+
+test("apps-script-demo URL selects staging while ordinary entries keep their host environment", async () => {
+  const { resolveAPIEnvironment } = await import(`../js/environment.js?routing-test=${Date.now()}`);
+  assert.equal(resolveAPIEnvironment({ hostname: "yi-cheng-lin-ntu.github.io", search: "?mode=apps-script-demo" }), "staging");
+  assert.equal(resolveAPIEnvironment({ hostname: "yi-cheng-lin-ntu.github.io", search: "" }), "production");
+  assert.equal(resolveAPIEnvironment({ hostname: "localhost", search: "" }), "development");
 });

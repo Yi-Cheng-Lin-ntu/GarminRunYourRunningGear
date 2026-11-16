@@ -244,10 +244,12 @@ label {
 }
 
 .language-toggle {
-  width: 100%;
-  min-width: 0;
+  width: auto;
+  min-width: 44px;
   height: 44px;
-  border: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  padding-inline: 10px;
   background: transparent;
   font-size: var(--font-small);
   font-weight: var(--weight-emphasis);
@@ -1770,32 +1772,16 @@ label {
 /* Mock development tools */
 
 .header-actions {
-  display: grid;
+  display: flex;
+  justify-content: flex-end;
   width: 100%;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
-}
-
-.mock-mode-badge {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-control);
-  padding: 4px 8px;
-  font-size: var(--font-small);
-  font-weight: var(--weight-emphasis);
-  letter-spacing: var(--letter-spacing-brand);
-  color: var(--brand-muted);
-  border-color: var(--border-default);
 }
 
 .mock-tools-button {
-  width: 100%;
+  width: auto;
   min-width: 0;
   padding-inline: 4px;
   border: 0;
@@ -2006,15 +1992,11 @@ input::placeholder {
   }
 
   .header-actions {
-    gap: 4px;
+    gap: 8px;
   }
 
   .site-header {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .mock-mode-badge {
-    padding: 4px;
   }
 
   .mock-tools-panel {

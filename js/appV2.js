@@ -73,9 +73,7 @@ function updateStaticText() {
     element.setAttribute("content", copy(element.dataset.i18nContent));
   });
   $("[data-language-label]").textContent = copy(state.language === "zh" ? "language.toEnglish" : "language.toChinese");
-  const badge = $(".mock-mode-badge");
   const modeNotice = $("[data-mode-notice]");
-  if (badge) badge.textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoBadge" : "v2.mockBadge");
   if (modeNotice) modeNotice.textContent = copy(APPS_SCRIPT_DEMO_MODE ? "v2.demoNotice" : "v2.mode");
 }
 function reset({ clearRecovery = true } = {}) {
@@ -306,13 +304,14 @@ async function submitAnonymousResult() {
   document.querySelectorAll("[data-hydration-choice]").forEach((input) => { input.disabled = true; });
   try {
     const status = await getPublicCampaignStatus();
+    if (Boolean(status.demoMode) !== APPS_SCRIPT_DEMO_MODE) throw new Error("API_ENVIRONMENT_MISMATCH");
     if (!status.ok || status.quizVersion !== 2 || status.submissionVersion !== 1) throw new Error(status.code || "UNSUPPORTED_QUIZ_VERSION");
     const response = await sendAnonymousResult(payload);
     if (!response.ok) throw new Error(response.code || "SUBMISSION_FAILED");
     clearPendingRequest();
     renderRedemption(response);
   } catch (failure) {
-    const messageKey = ["API_NOT_CONFIGURED", "API_ENVIRONMENT_NOT_CONFIGURED", "ALLOCATION_PAUSED"].includes(failure.message) ? "v2.serviceUnavailable" :
+    const messageKey = ["API_NOT_CONFIGURED", "API_ENVIRONMENT_NOT_CONFIGURED", "API_ENVIRONMENT_MISMATCH", "ALLOCATION_PAUSED"].includes(failure.message) ? "v2.serviceUnavailable" :
       failure.message === "UNSUPPORTED_QUIZ_VERSION" ? "v2.backendOld" : "v2.submitError";
     $("[data-result-error]").textContent = copy(messageKey);
     $("[data-result-error]").hidden = false;
@@ -424,7 +423,7 @@ document.addEventListener("change", (event) => {
 $("[data-action=start]").disabled = true;
 reset({ clearRecovery: false });
 showScreen(elements.start);
-const developmentControls = [$(".mock-mode-badge"), $(".mock-tools-button")];
+const developmentControls = [$(".mock-tools-button")];
 developmentControls.forEach((element) => { if (element) element.hidden = !MOCK_MODE; });
 if (!MOCK_MODE) {
   const panel = $("[data-mock-panel]");

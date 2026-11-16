@@ -16,11 +16,14 @@
 
 ## API 環境與預覽
 
-API 環境由 js/environment.js 依部署 hostname 決定，不接受網址 query string 切換 Mock：
+API 環境由 js/environment.js 判斷：
 
 - localhost、Codespaces：Development，使用瀏覽器 localStorage 測試庫存與匿名 Mock 紀錄。
-- 經明確設定的 Staging hostname：使用獨立測試 Apps Script／Spreadsheet；目前尚未設定 Staging URL 與 hostname。
+- 任一入口加上 `?mode=apps-script-demo`：使用 Staging Apps Script Demo 部署與 Demo 系列工作表；後端需設定 `APP_ENVIRONMENT=staging`。
+- 經明確設定的 Staging hostname：使用獨立測試 Apps Script／Spreadsheet。
 - 其他 hostname（含 GitHub Pages）：Production。Production API URL 目前留空，因此提交安全停用，不會靜默切回 Mock。
+
+一般入口不帶 mode 參數；在 Codespaces 是 Mock，在 GitHub Pages 依 Production 設定運作。`mode=mock` 不會在公開網域啟用 Mock。
 
 在 Codespaces 啟動：
 

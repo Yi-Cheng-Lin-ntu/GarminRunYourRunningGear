@@ -118,10 +118,11 @@ Sheets 沒有跨工作表交易。若程式在 stock 更新後發生部分寫入
 
 ## 環境隔離與公開匿名 API 風險
 
-- Development：localhost/Codespaces 使用本機 Mock，僅本機 localStorage，不送 Apps Script。
+- Development：localhost/Codespaces 一般入口使用本機 Mock，僅本機 localStorage，不送 Apps Script。
+- Staging Demo：任何入口加上 `?mode=apps-script-demo` 會選用 Staging API URL；後端必須回報 `demoMode=true` 才會繼續提交。
 - Staging：需獨立測試 Apps Script 專案、Spreadsheet、Demo* 測試庫存與 deployment。
 - Production：需獨立 Apps Script 專案、Spreadsheet、Production API URL。前端 Production URL 尚未設定，未設定時不可提交。
-- js/environment.js 沒有 query string Mock 開關；Production 不能改用 localStorage 假分配。前端送出的 demoMode 會被拒絕，GAS 使用 Script Property。
+- `mode=mock` 不會在公開網域啟用 Mock。Production 不能改用 localStorage 假分配；GAS 使用 Script Property 決定工作表環境。
 
 公開匿名 API 無法從 requestId 證明不同自然人，也不能可靠依 Apps Script Web App 取得使用者 IP。LockService 與冪等只避免併發超賣及相同請求重扣，不能防止攻擊者大量建立新 requestId 消耗獎品。正式開放前需由安全／活動負責人核准伺服器驗證 CAPTCHA／可信反向代理節流或現場受控 kiosk／分發方式；不可將前端隱藏按鈕或 sessionId 當防護。allocationEnabled 是緊急暫停開關，維護者也可在活動開始前暫停公開分配。
 
@@ -129,14 +130,14 @@ Sheets 沒有跨工作表交易。若程式在 stock 更新後發生部分寫入
 
 ## 前端設定
 
-修改 js/environment.js 內的 hostname allowlist 與 API URL：
+修改 js/environment.js 內的 Staging／Production API URL：
 
-1. Staging hostname 只配置 Staging deployment URL，並加到 STAGING_HOSTS。
-2. GitHub Pages Production hostname 只配置 Production deployment URL。
+1. `?mode=apps-script-demo` 會選擇 Staging deployment URL；該 Apps Script 必須設定 `APP_ENVIRONMENT=staging`。
+2. GitHub Pages 一般入口只使用 Production URL；Production URL 未設定時提交會停止，不會切回 Mock。
 3. 不要以 query string、瀏覽器旗標或 localStorage 在正式網域啟用 Mock。
 4. 不在前端加入 private key、管理員權限或 CAPTCHA secret。
 
-目前兩個 API URL 都留空，Staging host 是不可用的 placeholder。舊 Demo /exec 不會被新前端自動呼叫。
+目前 Staging URL 設為使用者提供的 Demo `/exec`；Production URL 保持空白。前端會核對後端狀態；若 Demo URL 回報 `demoMode=false`，不會送出分配請求。
 
 ## Production 上線清單（僅人工執行）
 
