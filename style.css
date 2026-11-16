@@ -1201,7 +1201,6 @@ label {
 }
 
 .hydration-choices .choice-label-text {
-  position: relative;
   display: inline-block;
 }
 
@@ -1255,34 +1254,12 @@ label {
   border-color: var(--brand-blue);
 }
 
-/* 中文標籤拆開標點後，只在文字中央保留一個選取點。 */
-.hydration-choices .choice-card:has(.choice-label-text) > span::before {
-  display: none;
-}
-
-.hydration-choices .choice-label-text::before {
-  position: absolute;
-  left: calc(50% - 7px);
-  top: 16px;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--brand-blue);
-  border-radius: 50%;
-  content: "";
-}
-
 .hydration-choices .choice-card:has(input:checked) {
   background: rgba(0,255,25,.06);
   border-color: var(--brand-green);
 }
 
 .hydration-choices .choice-card:has(input:checked) > span::before {
-  border-color: var(--brand-green);
-  background: var(--brand-green);
-  box-shadow: inset 0 0 0 3px var(--brand-surface);
-}
-
-.hydration-choices .choice-card:has(input:checked) .choice-label-text::before {
   border-color: var(--brand-green);
   background: var(--brand-green);
   box-shadow: inset 0 0 0 3px var(--brand-surface);
@@ -1991,7 +1968,7 @@ input::placeholder {
   }
 
   .site-header {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: max-content minmax(0, 1fr);
   }
 
   .mock-tools-panel {
