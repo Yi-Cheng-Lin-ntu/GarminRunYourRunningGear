@@ -11,7 +11,7 @@
 3. js/prizeEligibility.js 根據 existingSelfHydration 和結果頁的 joined／considering 選擇產生兩種獎項資格。只有 existing 有購物袋優先資格。
 4. js/appV2.js 在結果頁完成匿名 payload，保留相同 requestId 重試；成功或 paused 回應才交給 js/redemptionView.js。
 5. js/apiClient.js 依 js/environment.js 的 hostname 環境使用 Development Mock、已設定的 Staging API 或 Production API。Production 沒有 API URL 時提交停用，沒有 Mock fallback。
-6. Apps Script Validation.gs 依伺服器答案重算 runnerType 和 Q4，核對前端分類及資格。Code.gs 由 Script Property APP_ENVIRONMENT 選擇 staging／production 資料表。Allocation.gs 在 LockService 下分配，寫入匿名答案與庫存異動。
+6. Apps Script Validation.gs 依伺服器答案重算 runnerType 和 Q4，核對前端分類及資格。Code.gs 依請求 `mode=apps-script-demo` 選擇 Demo 系列工作表；一般請求選 Production 系列工作表。Allocation.gs 在 LockService 下分配，寫入匿名答案與庫存異動。
 
 網站沒有聯絡資料頁。紙本抽獎獨立運作，不由網站收集或匯出紙本名單。
 
@@ -75,7 +75,7 @@
 
 成功 response 含 ok、allocationStatus、runnerType、prize（或 null）、requestId/sessionId、匿名 participantId、分配方式與 sustainabilityRewardEligible。paused 回應不含獎品，不可顯示恭喜得獎。
 
-Apps Script 目前透過 Script Property APP_ENVIRONMENT 判斷 staging 或 production。Staging 與 Production 必須使用獨立 Script 專案與 Spreadsheet，避免共用可變的 Script Property 或庫存。前端 js/environment.js 的 Staging hostname/API URL 與 Production API URL 目前尚未配置；部署前不得假設已連線。
+Apps Script 目前由單一 Web App 依請求 mode 路由至同一 Spreadsheet 內不同的 Demo／Production 工作表。前端 `?mode=apps-script-demo` 會把 mode 帶到 `/exec`；一般 GitHub Pages 入口不帶 mode，使用 Production 工作表。兩組庫存仍由不同工作表隔離。
 
 ## Sheets schema 與 migration
 
@@ -93,7 +93,7 @@ Apps Script 目前透過 Script Property APP_ENVIRONMENT 判斷 staging 或 prod
 - Development 僅在 localhost／Codespaces 使用 localStorage Mock。舊 Mock participant 個資欄位會在啟動時清除；新 Mock 不存個資。
 - Staging 需專用 Spreadsheet、Apps Script 專案與測試庫存。未設定 API URL / hostname 前不連線。
 - Production GitHub Pages 不顯示 Mock badge、Mock 工具，也不能從 query string 啟用 Mock。未配置 Production URL 時安全停用提交。
-- GAS 以 APP_ENVIRONMENT 檢查部署環境，忽略前端傳入的環境選擇；未設定時 fail closed。
+- GAS 只接受 `mode=apps-script-demo` 或預設 Production；未知 mode 會拒絕。Mode 用於路由工作表，不是存取控制。
 - requestId 只防同一提交重播，不限制同一自然人多次施測。公開匿名 API 仍可能被濫用而消耗庫存；正式開放前需核准伺服器端 CAPTCHA／節流或現場通路控制方案。
 - Spreadsheet 採最小權限分享；原始答案及 allocation/InventoryLog 需制定活動結束後保留與刪除時程。暫定提案：原始答案在活動結束後 90 日彙總後刪除；庫存／操作稽核資料保留 12 個月，需由資料負責人核定。本程式不自動刪除資料。
 

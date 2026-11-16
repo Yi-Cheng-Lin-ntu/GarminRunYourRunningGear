@@ -19,11 +19,11 @@
 API 環境由 js/environment.js 判斷：
 
 - localhost、Codespaces：Development，使用瀏覽器 localStorage 測試庫存與匿名 Mock 紀錄。
-- 任一入口加上 `?mode=apps-script-demo`：使用 Staging Apps Script Demo 部署與 Demo 系列工作表；後端需設定 `APP_ENVIRONMENT=staging`。
-- 經明確設定的 Staging hostname：使用獨立測試 Apps Script／Spreadsheet。
-- 其他 hostname（含 GitHub Pages）：Production。Production API URL 目前留空，因此提交安全停用，不會靜默切回 Mock。
+- 任一入口加上 `?mode=apps-script-demo`：同一個 Apps Script Web App 依請求參數寫入 Demo 系列工作表；不帶參數則使用 Production 系列工作表。
+- 經明確設定的 Staging hostname：使用同一 Web App 的 Demo 系列工作表。
+- 其他 hostname（含 GitHub Pages）：Production，使用同一 Web App 的正式系列工作表。
 
-一般入口不帶 mode 參數；在 Codespaces 是 Mock，在 GitHub Pages 依 Production 設定運作。`mode=mock` 不會在公開網域啟用 Mock。
+一般入口不帶 mode 參數；在 Codespaces 是 Mock，在 GitHub Pages 會連接 Production 系列工作表。`mode=mock` 不會在公開網域啟用 Mock。
 
 在 Codespaces 啟動：
 
@@ -33,7 +33,7 @@ API 環境由 js/environment.js 判斷：
 
 ## Apps Script 與 Sheets
 
-Repo 中 .gs 原始碼不會自動更新遠端 /exec。請先看 Apps Script 部署與遷移手冊。匿名契約為 submissionVersion 1、quizVersion 2；Apps Script 以 Script Property APP_ENVIRONMENT 決定 staging 或 production，忽略並拒絕前端環境切換欄位。
+Repo 中 .gs 原始碼不會自動更新遠端 /exec。請先看 Apps Script 部署與遷移手冊。匿名契約為 submissionVersion 1、quizVersion 2；Apps Script 以明確的 `mode=apps-script-demo` 將請求路由到 Demo 系列工作表，沒有該參數時使用 Production 系列工作表。這是資料表路由，不是存取控制。
 
 Migration 僅追加 Participants 的 8 個追溯欄，以及 Requests 的 2 個冪等欄位；保留舊 18 欄、舊資料及所有庫存。Migration 不執行 setupActivitySheets()，也未對遠端 Spreadsheet 執行。
 

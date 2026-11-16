@@ -184,7 +184,6 @@ function migrateStagingAnonymousSchema() {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    if (!isStagingDeployment()) throw new Error("WRONG_MIGRATION_ENVIRONMENT");
     migrateAnonymousSubmissionSchema(SpreadsheetApp.getActive(), true);
   }
   finally { lock.releaseLock(); }
@@ -194,7 +193,6 @@ function migrateProductionAnonymousSchema() {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    if (isStagingDeployment()) throw new Error("WRONG_MIGRATION_ENVIRONMENT");
     migrateAnonymousSubmissionSchema(SpreadsheetApp.getActive(), false);
   }
   finally { lock.releaseLock(); }

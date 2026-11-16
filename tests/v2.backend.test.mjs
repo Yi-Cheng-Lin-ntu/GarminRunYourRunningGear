@@ -17,19 +17,26 @@ class Sheet {
   }
   appendRow(row) { this.rows.push([...row]); }
 }
-function environment(deployment = "staging") {
+function environment() {
   const sheets = new Map();
   const ss = { getSheetByName: (name) => sheets.get(name), insertSheet: (name) => { const sheet = new Sheet([]); sheets.set(name, sheet); return sheet; } };
   let uuid = 0;
   const lock = { tryLock: () => true, waitLock: () => {}, releaseLock: () => {} };
   const context = vm.createContext({
     Date, JSON, SpreadsheetApp: { getActive: () => ss }, LockService: { getScriptLock: () => lock },
-    PropertiesService: { getScriptProperties: () => ({ getProperty: (key) => key === "APP_ENVIRONMENT" ? deployment : null }) },
     Utilities: { getUuid: () => `uuid-${++uuid}` }, ContentService: { MimeType: { JSON: "json" }, createTextOutput: (text) => ({ text, setMimeType() { return this; } }) }
   });
   for (const name of ["Setup", "Inventory", "Validation", "Allocation", "Code"]) vm.runInContext(readFileSync(new URL(`../apps-script/${name}.gs`, import.meta.url), "utf8"), context);
   context.setupActivitySheets(); // In-memory workbook only; never connected to a remote Sheet.
-  return { sheets, ss, context, post: (data) => JSON.parse(context.doPost({ postData: { contents: JSON.stringify(data) } }).text) };
+  return {
+    sheets,
+    ss,
+    context,
+    post: (data, mode = "apps-script-demo") => JSON.parse(context.doPost({
+      parameter: mode ? { mode } : {},
+      postData: { contents: JSON.stringify(data) }
+    }).text)
+  };
 }
 function data(style = "rest", commitment = "considering", requestId = "test-request") {
   const existing = style === "pioneer";
@@ -83,7 +90,7 @@ test("Anonymous submit records complete raw answers, existing priority and exact
   assert.equal(sheets.get("DemoRequests").rows[1][7], 1);
   assert.ok(sheets.get("DemoRequests").rows[1][8].includes("q4_pioneer"));
   assert.equal(JSON.stringify(sheets.get("Prizes").rows), productionStock);
-  const recovered = JSON.parse(context.doGet({ parameter: { action: "getExistingAllocation", requestId: request.requestId, sessionId: request.sessionId, demoMode: "false" } }).text);
+  const recovered = JSON.parse(context.doGet({ parameter: { action: "getExistingAllocation", requestId: request.requestId, sessionId: request.sessionId, mode: "apps-script-demo" } }).text);
   assert.equal(recovered.found, true);
   assert.equal(recovered.allocation.prize.prizeId, "shopping_bag");
   assert.equal(Object.hasOwn(recovered.allocation, "name"), false);
@@ -99,7 +106,7 @@ test("Paused allocation is saved and recoverable without claiming a prize", () =
   assert.equal(paused.prize, null);
   assert.equal(sheets.get("DemoAllocations").rows.length, 1);
   assert.equal(sheets.get("DemoParticipants").rows[1][14], "paused");
-  const recovered = JSON.parse(context.doGet({ parameter: { action: "getExistingAllocation", requestId: request.requestId, sessionId: request.sessionId } }).text);
+  const recovered = JSON.parse(context.doGet({ parameter: { action: "getExistingAllocation", requestId: request.requestId, sessionId: request.sessionId, mode: "apps-script-demo" } }).text);
   assert.equal(recovered.found, true);
   assert.equal(recovered.allocation.allocationStatus, "paused");
   assert.equal(post(request).idempotentReplay, true);
@@ -122,11 +129,22 @@ test("Server rejects personal fields, mismatches, repeated IDs with different pa
   assert.notEqual(before, JSON.stringify(sheets.get("DemoPrizes").rows));
 });
 
-test("Unconfigured Apps Script deployment fails closed", () => {
-  const { post, context } = environment("");
-  assert.equal(post(data()).code, "API_ENVIRONMENT_NOT_CONFIGURED");
-  const status = JSON.parse(context.doGet({ parameter: { action: "getPublicCampaignStatus", demoMode: "true" } }).text);
-  assert.equal(status.code, "API_ENVIRONMENT_NOT_CONFIGURED");
+test("One Web App routes Demo and Production by mode; Production is the default", () => {
+  const { sheets, post, context } = environment();
+  const demoStatus = JSON.parse(context.doGet({ parameter: { action: "getPublicCampaignStatus", mode: "apps-script-demo" } }).text);
+  const productionStatus = JSON.parse(context.doGet({ parameter: { action: "getPublicCampaignStatus" } }).text);
+  assert.equal(demoStatus.demoMode, true);
+  assert.equal(productionStatus.demoMode, false);
+
+  const demoPrizeBefore = JSON.stringify(sheets.get("DemoPrizes").rows);
+  const productionResult = post(data("rest", "considering", "production-test"), "production");
+  assert.equal(productionResult.ok, true);
+  assert.equal(productionResult.demoMode, false);
+  assert.equal(JSON.stringify(sheets.get("DemoPrizes").rows), demoPrizeBefore);
+  assert.equal(sheets.get("Participants").rows.length, 2);
+  assert.equal(sheets.get("DemoParticipants").rows.length, 1);
+
+  assert.equal(post(data("rest", "considering", "invalid-mode"), "mock").code, "INVALID_API_MODE");
 });
 
 test("Bag fallback and joined participants remain in the general weighted pool", () => {

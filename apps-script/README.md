@@ -68,12 +68,12 @@ Validation.gs 驗證五個答案 ID，重算 Q1/Q2/Q3/Q5 runnerType 和 Q2 平�
 
 ### 在 Apps Script 編輯器更新
 
-1. 先從 Staging 專案建立獨立副本，確認它綁定 Staging 測試 Spreadsheet；不要在 Production 專案試改。
+1. 更新前備份現有 Apps Script 專案與綁定 Spreadsheet，確認其中 Demo 與 Production 工作表都存在。
 2. 逐檔更新上述五份原始碼；若 GAS 編輯器將多個檔案合併在同一 .gs 檔，保留函式唯一定義並同步全部內容。
-3. 在 Project Settings → Script Properties 設定 APP_ENVIRONMENT=staging。Production 必須使用獨立 Apps Script 專案及獨立 Spreadsheet，並在核准上線時設定 APP_ENVIRONMENT=production。Script Property 是整個 Script 專案共用，因此不能讓 Staging 與 Production 共用同一 Script 專案。
+3. 本版不使用 `APP_ENVIRONMENT` Script Property。單一 Apps Script Web App 依請求參數路由：`mode=apps-script-demo` 使用 Demo 系列工作表；無 mode 或 `mode=production` 使用 Production 系列工作表。綁定的 Spreadsheet 必須同時有兩組工作表。
 4. 確認 Web App 的 Execute as 設定與 Spreadsheet 權限符合組織政策。公開測驗若需匿名呼叫，Web App 存取權限可能設為 Anyone；這會增加濫用風險，需先採納下方防濫用措施。不要將 Spreadsheet 本身公開分享。
 5. Deploy → Manage deployments，確認實際 /exec 指向更新後的部署版本與正確 Script 專案。建立新版本後記錄 deployment ID、版本、環境與綁定 Spreadsheet。
-6. 以唯讀 GET 檢查 action=getPublicCampaignStatus。Staging 預期 quizVersion=2、submissionVersion=1、demoMode=true；Production 預期 demoMode=false。未設定 APP_ENVIRONMENT 時應回 API_ENVIRONMENT_NOT_CONFIGURED。
+6. 以唯讀 GET 檢查 `action=getPublicCampaignStatus&mode=apps-script-demo`，預期 quizVersion=2、submissionVersion=1、demoMode=true；不帶 mode 再查一次，預期 demoMode=false。未知 mode 應回 `INVALID_API_MODE`。
 
 舊部署可能仍要求姓名／Email／同意，也可能忽略匿名契約。新前端要求狀態回應包含 submissionVersion=1；舊 /exec 缺少此欄時，前端不得 POST。若錯誤地把新前端指向舊 /exec，它應因狀態版本不相容而停止；舊後端即使收到匿名 POST，也應因缺少舊個資欄位而拒絕，不應分配。需先在 Staging 確認，不可將此推論當成已部署驗證。
 
@@ -91,20 +91,20 @@ q4Answer 已存在，不重複。由原始 18 欄直接遷移時會先追加原�
 
 Migration 只接受已知表頭前綴，未知表頭、欄位順序或空白資料表會停止。可安全重跑。舊列欄位不回填；新增匿名列在舊欄位 raffleOptIn、name、email、privacyNoticeVersion、privacyAcknowledgedAt 留 false／空白。不要刪除歷史個資欄或歷史紀錄；其存取與清除需依組織資料政策另行安排。
 
-### Staging 操作順序
+### Demo 工作表操作順序
 
-1. 建立 Staging 專用 Spreadsheet 副本；確認不是正式庫存表。先備份並記下所有 Prizes／DemoPrizes 數量。
-2. 確認 Staging Apps Script 為獨立專案、Script Property APP_ENVIRONMENT=staging，API URL 在前端只配置到這個專案。
+1. 確認 Web App 綁定的 Spreadsheet 正確；先備份並記下正式與 Demo 系列的庫存及表頭。
+2. 確認 DemoParticipants、DemoPrizes、DemoAllocations、DemoInventoryLog、DemoRequests 與正式系列工作表分開存在。
 3. 在編輯器手動執行 migrateStagingAnonymousSchema()。它只處理 DemoParticipants 和 DemoRequests；不執行獎品初始化。
 4. 核對表頭最終為 Participants 26 欄與 Requests 9 欄（Staging 對應 DemoParticipants／DemoRequests）。重跑一次，確認沒有新增重複欄位。
 5. 比較舊欄、舊列、Prizes、DemoPrizes、Allocations 和 InventoryLog migration 前後內容。此函式不應改動任一獎品或紀錄。
-6. 部署新 Staging Web App 版本，先查 status，再用本機 Mock 和經核准的虛構答案進行端到端驗收。清理 Staging 測試資料需由維護者人工確認，不可呼叫 Production。
+6. 部署新 Web App 版本，先查帶 `mode=apps-script-demo` 的 status，再用 Demo 入口及經核准的虛構答案做端到端驗收。清理 Demo 測試資料需由維護者人工確認。
 
-### Production Migration（僅文件，不代表已授權）
+### Production Migration（需授權維護者操作）
 
 1. 建立唯讀備份／複本，確認 Spreadsheet ID、Participants、Requests 表頭、舊紀錄及目前各獎品庫存。
 2. 由資料負責人核准上線時段、資料保留、存取權限與回滾方式。
-3. 更新獨立 Production Apps Script 專案並設定 APP_ENVIRONMENT=production。
+3. 使用同一份 Apps Script 程式碼及 Web App；無 mode 的 Production 請求只使用正式系列工作表。
 4. 核對備份與欄位前綴後，才可由授權維護者手動執行 migrateProductionAnonymousSchema()。本函式只追加欄位，但仍會寫入正式表頭；本次沒有執行。
 5. 確認 Participants 原欄與舊資料逐項相同、Requests 原 7 欄相同、獎品庫存與 Allocation／InventoryLog 未變，並重跑唯讀一致性檢查。
 
@@ -119,10 +119,9 @@ Sheets 沒有跨工作表交易。若程式在 stock 更新後發生部分寫入
 ## 環境隔離與公開匿名 API 風險
 
 - Development：localhost/Codespaces 一般入口使用本機 Mock，僅本機 localStorage，不送 Apps Script。
-- Staging Demo：任何入口加上 `?mode=apps-script-demo` 會選用 Staging API URL；後端必須回報 `demoMode=true` 才會繼續提交。
-- Staging：需獨立測試 Apps Script 專案、Spreadsheet、Demo* 測試庫存與 deployment。
-- Production：需獨立 Apps Script 專案、Spreadsheet、Production API URL。前端 Production URL 尚未設定，未設定時不可提交。
-- `mode=mock` 不會在公開網域啟用 Mock。Production 不能改用 localStorage 假分配；GAS 使用 Script Property 決定工作表環境。
+- Demo：任何入口加上 `?mode=apps-script-demo`，前端會對共用 `/exec` 傳遞相同 mode；後端必須回報 `demoMode=true` 才會繼續提交。
+- Production：一般入口不帶 mode，使用同一 `/exec` 並路由到正式系列工作表；正式分配仍受 Settings 的 allocationEnabled 控制。
+- `mode=mock` 不會在公開網域啟用 Mock。本機與 Codespaces 不帶參數仍使用 localStorage Mock。
 
 公開匿名 API 無法從 requestId 證明不同自然人，也不能可靠依 Apps Script Web App 取得使用者 IP。LockService 與冪等只避免併發超賣及相同請求重扣，不能防止攻擊者大量建立新 requestId 消耗獎品。正式開放前需由安全／活動負責人核准伺服器驗證 CAPTCHA／可信反向代理節流或現場受控 kiosk／分發方式；不可將前端隱藏按鈕或 sessionId 當防護。allocationEnabled 是緊急暫停開關，維護者也可在活動開始前暫停公開分配。
 
@@ -130,22 +129,22 @@ Sheets 沒有跨工作表交易。若程式在 stock 更新後發生部分寫入
 
 ## 前端設定
 
-修改 js/environment.js 內的 Staging／Production API URL：
+修改 js/environment.js 內共用的 Apps Script Web App URL：
 
-1. `?mode=apps-script-demo` 會選擇 Staging deployment URL；該 Apps Script 必須設定 `APP_ENVIRONMENT=staging`。
-2. GitHub Pages 一般入口只使用 Production URL；Production URL 未設定時提交會停止，不會切回 Mock。
+1. 前端兩種模式共用同一個 `/exec`；Demo 請求自動附加 `mode=apps-script-demo`，一般入口不附加 mode。
+2. Apps Script 依 `e.parameter.mode` 路由至 Demo 或 Production 工作表；mode 只選擇資料表，不是驗證身分或授權。
 3. 不要以 query string、瀏覽器旗標或 localStorage 在正式網域啟用 Mock。
 4. 不在前端加入 private key、管理員權限或 CAPTCHA secret。
 
-目前 Staging URL 設為使用者提供的 Demo `/exec`；Production URL 保持空白。前端會核對後端狀態；若 Demo URL 回報 `demoMode=false`，不會送出分配請求。
+目前 Staging 與 Production 前端設定使用同一個使用者提供的 `/exec`。前端會核對後端狀態；若 Demo 請求回報 `demoMode=false`，不會送出分配請求。
 
 ## Production 上線清單（僅人工執行）
 
 1. 備份 Production Spreadsheet，記錄庫存與 schema。
 2. 確認正式獎項數量／資格、存取權限和資料保留核准。
-3. 在獨立 Production Apps Script 專案同步五份 .gs。
+3. 將更新後的 Apps Script 檔案同步至綁定正式 Spreadsheet 的 Apps Script 專案。
 4. 核准後執行 Production append-only migration；確認庫存及舊列不變。
-5. 設定 APP_ENVIRONMENT=production，部署新 Web App 版本並記錄版本／權限。
+5. 部署新 Web App 版本並記錄版本／權限；一般入口不帶 mode 即路由至 Production 工作表。
 6. 更新前端 Production API URL；在部署前保持 Production API URL 空白或配置 allocationEnabled=false。
 7. 先在 Staging 驗收全部五題、三種補水承諾、獎品 fallback、paused、request replay、失敗重試與不同環境隔離。
 8. 正式驗收只用受控授權流程，不建立測試領獎或個資紀錄；確認庫存／Requests／InventoryLog。

@@ -1,7 +1,7 @@
 function doGet(e) {
   var action = e && e.parameter ? e.parameter.action : "";
   try {
-    var demoMode = isStagingDeployment();
+    var demoMode = resolveDemoMode(e);
     if (action === "getExistingAllocation") {
       var requestId = String(e.parameter.requestId || "");
       var sessionId = String(e.parameter.sessionId || "");
@@ -26,7 +26,7 @@ function doGet(e) {
     return jsonResponse({ ok: false, code: "UNKNOWN_ACTION" });
   } catch (error) {
     var getCode = String(error && error.message || "");
-    return jsonResponse({ ok: false, retryable: false, code: getCode === "API_ENVIRONMENT_NOT_CONFIGURED" ? getCode : "BAD_REQUEST" });
+    return jsonResponse({ ok: false, retryable: false, code: getCode === "INVALID_API_MODE" ? getCode : "BAD_REQUEST" });
   }
 }
 
@@ -36,7 +36,7 @@ function doPost(e) {
     if (!rawText) return jsonResponse({ ok: false, code: "INVALID_PAYLOAD" });
     var raw = JSON.parse(rawText);
     if (Object.prototype.hasOwnProperty.call(raw, "demoMode")) throw new Error("ENVIRONMENT_OVERRIDE_NOT_ALLOWED");
-    var demoMode = isStagingDeployment();
+    var demoMode = resolveDemoMode(e);
     var payload = validateAnonymousSubmission(raw, demoMode);
 
     var lock = LockService.getScriptLock();
@@ -66,21 +66,24 @@ function doPost(e) {
       "INVALID_ANSWER","ELIGIBILITY_MISMATCH","INVALID_HYDRATION_COMMITMENT",
       "PERSONAL_DATA_NOT_ALLOWED","ENVIRONMENT_OVERRIDE_NOT_ALLOWED","REQUEST_ID_CONFLICT",
       "SHEET_SETUP_REQUIRED","UNSUPPORTED_SUBMISSION_VERSION","V2_MIGRATION_REQUIRED",
-      "ANONYMOUS_SCHEMA_MIGRATION_REQUIRED"
+      "ANONYMOUS_SCHEMA_MIGRATION_REQUIRED","INVALID_API_MODE"
     ];
     return jsonResponse({
       ok: false,
       retryable: code === "REQUEST_PENDING_RETRY",
-      code: validationCodes.indexOf(code) >= 0 || code === "API_ENVIRONMENT_NOT_CONFIGURED" ? code : "INTERNAL_ERROR"
+      code: validationCodes.indexOf(code) >= 0 ? code : "INTERNAL_ERROR"
     });
   }
 }
 
-function isStagingDeployment() {
-  var environment = PropertiesService.getScriptProperties().getProperty("APP_ENVIRONMENT");
-  if (environment === "staging") return true;
-  if (environment === "production") return false;
-  throw new Error("API_ENVIRONMENT_NOT_CONFIGURED");
+// One Web App can route to Demo* tabs only when explicitly requested.
+// An absent mode is Production; this parameter is routing, not authorization.
+function resolveDemoMode(e) {
+  var parameters = e && e.parameter ? e.parameter : {};
+  var mode = String(parameters.mode || "");
+  if (mode === "apps-script-demo" || (!mode && String(parameters.demoMode || "") === "true")) return true;
+  if (mode === "" || mode === "production" || (!mode && String(parameters.demoMode || "") === "false")) return false;
+  throw new Error("INVALID_API_MODE");
 }
 
 function jsonResponse(payload) {
