@@ -1554,6 +1554,11 @@ label {
   text-align: left;
 }
 
+.sustainability-message[hidden],
+.redemption-instruction[hidden] {
+  display: none;
+}
+
 .sustainability-message {
   --redemption-indicator-color: var(--brand-green);
   white-space: pre-line;

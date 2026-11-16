@@ -195,6 +195,7 @@ test("redemption removes the green prize-image oval and left-aligns the instruct
 
   assert.doesNotMatch(css, /\.prize-image::before/);
   assert.match(css, /\.sustainability-message,\s*\.redemption-instruction\s*\{[^}]*display:\s*flex;[^}]*padding:\s*10px 12px;/s);
+  assert.match(css, /\.sustainability-message\[hidden\],\s*\.redemption-instruction\[hidden\]\s*\{[^}]*display:\s*none/s);
   assert.match(css, /\.sustainability-message\s*\{[^}]*--redemption-indicator-color:\s*var\(--brand-green\)/s);
   assert.match(css, /\.redemption-instruction\s*\{[^}]*--redemption-indicator-color:\s*var\(--brand-blue\)/s);
   assert.match(css, /\.sustainability-message::before,\s*\.redemption-instruction::before\s*\{[^}]*background:\s*var\(--redemption-indicator-color\)/s);
