@@ -512,7 +512,7 @@ label {
   opacity: 0;
 }
 
-.choice-card span {
+.choice-card > span {
   display: grid;
   gap: 4px;
   min-height: 78px;
@@ -1204,12 +1204,6 @@ label {
   display: inline-block;
 }
 
-.hydration-choices .choice-label-punctuation {
-  position: absolute;
-  inset-inline-start: 100%;
-  top: 0;
-}
-
 .v2-invitation {
   border-top: 1px solid var(--border-default);
   padding-top: 24px;
@@ -1246,7 +1240,7 @@ label {
   border-radius: var(--radius-card);
 }
 
-.hydration-choices .choice-card span {
+.hydration-choices .choice-card > span {
   min-height: var(--hydration-choice-height);
   height: 100%;
   padding: 40px 10px 16px;

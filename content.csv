@@ -67,7 +67,7 @@ ui,v2.invitation,,你願意試試「自己帶水」嗎?,Join us in bringing your
 ui,v2.invitationNote,,一起加入永續先鋒隊！,"A commitment to try bringing hydration gear next time, not a running-club membership.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.joined,,願意！,Join the sustainability pioneers,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.considering,,我會好好考慮的~,I will give it some thought!,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-ui,v2.continue,,繼續領獎,Continue to your gift,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ui,v2.continue,,前往領獎,Continue to your gift,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.pioneerThanks,,謝謝你已經開始自帶補水！,Thank you for already bringing your own hydration!,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.chooseError,,請先選擇加入或考慮，再繼續領獎。,Choose to join or consider the action before continuing.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.submitError,,提交失敗，請保留本頁並重試；同一提交不會重複扣庫存。,Submission failed. Keep this page and retry with the same request ID.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
