@@ -1,3 +1,59 @@
+var CHINESE_HEADERS = {
+  "participantId": "參與者代碼",
+  "requestId": "提交代碼",
+  "createdAt": "建立時間",
+  "runnerType": "跑者風格",
+  "existingSelfHydration": "原已自備補水裝備",
+  "hydrationCommitment": "永續補水承諾",
+  "sustainabilityRewardEligible": "永續獎勵資格",
+  "premiumPrizeEligible": "優先獎品資格",
+  "raffleOptIn": "參加抽獎",
+  "name": "姓名",
+  "email": "電子郵件",
+  "privacyNoticeVersion": "隱私告知版本",
+  "privacyAcknowledgedAt": "隱私告知確認時間",
+  "prizeId": "獎品代碼",
+  "allocationStatus": "分配狀態",
+  "allocationTime": "分配時間",
+  "redemptionCode": "兌獎代碼",
+  "redemptionStatus": "兌獎狀態",
+  "quizVersion": "測驗版本",
+  "hydrationStyle": "補水風格",
+  "q4Answer": "第4題答案",
+  "submissionVersion": "提交版本",
+  "q1Answer": "第1題答案",
+  "q2Answer": "第2題答案",
+  "q3Answer": "第3題答案",
+  "q5Answer": "第5題答案",
+  "nameZh": "獎品中文名稱",
+  "nameEn": "獎品英文名稱",
+  "category": "獎品類別",
+  "initialStock": "初始庫存",
+  "remainingStock": "剩餘庫存",
+  "allocatedCount": "已分配數量",
+  "enabled": "是否啟用",
+  "imagePath": "圖片路徑",
+  "allocationId": "分配代碼",
+  "allocationMethod": "分配方式",
+  "logId": "紀錄代碼",
+  "timestamp": "紀錄時間",
+  "action": "操作",
+  "quantityDelta": "數量異動",
+  "beforeStock": "異動前庫存",
+  "afterStock": "異動後庫存",
+  "reason": "原因",
+  "relatedAllocationId": "關聯分配代碼",
+  "operator": "操作人員",
+  "sessionId": "工作階段代碼",
+  "status": "處理狀態",
+  "resultJson": "結果資料（系統用）",
+  "updatedAt": "更新時間",
+  "submissionFingerprint": "提交指紋（系統用）",
+  "key": "設定項目",
+  "value": "設定值",
+  "details": "詳細內容"
+};
+
 var SHEET_NAMES = {
   Participants: "Participants",
   Prizes: "Prizes",
@@ -84,7 +140,9 @@ function setupActivitySheets() {
 function ensureSheet(ss, name, initialRows) {
   var sheet = ss.getSheetByName(name) || ss.insertSheet(name);
   var lastRow = sheet.getLastRow();
-  if (!lastRow) sheet.getRange(1, 1, initialRows.length, initialRows[0].length).setValues(initialRows);
+  if (!lastRow) sheet.getRange(1, 1, initialRows.length, initialRows[0].length).setValues(initialRows.map(function (row, index) {
+    return index === 0 ? row.map(chineseHeader) : row;
+  }));
   return sheet;
 }
 
@@ -117,6 +175,7 @@ function ensurePrizeImagePaths(ss, sheetName) {
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("Garmin Run 管理")
     .addItem("初始化活動工作表", "setupActivitySheets")
+    .addItem("將既有表單資訊轉為中文", "localizeActivitySheets")
     .addItem("檢查庫存一致性", "verifyInventoryConsistency")
     .addItem("調整獎品庫存", "adjustPrizeStockAdmin")
     .addItem("暫停獎品分配", "pauseAllocationAdmin")
@@ -143,13 +202,13 @@ function requireAnonymousSchema(participantSheet, requestSheet) {
 
 function headersEqual(sheet, expected) {
   if (sheet.getLastColumn() !== expected.length) return false;
-  return sheet.getRange(1, 1, 1, expected.length).getValues()[0].join("\u001f") === expected.join("\u001f");
+  return sheet.getRange(1, 1, 1, expected.length).getValues()[0].map(internalHeader).join("\u001f") === expected.join("\u001f");
 }
 
 function appendSchemaHeaders(sheet, allowedPrefixes, targetHeaders) {
   if (!sheet || sheet.getLastRow() < 1) throw new Error("UNKNOWN_SCHEMA");
   var lastColumn = sheet.getLastColumn();
-  var actual = sheet.getRange(1, 1, 1, Math.max(1, lastColumn)).getValues()[0];
+  var actual = sheet.getRange(1, 1, 1, Math.max(1, lastColumn)).getValues()[0].map(internalHeader);
   var match = allowedPrefixes.some(function (prefix) {
     return actual.length === prefix.length && actual.join("\u001f") === prefix.join("\u001f");
   });
@@ -160,7 +219,7 @@ function appendSchemaHeaders(sheet, allowedPrefixes, targetHeaders) {
   if (sheet.getMaxColumns && sheet.getMaxColumns() < requiredColumns) {
     sheet.insertColumnsAfter(sheet.getMaxColumns(), requiredColumns - sheet.getMaxColumns());
   }
-  sheet.getRange(1, actual.length + 1, 1, missing.length).setValues([missing]);
+  sheet.getRange(1, actual.length + 1, 1, missing.length).setValues([missing.map(chineseHeader)]);
 }
 
 // Append-only, repeatable migration. Never creates sheets or changes prize/inventory rows.
@@ -196,4 +255,79 @@ function migrateProductionAnonymousSchema() {
     migrateAnonymousSubmissionSchema(SpreadsheetApp.getActive(), false);
   }
   finally { lock.releaseLock(); }
+}
+
+function chineseHeader(key) { return CHINESE_HEADERS[key] || key; }
+function internalHeader(label) {
+  var keys = Object.keys(CHINESE_HEADERS);
+  for (var i = 0; i < keys.length; i++) {
+    if (CHINESE_HEADERS[keys[i]] === label) return keys[i];
+  }
+  return label;
+}
+
+// Only known headers and participant display fields are changed. No stock writes.
+function localizeActivitySheets() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var ss = SpreadsheetApp.getActive();
+    Object.keys(SHEET_NAMES).forEach(function (key) {
+      var sheet = ss.getSheetByName(SHEET_NAMES[key]);
+      if (!sheet || !sheet.getLastRow()) return;
+      var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers.map(chineseHeader)]);
+      if (key !== "Participants" && key !== "DemoParticipants") return;
+      var rows = sheet.getDataRange().getValues();
+      for (var r = 1; r < rows.length; r++) {
+        headers.forEach(function (header, c) {
+          var value = chineseParticipantValue(internalHeader(header), rows[r][c]);
+          if (value !== rows[r][c]) sheet.getRange(r + 1, c + 1).setValue(value);
+        });
+      }
+    });
+    return { ok: true };
+  } finally { lock.releaseLock(); }
+}
+
+var CHINESE_PARTICIPANT_VALUES = {
+  "experience": "賽事收藏家",
+  "performance": "配速計算機",
+  "lifestyle": "自在巡航員",
+  "pioneer": "永續先鋒隊",
+  "precision": "精準進站派",
+  "rest": "補給休息派",
+  "existing": "原已自備補水裝備",
+  "joined": "願意加入永續補水",
+  "considering": "考慮中",
+  "allocated": "已分配",
+  "paused": "暫停分配",
+  "unverified": "尚未核銷",
+  "not_applicable": "不適用",
+  "q1_experience": "跑者大拜拜之一，必須搶！",
+  "q1_lifestyle": "有好玩賽事都報！",
+  "q1_performance": "目標賽事之一，11月底是突破個人最佳成績的好時機！",
+  "q2_experience": "蛤? 訓練是什麼?",
+  "q2_lifestyle": "不分賽季，平常都一直在跑啦",
+  "q2_performance": "每天課表吃到飽",
+  "q3_experience": "儀式感要有，裝備排好來張大合照！",
+  "q3_lifestyle": "該帶的塞進衣保袋、晶片綁好，睡飽比較重要啦",
+  "q3_performance": "鞋子、手錶、果膠…必須萬無一失！",
+  "q4_precision": "看準空檔，精準進站！遠離人群！",
+  "q4_rest": "終於可以休息！ 看看有什麼好吃的?",
+  "q4_pioneer": "優雅地拿出自己的軟水杯／軟水壺裝水",
+  "q5_experience": "準備好！我要漂亮進站",
+  "q5_lifestyle": "這2km好漫長~~~~",
+  "q5_performance": "全力以赴了！現在不衝什麼時候衝！"
+};
+
+function chineseParticipantValue(header, value) {
+  var fields = ["runnerType", "hydrationStyle", "hydrationCommitment", "allocationStatus", "redemptionStatus",
+    "q1Answer", "q2Answer", "q3Answer", "q4Answer", "q5Answer"];
+  var flags = ["existingSelfHydration", "sustainabilityRewardEligible", "premiumPrizeEligible", "raffleOptIn"];
+  if (flags.indexOf(header) >= 0) {
+    if (value === true || value === "true") return "是";
+    if (value === false || value === "false") return "否";
+  }
+  return fields.indexOf(header) >= 0 ? (CHINESE_PARTICIPANT_VALUES[value] || value) : value;
 }

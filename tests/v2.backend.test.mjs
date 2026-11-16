@@ -58,7 +58,7 @@ test("Append-only migration preserves existing rows and all stock; repeatable, s
   const oldData = [structuredClone(demo.rows[1]), structuredClone(requests.rows[1])];
   const stock = JSON.stringify([sheets.get("Prizes").rows, sheets.get("DemoPrizes").rows]);
   context.migrateStagingAnonymousSchema(); context.migrateStagingAnonymousSchema();
-  assert.deepEqual(demo.rows[0], [
+  assert.deepEqual(demo.rows[0].map(context.internalHeader), [
     "participantId","requestId","createdAt","runnerType","existingSelfHydration","hydrationCommitment",
     "sustainabilityRewardEligible","premiumPrizeEligible","raffleOptIn","name","email","privacyNoticeVersion",
     "privacyAcknowledgedAt","prizeId","allocationStatus","allocationTime","redemptionCode","redemptionStatus",
@@ -66,7 +66,7 @@ test("Append-only migration preserves existing rows and all stock; repeatable, s
   ]);
   assert.deepEqual(demo.rows[1], oldData[0]);
   assert.deepEqual(requests.rows[1], oldData[1]);
-  assert.deepEqual(requests.rows[0].slice(7), ["submissionVersion", "submissionFingerprint"]);
+  assert.deepEqual(requests.rows[0].slice(7).map(context.internalHeader), ["submissionVersion", "submissionFingerprint"]);
   assert.equal(JSON.stringify([sheets.get("Prizes").rows, sheets.get("DemoPrizes").rows]), stock);
   demo.rows[0][18] = "unknown";
   assert.throws(() => context.migrateStagingAnonymousSchema(), /UNKNOWN_SCHEMA/);
@@ -84,9 +84,9 @@ test("Anonymous submit records complete raw answers, existing priority and exact
   assert.equal(JSON.stringify(sheets.get("DemoPrizes").rows), stockAfter);
   assert.equal(sheets.get("DemoAllocations").rows.length, 2);
   const participant = sheets.get("DemoParticipants").rows[1];
-  assert.equal(participant[8], false);
+  assert.equal(participant[8], "否");
   assert.deepEqual(participant.slice(9, 13), ["", "", "", ""]);
-  assert.deepEqual(participant.slice(18), [2, "pioneer", "q4_pioneer", 1, "q1_experience", "q2_experience", "q3_experience", "q5_experience"]);
+  assert.deepEqual(participant.slice(18), [2, "永續先鋒隊", "優雅地拿出自己的軟水杯／軟水壺裝水", 1, "跑者大拜拜之一，必須搶！", "蛤? 訓練是什麼?", "儀式感要有，裝備排好來張大合照！", "準備好！我要漂亮進站"]);
   assert.equal(sheets.get("DemoRequests").rows[1][7], 1);
   assert.ok(sheets.get("DemoRequests").rows[1][8].includes("q4_pioneer"));
   assert.equal(JSON.stringify(sheets.get("Prizes").rows), productionStock);
@@ -105,7 +105,7 @@ test("Paused allocation is saved and recoverable without claiming a prize", () =
   assert.equal(paused.allocationStatus, "paused");
   assert.equal(paused.prize, null);
   assert.equal(sheets.get("DemoAllocations").rows.length, 1);
-  assert.equal(sheets.get("DemoParticipants").rows[1][14], "paused");
+  assert.equal(sheets.get("DemoParticipants").rows[1][14], "暫停分配");
   const recovered = JSON.parse(context.doGet({ parameter: { action: "getExistingAllocation", requestId: request.requestId, sessionId: request.sessionId, mode: "apps-script-demo" } }).text);
   assert.equal(recovered.found, true);
   assert.equal(recovered.allocation.allocationStatus, "paused");
@@ -158,4 +158,24 @@ test("Bag fallback and joined participants remain in the general weighted pool",
   const joined = post(data("precision", "joined", "joined-request"));
   assert.equal(joined.allocationMethod, "general_weighted");
   assert.notEqual(joined.prize.prizeId, "shopping_bag");
+});
+
+
+test("Chinese localization preserves technical records and stock and accepts legacy headers", () => {
+  const { sheets, context, post } = environment();
+  const participants = sheets.get("DemoParticipants");
+  participants.rows[0] = participants.rows[0].map(context.internalHeader);
+  assert.equal(post(data()).ok, true);
+  participants.rows[1][3] = "performance";
+  participants.rows[1][4] = false;
+  const unchanged = JSON.stringify([...sheets].filter(([name]) => !["Participants", "DemoParticipants"].includes(name)).map(([name, sheet]) => [name, sheet.rows.slice(1)]));
+  context.localizeActivitySheets();
+  context.localizeActivitySheets();
+  assert.equal(participants.rows[0][0], "參與者代碼");
+  assert.equal(participants.rows[0][3], "跑者風格");
+  assert.equal(participants.rows[1][3], "配速計算機");
+  assert.equal(participants.rows[1][4], "否");
+  assert.equal(JSON.stringify([...sheets].filter(([name]) => !["Participants", "DemoParticipants"].includes(name)).map(([name, sheet]) => [name, sheet.rows.slice(1)])), unchanged);
+  assert.equal(post(data()).idempotentReplay, true);
+  assert.equal(post(data("rest", "considering", "after-localization")).ok, true);
 });

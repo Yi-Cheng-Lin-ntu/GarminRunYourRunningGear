@@ -1,3 +1,11 @@
+## 中文表單資訊
+
+新建工作表使用中文表頭；參與者紀錄的跑者風格、補水風格、承諾、資格、分配／兌獎狀態與五題答案以中文儲存。API、提交指紋、結果 JSON、技術識別碼，以及 Requests／Allocations／InventoryLog／Settings 的機器判斷值仍保留原始格式，避免影響重試與庫存處理。工作表名稱維持原名。
+
+既有表格：同步本次 Setup.gs、Allocation.gs、Inventory.gs 後，重新開啟試算表，使用「Garmin Run 管理 → 將既有表單資訊轉為中文」，或在編輯器執行 `localizeActivitySheets()`。先於試算表副本確認；此函式會轉換同一試算表內正式與 Demo 的已知表頭及參與者顯示欄位，可重跑，不變更庫存、設定值、識別碼或技術紀錄。舊版與中文表頭均可通過 schema 檢查；若缺少匿名版本欄位，仍須先執行原有 migration。請勿為了中文化執行初始化。
+
+本次未連線修改遠端試算表或部署 Apps Script。更新 Web App 版本後，新提交才會使用新版寫入方式。若有外部報表直接依英文表頭或參與者英文值取資料，需同步調整。
+
 # Apps Script｜匿名提交、Sheets Migration 與部署手冊
 
 此手冊對應目前 Repository 中的匿名 submissionVersion 1。Repository 的 .gs 修改不會自動更新任何已部署 Web App。本次沒有連線、寫入或修改任何遠端 Spreadsheet，也未部署 Apps Script／GitHub Pages。

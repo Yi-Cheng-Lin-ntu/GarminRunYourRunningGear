@@ -162,7 +162,10 @@ function getParticipantRow(payload, participantId, now, prizeId, status, redempt
     false, "", "", "", "", prizeId, status, now, redemptionCode, redemptionStatus,
     payload.quizVersion, payload.hydrationStyle, payload.q4Answer, payload.submissionVersion,
     payload.answers.q1, payload.answers.q2, payload.answers.q3, payload.answers.q5
-  ];
+  ].map(function (value, index) {
+    var headers = LEGACY_PARTICIPANT_HEADERS.concat(V2_PARTICIPANT_HEADERS, ANONYMOUS_PARTICIPANT_HEADERS);
+    return chineseParticipantValue(headers[index], value);
+  });
 }
 
 function getSubmissionFingerprint(payload) {

@@ -74,13 +74,13 @@ function adjustPrizeStockAdmin() {
   var ui = SpreadsheetApp.getUi();
   var prizeResponse = ui.prompt(
     "調整獎品庫存",
-    "輸入 prizeId（cap、soft_cup、socks、arm_sleeves、shopping_bag）：",
+    "輸入獎品代碼（cap＝牛仔帽、soft_cup＝軟水杯、socks＝襪子、arm_sleeves＝袖套、shopping_bag＝鏤空購物袋）：",
     ui.ButtonSet.OK_CANCEL
   );
   if (prizeResponse.getSelectedButton() !== ui.Button.OK) return;
   var prizeId = String(prizeResponse.getResponseText()).trim();
   if (["cap","soft_cup","socks","arm_sleeves","shopping_bag"].indexOf(prizeId) < 0) {
-    ui.alert("Prize ID 不正確。");
+    ui.alert("獎品代碼不正確。");
     return;
   }
 
@@ -171,15 +171,15 @@ function verifyInventoryConsistency() {
       var remaining = Number(values[i][5]);
       var allocated = Number(values[i][6]);
       if (initial !== remaining + allocated) {
-        problems.push(sheetName + "/" + prizeId + ": initial != remaining + allocated");
+        problems.push(sheetName + "/" + prizeId + "：初始庫存不等於剩餘庫存加已分配數量");
       }
       if (remaining < 0 || allocated < 0) {
-        problems.push(sheetName + "/" + prizeId + ": negative stock or count");
+        problems.push(sheetName + "/" + prizeId + "：庫存或分配數量為負數");
       }
       var counted = allocationCounts[sheetName + "/" + prizeId] || 0;
       if (counted !== allocated) {
-        problems.push(sheetName + "/" + prizeId + ": allocatedCount=" + allocated +
-          " but allocation rows=" + counted);
+        problems.push(sheetName + "/" + prizeId + "：已分配數量＝" + allocated +
+          "，分配紀錄筆數＝" + counted);
       }
     }
   });
@@ -189,7 +189,7 @@ function verifyInventoryConsistency() {
     var rows = sheet.getDataRange().getValues();
     for (var i = 1; i < rows.length; i++) {
       if (String(rows[i][3]) === "processing") {
-        problems.push(sheetName + "/" + String(rows[i][0]) + ": request remains processing; inspect participant, allocation and inventory log before retry or repair");
+        problems.push(sheetName + "/" + String(rows[i][0]) + "：提交仍在處理中；重試或修復前請先檢查參與者、分配及庫存紀錄");
       }
     }
   });
