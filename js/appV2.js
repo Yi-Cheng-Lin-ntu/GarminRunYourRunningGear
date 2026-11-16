@@ -304,7 +304,7 @@ async function submitAnonymousResult() {
   document.querySelectorAll("[data-hydration-choice]").forEach((input) => { input.disabled = true; });
   try {
     const status = await getPublicCampaignStatus();
-    if (Boolean(status.demoMode) !== APPS_SCRIPT_DEMO_MODE) throw new Error("API_ENVIRONMENT_MISMATCH");
+    if (!MOCK_MODE && Boolean(status.demoMode) !== APPS_SCRIPT_DEMO_MODE) throw new Error("API_ENVIRONMENT_MISMATCH");
     if (!status.ok || status.quizVersion !== 2 || status.submissionVersion !== 1) throw new Error(status.code || "UNSUPPORTED_QUIZ_VERSION");
     const response = await sendAnonymousResult(payload);
     if (!response.ok) throw new Error(response.code || "SUBMISSION_FAILED");

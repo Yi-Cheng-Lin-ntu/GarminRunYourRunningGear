@@ -69,6 +69,12 @@ var SHEET_NAMES = {
   AdminAudit: "AdminAudit"
 };
 
+var PRODUCTION_PARTICIPANT_HEADERS = [
+  "participantId", "createdAt", "runnerType", "existingSelfHydration",
+  "sustainabilityRewardEligible", "premiumPrizeEligible", "hydrationStyle",
+  "q1Answer", "q2Answer", "q3Answer", "q4Answer", "q5Answer", "nameZh"
+];
+
 var PRIZE_ROWS = [
   ["cap", "Garmin 牛仔帽", "Garmin Cap", "general", 150, 150, 0, true, "./assets/prizes/Garmin漁夫帽.png"],
   ["soft_cup", "Garmin 軟水杯", "Garmin Soft Cup", "general", 260, 260, 0, true, "./assets/prizes/Garmin軟水杯.png"],
@@ -79,13 +85,7 @@ var PRIZE_ROWS = [
 
 function setupActivitySheets() {
   var ss = SpreadsheetApp.getActive();
-  ensureSheet(ss, SHEET_NAMES.Participants, [
-    ["participantId","requestId","createdAt","runnerType","existingSelfHydration","hydrationCommitment",
-     "sustainabilityRewardEligible","premiumPrizeEligible","raffleOptIn","name","email",
-     "privacyNoticeVersion","privacyAcknowledgedAt","prizeId","allocationStatus","allocationTime",
-     "redemptionCode","redemptionStatus","quizVersion","hydrationStyle","q4Answer","submissionVersion",
-     "q1Answer","q2Answer","q3Answer","q5Answer"]
-  ]);
+  ensureSheet(ss, SHEET_NAMES.Participants, [PRODUCTION_PARTICIPANT_HEADERS]);
   ensureSheet(ss, SHEET_NAMES.Prizes, [
     ["prizeId","nameZh","nameEn","category","initialStock","remainingStock","allocatedCount","enabled","imagePath"]
   ]);
@@ -141,7 +141,7 @@ function ensureSheet(ss, name, initialRows) {
   var sheet = ss.getSheetByName(name) || ss.insertSheet(name);
   var lastRow = sheet.getLastRow();
   if (!lastRow) sheet.getRange(1, 1, initialRows.length, initialRows[0].length).setValues(initialRows.map(function (row, index) {
-    return index === 0 ? row.map(chineseHeader) : row;
+    return index === 0 ? row.map(name === SHEET_NAMES.Participants ? productionParticipantHeader : chineseHeader) : row;
   }));
   return sheet;
 }
@@ -176,6 +176,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu("Garmin Run 管理")
     .addItem("初始化活動工作表", "setupActivitySheets")
     .addItem("將既有表單資訊轉為中文", "localizeActivitySheets")
+    .addItem("精簡正式參與者欄位", "migrateProductionParticipantSummary")
     .addItem("檢查庫存一致性", "verifyInventoryConsistency")
     .addItem("調整獎品庫存", "adjustPrizeStockAdmin")
     .addItem("暫停獎品分配", "pauseAllocationAdmin")
@@ -191,11 +192,13 @@ var ANONYMOUS_PARTICIPANT_HEADERS = ["submissionVersion","q1Answer","q2Answer","
 var LEGACY_REQUEST_HEADERS = ["requestId","sessionId","participantId","status","resultJson","createdAt","updatedAt"];
 var ANONYMOUS_REQUEST_HEADERS = ["submissionVersion","submissionFingerprint"];
 
-function requireAnonymousSchema(participantSheet, requestSheet) {
+function requireAnonymousSchema(participantSheet, requestSheet, demoMode) {
   var expectedParticipants = LEGACY_PARTICIPANT_HEADERS.concat(V2_PARTICIPANT_HEADERS, ANONYMOUS_PARTICIPANT_HEADERS);
   var expectedRequests = LEGACY_REQUEST_HEADERS.concat(ANONYMOUS_REQUEST_HEADERS);
   if (!participantSheet || !requestSheet ||
-      !headersEqual(participantSheet, expectedParticipants) || !headersEqual(requestSheet, expectedRequests)) {
+      !(headersEqual(participantSheet, expectedParticipants) ||
+        (demoMode === false && headersEqual(participantSheet, PRODUCTION_PARTICIPANT_HEADERS))) ||
+      !headersEqual(requestSheet, expectedRequests)) {
     throw new Error("ANONYMOUS_SCHEMA_MIGRATION_REQUIRED");
   }
 }
@@ -231,12 +234,14 @@ function migrateAnonymousSubmissionSchema(ss, demoMode) {
   if (!participantSheet || !requestSheet) throw new Error("SHEET_SETUP_REQUIRED");
   var v2Headers = LEGACY_PARTICIPANT_HEADERS.concat(V2_PARTICIPANT_HEADERS);
   var fullParticipantHeaders = v2Headers.concat(ANONYMOUS_PARTICIPANT_HEADERS);
-  appendSchemaHeaders(participantSheet,
-    [LEGACY_PARTICIPANT_HEADERS, v2Headers, fullParticipantHeaders], fullParticipantHeaders);
+  if (demoMode || !headersEqual(participantSheet, PRODUCTION_PARTICIPANT_HEADERS)) {
+    appendSchemaHeaders(participantSheet,
+      [LEGACY_PARTICIPANT_HEADERS, v2Headers, fullParticipantHeaders], fullParticipantHeaders);
+  }
   appendSchemaHeaders(requestSheet,
     [LEGACY_REQUEST_HEADERS, LEGACY_REQUEST_HEADERS.concat(ANONYMOUS_REQUEST_HEADERS)],
     LEGACY_REQUEST_HEADERS.concat(ANONYMOUS_REQUEST_HEADERS));
-  return { ok: true, demoMode: demoMode === true, participantColumns: fullParticipantHeaders.length, requestColumns: LEGACY_REQUEST_HEADERS.length + ANONYMOUS_REQUEST_HEADERS.length };
+  return { ok: true, demoMode: demoMode === true, participantColumns: participantSheet.getLastColumn(), requestColumns: LEGACY_REQUEST_HEADERS.length + ANONYMOUS_REQUEST_HEADERS.length };
 }
 
 function migrateStagingAnonymousSchema() {
@@ -258,7 +263,14 @@ function migrateProductionAnonymousSchema() {
 }
 
 function chineseHeader(key) { return CHINESE_HEADERS[key] || key; }
+function productionParticipantHeader(key) {
+  if (key === "participantId") return "參與者代號";
+  if (key === "existingSelfHydration") return "自備補水裝備";
+  return chineseHeader(key);
+}
 function internalHeader(label) {
+  if (label === "參與者代號") return "participantId";
+  if (label === "自備補水裝備") return "existingSelfHydration";
   var keys = Object.keys(CHINESE_HEADERS);
   for (var i = 0; i < keys.length; i++) {
     if (CHINESE_HEADERS[keys[i]] === label) return keys[i];
@@ -276,7 +288,10 @@ function localizeActivitySheets() {
       var sheet = ss.getSheetByName(SHEET_NAMES[key]);
       if (!sheet || !sheet.getLastRow()) return;
       var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-      sheet.getRange(1, 1, 1, headers.length).setValues([headers.map(chineseHeader)]);
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers.map(function (header) {
+        var field = internalHeader(header);
+        return key === "Participants" ? productionParticipantHeader(field) : chineseHeader(field);
+      })]);
       if (key !== "Participants" && key !== "DemoParticipants") return;
       var rows = sheet.getDataRange().getValues();
       for (var r = 1; r < rows.length; r++) {
@@ -330,4 +345,49 @@ function chineseParticipantValue(header, value) {
     if (value === false || value === "false") return "否";
   }
   return fields.indexOf(header) >= 0 ? (CHINESE_PARTICIPANT_VALUES[value] || value) : value;
+}
+
+// Manual migration: permanently removes excluded columns from Participants only.
+// Back up the spreadsheet externally before running. Never changes prize stock.
+function migrateProductionParticipantSummary() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(SHEET_NAMES.Participants);
+    if (!sheet || !sheet.getLastRow()) throw new Error("SHEET_SETUP_REQUIRED");
+    var legacy = LEGACY_PARTICIPANT_HEADERS;
+    var v2 = legacy.concat(V2_PARTICIPANT_HEADERS);
+    var full = v2.concat(ANONYMOUS_PARTICIPANT_HEADERS);
+    var allowed = [legacy, v2, full, PRODUCTION_PARTICIPANT_HEADERS];
+    if (!allowed.some(function (headers) { return headersEqual(sheet, headers); })) {
+      throw new Error("UNKNOWN_SCHEMA");
+    }
+    var rows = sheet.getDataRange().getValues();
+    var fields = rows[0].map(internalHeader);
+    var prizeNames = {};
+    var prizes = ss.getSheetByName(SHEET_NAMES.Prizes);
+    if (!prizes) throw new Error("SHEET_SETUP_REQUIRED");
+    prizes.getDataRange().getValues().slice(1).forEach(function (row) {
+      prizeNames[String(row[0])] = row[1];
+    });
+    // Build and validate the entire output before modifying any cells.
+    var output = [PRODUCTION_PARTICIPANT_HEADERS.map(productionParticipantHeader)];
+    rows.slice(1).forEach(function (row) {
+      output.push(PRODUCTION_PARTICIPANT_HEADERS.map(function (field) {
+        var index = fields.indexOf(field);
+        var value = index >= 0 ? row[index] : "";
+        if (field === "nameZh" && index < 0) {
+          var prizeId = row[fields.indexOf("prizeId")];
+          if (prizeId && !prizeNames[String(prizeId)]) throw new Error("PRIZE_NOT_FOUND");
+          value = prizeId ? prizeNames[String(prizeId)] : "";
+        }
+        return chineseParticipantValue(field, value);
+      }));
+    });
+    sheet.getRange(1, 1, output.length, PRODUCTION_PARTICIPANT_HEADERS.length).setValues(output);
+    var extraColumns = sheet.getLastColumn() - PRODUCTION_PARTICIPANT_HEADERS.length;
+    if (extraColumns > 0) sheet.deleteColumns(PRODUCTION_PARTICIPANT_HEADERS.length + 1, extraColumns);
+    return { ok: true, participantColumns: PRODUCTION_PARTICIPANT_HEADERS.length, participantRows: output.length - 1 };
+  } finally { lock.releaseLock(); }
 }

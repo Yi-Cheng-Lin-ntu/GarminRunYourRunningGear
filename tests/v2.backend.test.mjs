@@ -16,6 +16,7 @@ class Sheet {
     };
   }
   appendRow(row) { this.rows.push([...row]); }
+  deleteColumns(start, count) { this.rows.forEach((row) => row.splice(start - 1, count)); }
 }
 function environment() {
   const sheets = new Map();
@@ -178,4 +179,86 @@ test("Chinese localization preserves technical records and stock and accepts leg
   assert.equal(JSON.stringify([...sheets].filter(([name]) => !["Participants", "DemoParticipants"].includes(name)).map(([name, sheet]) => [name, sheet.rows.slice(1)])), unchanged);
   assert.equal(post(data()).idempotentReplay, true);
   assert.equal(post(data("rest", "considering", "after-localization")).ok, true);
+});
+
+
+test("Production summary stores 13 ordered Chinese columns, prize names, replay and recovery", () => {
+  const { sheets, context, post } = environment();
+  const demoBefore = JSON.stringify([...sheets].filter(([name]) => name.startsWith("Demo")).map(([name, sheet]) => [name, sheet.rows]));
+  const request = data("pioneer", "existing", "summary-production");
+  const result = post(request, "production");
+  assert.equal(result.ok, true);
+  const rows = sheets.get("Participants").rows;
+  assert.deepEqual(rows[0], ["參與者代號", "建立時間", "跑者風格", "自備補水裝備", "永續獎勵資格", "優先獎品資格", "補水風格", "第1題答案", "第2題答案", "第3題答案", "第4題答案", "第5題答案", "獎品中文名稱"]);
+  assert.equal(rows[1].length, 13);
+  assert.equal(rows[1][0], result.participantId);
+  assert.deepEqual(rows[1].slice(2, 7), ["賽事收藏家", "是", "是", "是", "永續先鋒隊"]);
+  for (let q = 1; q <= 5; q++) assert.equal(rows[1][q + 6], context.CHINESE_PARTICIPANT_VALUES[request.answers[`q${q}`]]);
+  assert.equal(rows[1][12], result.prize.nameZh);
+  const stock = JSON.stringify(sheets.get("Prizes").rows);
+  assert.equal(post(request, "production").idempotentReplay, true);
+  assert.equal(JSON.stringify(sheets.get("Prizes").rows), stock);
+  assert.equal(rows.length, 2);
+  const recovery = JSON.parse(context.doGet({ parameter: { action: "getExistingAllocation", requestId: request.requestId, sessionId: request.sessionId } }).text);
+  assert.equal(recovery.allocation.prize.nameZh, rows[1][12]);
+  assert.equal(JSON.stringify([...sheets].filter(([name]) => name.startsWith("Demo")).map(([name, sheet]) => [name, sheet.rows])), demoBefore);
+  context.migrateProductionAnonymousSchema();
+  assert.equal(rows[0].length, 13);
+});
+
+test("Production summary migration drops excluded data, preserves answers and other sheets, repeatable", () => {
+  const { sheets, context, post } = environment();
+  const sheet = sheets.get("Participants");
+  sheet.rows = [Array.from(context.LEGACY_PARTICIPANT_HEADERS).concat(Array.from(context.V2_PARTICIPANT_HEADERS), Array.from(context.ANONYMOUS_PARTICIPANT_HEADERS))];
+  const request = data("pioneer", "existing", "legacy-production");
+  assert.equal(post(request, "production").ok, true);
+  sheet.rows[1][9] = "synthetic-name";
+  sheet.rows[1][10] = "synthetic@example.invalid";
+  const expectedAnswers = [22, 23, 24, 20, 25].map((i) => sheet.rows[1][i]);
+  const otherSheets = () => JSON.stringify([...sheets].filter(([name]) => name !== "Participants").map(([name, sheet]) => [name, sheet.rows]));
+  const before = otherSheets();
+  context.migrateProductionParticipantSummary();
+  assert.equal(sheet.getLastColumn(), 13);
+  assert.deepEqual(sheet.rows[1].slice(7, 12), expectedAnswers);
+  assert.equal(sheet.rows[1][12], "Garmin 鏤空購物袋");
+  assert.equal(JSON.stringify(sheet.rows).includes("synthetic"), false);
+  const migrated = JSON.stringify(sheet.rows);
+  context.migrateProductionParticipantSummary();
+  assert.equal(JSON.stringify(sheet.rows), migrated);
+  assert.equal(otherSheets(), before);
+  assert.equal(post(request, "production").idempotentReplay, true);
+  assert.equal(post(data("rest", "considering", "new-production"), "production").ok, true);
+  assert.equal(sheet.rows[2].length, 13);
+});
+
+test("Production paused summary has no prize name or inventory changes", () => {
+  const { sheets, post } = environment();
+  sheets.get("Settings").rows.find((row) => row[0] === "allocationEnabled")[1] = "false";
+  const before = JSON.stringify(sheets.get("Prizes").rows);
+  const request = data("rest", "considering", "summary-paused");
+  assert.equal(post(request, "production").allocationStatus, "paused");
+  const row = sheets.get("Participants").rows[1];
+  assert.equal(row.length, 13);
+  assert.equal(row[12], "");
+  assert.deepEqual(row.slice(3, 6), ["否", "否", "否"]);
+  assert.equal(post(request, "production").idempotentReplay, true);
+  assert.equal(JSON.stringify(sheets.get("Prizes").rows), before);
+});
+
+test("Production summary migration rejects unknown schemas and unresolved prizes before writes", () => {
+  const { sheets, context } = environment();
+  const sheet = sheets.get("Participants");
+  sheet.rows = [["unknown"], ["unchanged"]];
+  const before = JSON.stringify(sheet.rows);
+  assert.throws(() => context.migrateProductionParticipantSummary(), /UNKNOWN_SCHEMA/);
+  assert.equal(JSON.stringify(sheet.rows), before);
+  sheet.rows = [Array.from(context.LEGACY_PARTICIPANT_HEADERS), Array(18).fill("")];
+  sheet.rows[1][13] = "unknown-prize";
+  const unresolved = JSON.stringify(sheet.rows);
+  assert.throws(() => context.migrateProductionParticipantSummary(), /PRIZE_NOT_FOUND/);
+  assert.equal(JSON.stringify(sheet.rows), unresolved);
+  sheet.rows[1][13] = "";
+  context.migrateProductionParticipantSummary();
+  assert.equal(sheet.rows[1][12], "");
+  assert.deepEqual(sheet.rows[1].slice(7, 12), ["", "", "", "", ""]);
 });

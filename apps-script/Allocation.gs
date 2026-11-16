@@ -45,7 +45,7 @@ function submitAnonymousResult(payload) {
   var allocationSheet = ss.getSheetByName(names.allocations);
   var inventorySheet = ss.getSheetByName(names.inventoryLog);
   if (!requestSheet || !prizeSheet || !participantSheet || !allocationSheet || !inventorySheet) throw new Error("SHEET_SETUP_REQUIRED");
-  requireAnonymousSchema(participantSheet, requestSheet);
+  requireAnonymousSchema(participantSheet, requestSheet, payload.demoMode);
 
   var fingerprint = getSubmissionFingerprint(payload);
   var existing = findRequest(payload.requestId, payload.demoMode);
@@ -109,7 +109,7 @@ function submitAnonymousResult(payload) {
   ]);
   prizeSheet.getRange(prize.row, 6).setValue(remaining - 1);
   prizeSheet.getRange(prize.row, 7).setValue(allocated + 1);
-  participantSheet.appendRow(getParticipantRow(payload, participantId, now, prizeId, "allocated", redemptionCode, "unverified"));
+  participantSheet.appendRow(getParticipantRow(payload, participantId, now, prizeId, "allocated", redemptionCode, "unverified", prize.values[1]));
   allocationSheet.appendRow([
     allocationId, participantId, payload.requestId, prizeId, now, allocationMethod, "allocated"
   ]);
@@ -155,7 +155,16 @@ function allocationPausedResult(payload, names, requestSheet, now, code) {
   return result;
 }
 
-function getParticipantRow(payload, participantId, now, prizeId, status, redemptionCode, redemptionStatus) {
+function getParticipantRow(payload, participantId, now, prizeId, status, redemptionCode, redemptionStatus, prizeNameZh) {
+  var sheet = SpreadsheetApp.getActive().getSheetByName(getModeSheetNames(payload.demoMode).participants);
+  if (!payload.demoMode && headersEqual(sheet, PRODUCTION_PARTICIPANT_HEADERS)) {
+    return [participantId, now, payload.runnerType, payload.existingSelfHydration,
+      payload.sustainabilityRewardEligible, payload.premiumPrizeEligible, payload.hydrationStyle,
+      payload.answers.q1, payload.answers.q2, payload.answers.q3, payload.q4Answer, payload.answers.q5,
+      prizeNameZh || ""].map(function (value, index) {
+        return chineseParticipantValue(PRODUCTION_PARTICIPANT_HEADERS[index], value);
+      });
+  }
   return [
     participantId, payload.requestId, now, payload.runnerType, payload.existingSelfHydration,
     payload.hydrationCommitment, payload.sustainabilityRewardEligible, payload.premiumPrizeEligible,
