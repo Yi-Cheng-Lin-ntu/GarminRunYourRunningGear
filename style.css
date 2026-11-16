@@ -226,6 +226,16 @@ label {
   text-align: center;
 }
 
+.site-footer-tagline {
+  display: inline-flex;
+  align-items: center;
+  gap: .28em;
+}
+
+.footer-change {
+  color: var(--brand-green);
+}
+
 .brand {
   white-space: nowrap;
   font-size: var(--font-small);
@@ -811,27 +821,18 @@ label {
   color: var(--brand-green);
 }
 
-.share-render-header-rule,
-.share-render-footer-rule {
-  position: absolute;
-  left: var(--share-render-inline-inset);
-  z-index: 2;
-  width: calc(100% - var(--share-render-inline-inset) * 2);
-  border-top: 1px solid rgba(247,250,248,.5);
-}
-
-.share-render-header-rule {
-  top: 60px;
-}
-
-.share-render-footer-rule {
-  top: 1832px;
+.share-render-header [data-i18n="v2.shareCardHeaderSuffix"] {
+  margin-left: auto;
+  color: var(--brand-green);
 }
 
 .share-render-footer {
   bottom: 32px;
   right: var(--share-render-inline-inset);
   left: auto;
+  display: flex;
+  align-items: center;
+  gap: .28em;
   text-align: right;
 }
 
