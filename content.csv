@@ -108,6 +108,7 @@ ui,v2.startLoadError,,無法載入測驗內容，請重新整理。,Unable to lo
 ui,v2.redemptionRunnerPrefix,,跑者類型｜,Runner type | ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.prizeDetailsUnavailable,,獎品資料尚未確認,Prize details unavailable,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.redemptionTitle,,恭喜你抽中！,You won!,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ui,v2.sustainabilityRedemptionTitle,,先鋒隊專屬,Pioneer Exclusive,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.sustainabilityMessage,,謝謝你一起響應自帶補水行動｜另可領取永續行動貼紙與飄帶,Thank you for supporting reusable hydration | You may also receive a sustainability sticker and ribbon,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.redemptionInstruction,,請至攤位找工作人員領取 Garmin 周邊,Please visit the booth to collect Garmin merchandise from a staff member,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ui,v2.shareDownload,,儲存我的跑者結果,Save my runner result,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

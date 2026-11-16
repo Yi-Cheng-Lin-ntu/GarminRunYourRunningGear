@@ -53,9 +53,10 @@ export function renderRedemptionView(allocation, { state, elements, resultData, 
     elements.redemptionTitle.hidden = true;
   } else {
     elements.redemptionTitle.hidden = false;
-    elements.redemptionTitle.textContent = copy
-      ? copyOr("v2.redemptionTitle", state.language === "zh" ? "恭喜獲得" : "Congratulations, you got")
-      : (state.language === "zh" ? "請至攤位領取Garmin周邊" : "Please collect your Garmin merchandise at the booth");
+    const titleKey = greenVersion ? "v2.sustainabilityRedemptionTitle" : "v2.redemptionTitle";
+    elements.redemptionTitle.textContent = copyOr(titleKey,
+      state.language === "zh" ? (greenVersion ? "先鋒隊專屬" : "恭喜你抽中！")
+        : (greenVersion ? "Pioneer Exclusive" : "You won!"));
   }
 
   if (greenVersion) {
